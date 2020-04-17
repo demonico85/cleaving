@@ -50,13 +50,14 @@ class PairCoulDSF : public Pair {
   int *gbox;
   int ind_dir,index,natoms;
   double **lam;
+  double xprd,yprd,zprd,xy,yz,xz;
   double cut_coul,cut_coulsq;
-  double alpha,lambda,boxlo,boxhi;
+  double alpha,lambda;
   double f_shift,e_shift;
 
   char *idflag;
 
-  int find_scaling(int,int,int ,int,double);
+  int find_scaling(int,int,int ,int,double *);
 
   void global_boundary();
 

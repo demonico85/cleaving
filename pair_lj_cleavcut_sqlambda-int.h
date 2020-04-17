@@ -45,9 +45,10 @@ class PairLJCleavCutSqLInt : public Pair {
  protected:
   int natoms,pallocation,index,ind_dir;
   int *gbox;
-  double boxlo,boxhi,rspace;
+  double rspace;
   double u0,u1,u2;
   double cut_global,lambda,cleavwall;
+  double xprd,yprd,zprd,xy,yz,xz;
   double **cut;
   double **epsilon,**sigma, **lam;
   double **lj1,**lj2,**lj3,**lj4,**offset,**radm;
@@ -58,7 +59,7 @@ class PairLJCleavCutSqLInt : public Pair {
   virtual void allocate();
   void global_boundary();
   void calculate_int_coefficients();
-  int find_scaling(int,int,int ,int,double);
+  int find_scaling(int,int,int ,int,double *);
 
 };
 

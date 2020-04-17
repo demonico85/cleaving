@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "pair_lj_cleavcut_sqlambda-int.h"
-#include "compute_comMOD.h"
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
@@ -58,7 +57,12 @@ PairLJCleavCutSqLInt::PairLJCleavCutSqLInt(LAMMPS *lmp) : Pair(lmp) , idflag(NUL
     pallocation = 1;
     }
 
-
+   xprd = domain->xprd;
+   yprd = domain->yprd;
+   zprd = domain->zprd;
+   xy = domain->xy;
+   yz = domain->yz;
+   xz = domain->xz;
  
 }
 
@@ -163,7 +167,7 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
 
           scaling=0;
            if(k1 != k2)
-               scaling = find_scaling(ivector[i],ivector[j],i,j,x[j][ind_dir]);
+               scaling = find_scaling(ivector[i],ivector[j],i,j,x[j]);
 
           flam = 1.0;
 
@@ -206,7 +210,7 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
 
         scaling=0;
          if(k1 != k2)
-             scaling = find_scaling(ivector[i],ivector[j],i,j,x[j][ind_dir]);
+             scaling = find_scaling(ivector[i],ivector[j],i,j,x[j]);
 
         flam = 1.0;
 
@@ -248,8 +252,8 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
 }
 
 /* ----------------------------------------------------------------------
- *   Global Boundary
- * ------------------------------------------------------------------------- */
+ *  *   Global Boundary
+ *   * ------------------------------------------------------------------------- */
 
 void PairLJCleavCutSqLInt::global_boundary(){
 
@@ -257,40 +261,70 @@ int i,k;
 int ibox[3];
 int nlocal = atom->nlocal;
 int loc_box[natoms];
+double xx[3];
+double **x = atom->x;
+
 imageint *image = atom->image;
+imageint locim;
 tagint *tag = atom->tag;
 
      for(i=0; i<natoms; i++){
-	loc_box[i]=0;
-}
+        loc_box[i]=0;
+    }
+
 
      for(i=0; i<nlocal; i++){
-        k=tag[i];	
+        k=tag[i];
+
         ibox[0] = (image[i] & IMGMASK) - IMGMAX;
         ibox[1] = (image[i] >> IMGBITS & IMGMASK) - IMGMAX;
         ibox[2] = (image[i] >> IMG2BITS) - IMGMAX;
 
-	loc_box[k]=ibox[ind_dir];
 
-	}
+      if (domain->triclinic == 0) {
+        xx[0] = x[i][0] + xprd*ibox[0];
+        xx[1] = x[i][1] + yprd*ibox[1];
+        xx[2] = x[i][2] + zprd*ibox[2];
+      } else {
+        xx[0] = x[i][0] + xprd*ibox[0] + ibox[1]*xy + ibox[2]*xz;
+        xx[1] = x[i][1] + yprd*ibox[1] + ibox[2]*yz;
+        xx[2] = x[i][2] + zprd*ibox[2];
+      }
+
+
+       locim = ((imageint) IMGMAX << IMG2BITS) |
+           ((imageint) IMGMAX << IMGBITS) | IMGMAX;
+
+
+        domain->remap(xx,locim);
+
+        ibox[0] = ( locim & IMGMASK) - IMGMAX;
+        ibox[1] = ( locim >> IMGBITS & IMGMASK) - IMGMAX;
+        ibox[2] = ( locim >> IMG2BITS) - IMGMAX;
+
+        loc_box[k]=ibox[ind_dir];
+
+
+        }
 
 
  MPI_Allreduce(&loc_box[0],&gbox[0],natoms,MPI_INT,MPI_SUM,world);
 
-}
 
+}
 
 /* ----------------------------------------------------------------------
   find scaling
 ------------------------------------------------------------------------- */
 
-int PairLJCleavCutSqLInt::find_scaling(int imvec, int jmvec, int i, int j,double xj){
+int PairLJCleavCutSqLInt::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
 
 
 tagint *tag = atom->tag;
 
 int nlocal = atom->nlocal;
 int k1,k2,ipbc,jpbc,ghost;
+double lamda[3],xx[3];
 
 ghost=1;
 k1=tag[i];
@@ -318,7 +352,12 @@ else if (ipbc == 0 && jpbc != 0){
 else if (ipbc == 0 && jpbc == 0){
      if(imvec != jmvec){
        if(ghost){
-           if( xj < boxlo || xj > boxhi)
+// Passing by reference the value is modified we don't want it
+    	   xx[0] = xj[0];
+    	   xx[1] = xj[1];
+    	   xx[2] = xj[2];
+           domain->x2lamda(xx,lamda);
+           if( lamda[ind_dir] < 0 || lamda[ind_dir] > 1.0 )
               return 1;
            else
               return 0;
@@ -420,9 +459,6 @@ void PairLJCleavCutSqLInt::settings(int narg, char **arg)
     }
     
     rspace = force->numeric(FLERR,arg[4]);
-
-        boxlo=domain->boxlo[ind_dir];
-        boxhi=domain->boxhi[ind_dir];
 
     calculate_int_coefficients();
   // reset cutoffs that have been explicitly set
