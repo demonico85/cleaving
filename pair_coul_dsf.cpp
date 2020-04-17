@@ -211,7 +211,7 @@ void PairCoulDSF::compute(int eflag, int vflag)
  *  *   Global Boundary
  *   * ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::global_boundary(){
+void PairCoulDSF::global_boundary(){
 
 int i,k;
 int ibox[3];
@@ -273,7 +273,7 @@ tagint *tag = atom->tag;
   find scaling
 ------------------------------------------------------------------------- */
 
-int PairLJCleavCutSqLInt::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
+int PairCoulDSF::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
 
 
 tagint *tag = atom->tag;
