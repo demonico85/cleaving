@@ -406,8 +406,8 @@ void PairLJCleavCutNLInt::allocate()
   memory->create(cutsq,n+1,n+1,"pair:cutsq");
   memory->create(gbox,natoms,"pair:gbox");
   memory->create(lam,n+1,n+1,"pair:lambda");
-  memory->create(powlambda,n+1,n+1,"pair:lambda");
-  memory->create(powDlambda,n+1,n+1,"pair:lambda");
+  memory->create(powlambda,n+1,n+1,"pair:powlambda");
+  memory->create(powDlambda,n+1,n+1,"pair:powDlambda");
   memory->create(cut,n+1,n+1,"pair:cut");
   memory->create(epsilon,n+1,n+1,"pair:epsilon");
   memory->create(sigma,n+1,n+1,"pair:sigma");
@@ -735,7 +735,7 @@ void PairLJCleavCutNLInt::write_restart_settings(FILE *fp)
   fwrite(&mix_flag,sizeof(int),1,fp);
   fwrite(&tail_flag,sizeof(int),1,fp);
   fwrite(&ind_dir,sizeof(int),1,fp);
-  fwrite(&npow,sizeof(int),1,fp);
+  fwrite(&npow,sizeof(double),1,fp);
 }
 
 /* ----------------------------------------------------------------------
@@ -752,7 +752,7 @@ void PairLJCleavCutNLInt::read_restart_settings(FILE *fp)
     fread(&mix_flag,sizeof(int),1,fp);
     fread(&tail_flag,sizeof(int),1,fp);
     fread(&ind_dir,sizeof(int),1,fp); 
-    fread(&npow,sizeof(int),1,fp);   
+    fread(&npow,sizeof(double),1,fp);   
   }
   MPI_Bcast(&cut_global,1,MPI_DOUBLE,0,world);
   MPI_Bcast(&rspace,1,MPI_DOUBLE,0,world);
@@ -760,7 +760,7 @@ void PairLJCleavCutNLInt::read_restart_settings(FILE *fp)
   MPI_Bcast(&mix_flag,1,MPI_INT,0,world);
   MPI_Bcast(&tail_flag,1,MPI_INT,0,world);
   MPI_Bcast(&ind_dir,1,MPI_INT,0,world);
-  MPI_Bcast(&npow,1,MPI_INT,0,world);
+  MPI_Bcast(&npow,1,MPI_DOUBLE,0,world);
 }
 
 /* ----------------------------------------------------------------------
