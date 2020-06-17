@@ -11,52 +11,49 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#ifdef PAIR_CLASS
+#ifdef FIX_CLASS
 
-PairStyle(lj/cleavcutsqlmod,PairLJCleavCutSqLMod)
+FixStyle(wallforce,FixForceLJWall)
 
 #else
 
-#ifndef LMP_PAIR_LJ_CLVCUTSQL_MODLJ_H
-#define LMP_PAIR_LJ_CLVCUTSQL_MODLJ_H
+#ifndef LMP_FIX_CLEAV_WALL
+#define LMP_FIX_CLEAV_WALL
 
-#include "pair.h"
+#include "fix.h"
 
 namespace LAMMPS_NS {
 
-class PairLJCleavCutSqLMod : public Pair {
+class FixForceLJWall : public Fix {
  public:
-  PairLJCleavCutSqLMod(class LAMMPS *);
-  virtual ~PairLJCleavCutSqLMod();
-  virtual void compute(int, int);
-  void settings(int, char **);
-  void coeff(int, char **);
-  void init_style();
-  double init_one(int, int);
-  void write_restart(FILE *);
-  void read_restart(FILE *);
-  void write_restart_settings(FILE *);
-  void read_restart_settings(FILE *);
-  void write_data(FILE *);
-  void write_data_all(FILE *);
-  double single(int, int, int, int, double, double, double, double &);
-  void *extract(const char *, int &);
+  FixForceLJWall(class LAMMPS *, int, char **);
+  ~FixForceLJWall();
+
+  int setmask();
+  void init();
+  void post_force(int );
+  void setup(int);
+  double compute_scalar ();
+  double compute_vector(int);
+  double memory_usage();
 
  protected:
-  class Compute  *ccommol;
-  int natoms,pallocation,index,ind_dir;
-  int *gbox;
-  double xprd,yprd,zprd,xy,yz,xz;
-  double cut_global,lambda,alphaLJ;
-  double **cut;
-  double **epsilon,**sigma, **lam;
-  double **lj1,**lj2,**lj3,**lj4,**offset;
-  char *idflag;
 
+  int natomsinwalls[2], ntypes, eflag;
+  double sigma, epsilon, delta,rw,iareaxy,cleavpos[2];
+  double cut_global, zw, a0,zwsq,invdelta,rwsq,cleav_wall;
+  double i2delta, i4delta, pconst;
+  double **lposwall, **hposwall;
+  double *ewall,*ewall_all;
+  double xhalf, yhalf, zhalf,xedge,yedge,zedge;
+  double lj1,lj2,lj3,lj4; 
+  double cleavwork, localwork;
+  char *namefile;
 
-  virtual void allocate();
-  void global_boundary();
-  int find_scaling(int,int,int ,int,double *);
+  FILE *fpw;
+  int WallP(double, double);
+  void ReadFWalls();
+  void allocate();
 
 };
 

@@ -37,7 +37,6 @@
 using namespace LAMMPS_NS;
 using namespace MathConst;
 
-#define alphaLJ 0.5
 
 /* ---------------------------------------------------------------------- */
 
@@ -393,7 +392,7 @@ void PairLJCleavCutSqLMod::allocate()
 
 void PairLJCleavCutSqLMod::settings(int narg, char **arg)
 {
-  if (narg != 4) error->all(FLERR,"Illegal pair_style command");
+  if (narg != 5) error->all(FLERR,"Illegal pair_style command");
 
   cut_global = force->numeric(FLERR,arg[0]);
   lambda = force->numeric(FLERR,arg[1]);
@@ -427,7 +426,7 @@ void PairLJCleavCutSqLMod::settings(int narg, char **arg)
         ind_dir=2;
     }
 
-
+  alphaLJ = force->numeric(FLERR,arg[4]);
 
 
 
