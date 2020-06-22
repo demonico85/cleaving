@@ -45,7 +45,7 @@ class FixForceLJWall : public Fix {
   double i2delta, i4delta, pconst;
   double **lposwall, **hposwall;
   double *ewall,*ewall_all;
-  double xhalf, yhalf, zhalf,xedge,yedge,zedge;
+  double xprd,yprd,zprd;
   double lj1,lj2,lj3,lj4; 
   double cleavwork, localwork;
   char *namefile;

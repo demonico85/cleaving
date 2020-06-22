@@ -166,15 +166,12 @@ prec = 1.e-10;
 cleavwork = 0.0;
 localwork = 0.0;
 
-xedge = domain->boxhi[0] - domain->boxlo[0];
-yedge = domain->boxhi[1] - domain->boxlo[1];
-zedge = domain->boxhi[2] - domain->boxlo[2];
 
-xhalf = xedge*0.5;
-yhalf = yedge*0.5;
-zhalf = zedge*0.5;
+   xprd = domain->xprd;
+   yprd = domain->yprd;
+   zprd = domain->zprd;
  
-areaxy= 2.0*xedge*yedge; // there are two walls
+areaxy= 2.0*xprd*yprd; // there are two walls
 iareaxy = 1./areaxy;
 
 
@@ -209,9 +206,9 @@ iareaxy = 1./areaxy;
   lj3 =  4.0 * epsilon * pow(sigma,12.0);
   lj4 =  4.0 * epsilon * pow(sigma, 6.0);
   
-  i2delta = 1/delta/2.0;
-  i4delta = 1/delta/4;
-  pconst = (2-delta)/4;
+  i2delta = 1.0/delta/2.0;
+  i4delta = 1.0/delta/4.0;
+  pconst = (2.0-delta)/4.0;
 
 
 }
@@ -275,16 +272,10 @@ void FixForceLJWall::post_force(int vflag)
         for (j = 0; j < natomsinwalls[0]; j++) {
 
           ldelx = xtmp - lposwall[j][0];
-          if (ldelx >   xhalf ) ldelx = ldelx - xedge;
-          if (ldelx <= -xhalf ) ldelx = ldelx + xedge;
-
           ldely = ytmp - lposwall[j][1];
-          if (ldely >   yhalf ) ldely = ldely - yedge;
-          if (ldely <= -yhalf ) ldely = ldely + yedge;
-
           ldelz = ztmp - lposwall[j][2];
-          if (ldelz >   zhalf ) ldelz = ldelz - zedge;
-          if (ldelz <= -zhalf ) ldelz = ldelz + zedge;
+
+          domain->minimum_image(ldelx,ldely,ldelz);
 
           lrsq = ldelx*ldelx + ldely*ldely + ldelz*ldelz;
 
@@ -305,16 +296,10 @@ void FixForceLJWall::post_force(int vflag)
     for (j = 0; j < natomsinwalls[1]; j++) {
 
           hdelx = xtmp - hposwall[j][0];
-          if (hdelx >   xhalf ) hdelx = hdelx - xedge;
-          if (hdelx <= -xhalf ) hdelx = hdelx + xedge;
-
           hdely = ytmp - hposwall[j][1];
-          if (hdely >   yhalf ) hdely = hdely - yedge;
-          if (hdely <= -yhalf ) hdely = hdely + yedge;
-
           hdelz = ztmp - hposwall[j][2];
-          if (hdelz >   zhalf ) hdelz = hdelz - zedge;
-          if (hdelz <= -zhalf ) hdelz = hdelz + zedge;
+
+          domain->minimum_image(hdelx,hdely,hdelz);
 
           hrsq = hdelx*hdelx + hdely*hdely + hdelz*hdelz;
 
@@ -368,9 +353,8 @@ void FixForceLJWall::post_force(int vflag)
 
         ewall[itype] +=Phi;
         localwork += modmw;
+            }
         }
-    }
-
     }
 }
 
