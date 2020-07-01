@@ -23,8 +23,7 @@ Lower case: phase 2
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pair_lj_BGcleav_wellspbc.h"
-#include "domain.h"
+#include "pair_lj_step3_Nlambda.h"
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
@@ -52,7 +51,7 @@ using namespace MathConst;
 
 /* ---------------------------------------------------------------------- */
 
-PairLJBGcleavWellsPbc::PairLJBGcleavWellsPbc(LAMMPS *lmp) : Pair(lmp)
+PairLJNlStep3::PairLJNlStep3(LAMMPS *lmp) : Pair(lmp)
 {
   single_enable = 1;
   respa_enable  = 0;
@@ -76,14 +75,14 @@ PairLJBGcleavWellsPbc::PairLJBGcleavWellsPbc(LAMMPS *lmp) : Pair(lmp)
 
 /* ---------------------------------------------------------------------- */
 
-PairLJBGcleavWellsPbc::~PairLJBGcleavWellsPbc()
+PairLJNlStep3::~PairLJNlStep3()
 {
   if (allocated) {
     memory->destroy(setflag);
+    memory->destroy(cutsq_in);
     memory->destroy(cutsq);
+    memory->destroy(cut_in);
     memory->destroy(cut);
-    memory->destroy(cutsq2);
-    memory->destroy(cut2);
     memory->destroy(epsilon);
     memory->destroy(sigma);
     memory->destroy(lj1);
@@ -96,6 +95,10 @@ PairLJBGcleavWellsPbc::~PairLJBGcleavWellsPbc()
     memory->destroy(lj8);
     memory->destroy(lj9);
     memory->destroy(lj10);
+    memory->destroy(powlambda);
+    memory->destroy(lamcoeff);
+    memory->destroy(powDlambda);
+    memory->destroy(Dfactorlam);
     memory->destroy(c1);
     memory->destroy(c5);
     delete [] pvector;
@@ -106,7 +109,7 @@ PairLJBGcleavWellsPbc::~PairLJBGcleavWellsPbc()
    allocate all arrays
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::allocate()
+void PairLJNlStep3::allocate()
 {
   allocated = 1;
   int n = atom->ntypes;
@@ -120,10 +123,11 @@ void PairLJBGcleavWellsPbc::allocate()
     pvector = new double[nextra]; 
     pallocation = 1;}
 
-  memory->create(cutsq,n+1,n+1,"pair:cutsq");
-  memory->create(cut,n+1,n+1,"pair:cut");
-  memory->create(cutsq2,n+1,n+1,"pair:cutsq2");
-  memory->create(cut2,n+1,n+1,"pair:cut2");
+
+  memory->create(cutsq,n+1,n+1,"pair:cutsq_out");
+  memory->create(cut,n+1,n+1,"pair:cutsq_out");
+  memory->create(cutsq_in,n+1,n+1,"pair:cutsq_in");
+  memory->create(cut_in,n+1,n+1,"pair:cut_in");
   memory->create(epsilon,n+1,n+1,"pair:epsilon");
   memory->create(sigma,n+1,n+1,"pair:sigma");
   memory->create(lj1,n+1,n+1,"pair:lj1");
@@ -138,16 +142,20 @@ void PairLJBGcleavWellsPbc::allocate()
   memory->create(lj10,n+1,n+1,"pair:lj10");
   memory->create(c1,n+1,n+1,"pair:c1");
   memory->create(c5,n+1,n+1,"pair:c5");
+  memory->create(lamcoeff,n+1,n+1,"pair:lamcoeff");
+  memory->create(powlambda,n+1,n+1,"pair:powlambda");
+  memory->create(powDlambda,n+1,n+1,"pair:powDlambda");
+  memory->create(Dfactorlam,n+1,n+1,"pair:Dfactorlam");
 
 }
 
 
 /* ---------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::compute(int eflag, int vflag)
+void PairLJNlStep3::compute(int eflag, int vflag)
 {
 
-  int i,j,ii,jj,inum,jnum,itype,jtype,m,scaling;
+  int i,j,ii,jj,inum,jnum,itype,jtype,m;
   double xtmp,ytmp,ztmp,delx,dely,delz,evdwl,fpair;
   double rsq,r2inv,r6inv,forcelj,factor_lj;
   int *ilist,*jlist,*numneigh,**firstneigh;
@@ -164,16 +172,6 @@ void PairLJBGcleavWellsPbc::compute(int eflag, int vflag)
   double *special_lj = force->special_lj;
   int newton_pair = force->newton_pair;
 
-/*
-  double xprd = domain->xprd;
-  double yprd = domain->yprd;
-  double zprd = domain->zprd;
-
-    xbox = (image[i] & IMGMASK) - IMGMAX;
-    ybox = (image[i] >> IMGBITS & IMGMASK) - IMGMAX;
-    zbox = (image[i] >> IMG2BITS) - IMGMAX;
-*/
-
   for(i=0; i<nextra ; i++){
     pvector[i] = 0.0;
     }
@@ -184,9 +182,10 @@ void PairLJBGcleavWellsPbc::compute(int eflag, int vflag)
   firstneigh = list->firstneigh;
 
 
-//fpl =NULL;
-//fpl=fopen("forces.log", "a");
-/*
+/*FILE *fpl;
+fpl =NULL;
+fpl=fopen("forces.log", "a");
+
 if(update->ntimestep == 1)if(comm->me == 0){fprintf(fpl," TIMESTEP %d  \n",update->ntimestep);}
 if(update->ntimestep < 10){
 //  for(i=0; i<n+1 ; i++){
@@ -224,16 +223,13 @@ MPI_Barrier(world); */
       jtype = type[j];
 
 
-      if (rsq <= cutsq2[itype][jtype]) {
+      if (rsq <= cutsq_in[itype][jtype]) {
         r2inv = 1.0/rsq;
         r6inv = r2inv*r2inv*r2inv;
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
-
-
-//if(itype != jtype) fprintf(fpl,"A %d %d %d \n %f %f\n",itype,jtype,scaling,ztmp,x[j][2]); 
-        scaling = find_scaling(x[j][ind_dir]);
-//(itype,jtype,ztmp,x[j][2]);
         fpair = factor_lj*forcelj*r2inv;
+
+        fpair = powlambda[itype][jtype]*fpair;
 
         f[i][0] += delx*fpair;
         f[i][1] += dely*fpair;
@@ -248,7 +244,8 @@ MPI_Barrier(world); */
             m=jtype+(itype-1)*n;
             evdwl = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) + c1[itype][jtype];
             evdwl *= factor_lj;
-            if(scaling)pvector[m] += delz*fpair;
+            pvector[m] += powDlambda[itype][jtype]*evdwl;
+            evdwl *= powlambda[itype][jtype];
           }
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
@@ -260,10 +257,9 @@ MPI_Barrier(world); */
         r2inv = 1.0/rsq;
         r6inv = r2inv*r2inv*r2inv;
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
-
-
-        scaling = find_scaling(x[j][ind_dir]);
         fpair = factor_lj*(forcelj*r2inv - lj7[itype][jtype]);
+
+        fpair = powlambda[itype][jtype]*fpair;
 
         f[i][0] += delx*fpair;
         f[i][1] += dely*fpair;
@@ -278,7 +274,8 @@ MPI_Barrier(world); */
             m=jtype+(itype-1)*n;
             evdwl = r6inv*(lj8[itype][jtype]*r6inv + lj9[itype][jtype]) + lj10[itype][jtype]*rsq + c5[itype][jtype];
             evdwl *= factor_lj;
-            if(scaling)pvector[m] += delz*fpair;
+            pvector[m] += powDlambda[itype][jtype]*evdwl;
+            evdwl *= powlambda[itype][jtype];
             }
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
@@ -287,82 +284,22 @@ MPI_Barrier(world); */
       }
     }
   }
-//fclose (fpl);
 
   if (vflag_fdotr) virial_fdotr_compute();
 
 
+//fclose (fpl);
+
+
+
 }
 
-/* ----------------------------------------------------------------------
- *   find scaling
- *   ------------------------------------------------------------------------- */
-
-int PairLJBGcleavWellsPbc::find_scaling (double jcom)
-//(int imtype, int jmtype, double icom, double jcom){
-{
-     int pbcghost=0;
-
-
-
-//    double ipbccom,jpbccom, idiff, jdiff, ij;
-
-// Check if the molecules are of the same type
-
-//if(imtype == jmtype)
-//  return 0;
-
-  // Check if the molecules are on the same side of the cleaving wall
-
-//idiff = cleavwall - icom;
-//jdiff = cleavwall - jcom;
-
-//ij = idiff*jdiff;
-//fprintf(fpl,"C %d %d \n %f %f %f %f %f %f \n",imtype,jmtype,icom,jcom,ij,idiff,jdiff,zhalf);
-
-// Then you need to check if they are on the same side near the cleaving wall 
-// or on one of the boundaries (i.e. the atoms of type one near zhi that interacts
-// with the images of atoms of type 2 over the boundary zhi) without the conditions
-// on zhalf they are considered to be scald but they should not
-
-//if(ij > 0.0 ) return 0;
-
-// Check the relative position of the molecules with respect the cleaving plane
-
-// Even if LAMMPS uses wrapped coordinates for atoms, j could be a ghost atom
-// i.e. it could be outside the box
-//ipbccom=icom;
-//jpbccom=jcom;
-
-//if (icom < boxlo ) ipbccom = icom + edge;
-//else if (icom > boxhi ) ipbccom = icom - edge;
-
-if (jcom < boxlo ) pbcghost=1;
-else if (jcom > boxhi ) pbcghost=1;
-
-
-/*
-idiff = cleavwall - ipbccom;
-jdiff = cleavwall - jpbccom;
-
-ij = idiff*jdiff;
-*/
-// Molecules must fullfil the following conditions when they are put back in the box:
-// 1. their distance must be less than zhalf
-// 2. they have to be at different side of the cleaving wall
-//
-//fprintf(fpl,"D %d %d \n %f %f %f %f %f %f \n",imtype,jmtype,icom,jcom,ij,idiff,jdiff,zhalf);
-
-if( pbcghost) return 1;
-else return 0;
-
- }
 
 /* ----------------------------------------------------------------------
    proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::write_restart(FILE *fp)
+void PairLJNlStep3::write_restart(FILE *fp)
 {
   write_restart_settings(fp);
 
@@ -373,6 +310,7 @@ void PairLJBGcleavWellsPbc::write_restart(FILE *fp)
       if (setflag[i][j]) {
         fwrite(&epsilon[i][j],sizeof(double),1,fp);
         fwrite(&sigma[i][j],sizeof(double),1,fp);
+        fwrite(&cut_in[i][j],sizeof(double),1,fp);
         fwrite(&cut[i][j],sizeof(double),1,fp);
       }
     }
@@ -382,7 +320,7 @@ void PairLJBGcleavWellsPbc::write_restart(FILE *fp)
    proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::read_restart(FILE *fp)
+void PairLJNlStep3::read_restart(FILE *fp)
 {
   read_restart_settings(fp);
   allocate();
@@ -397,10 +335,12 @@ void PairLJBGcleavWellsPbc::read_restart(FILE *fp)
         if (me == 0) {
           fread(&epsilon[i][j],sizeof(double),1,fp);
           fread(&sigma[i][j],sizeof(double),1,fp);
+          fread(&cut_in[i][j],sizeof(double),1,fp);
           fread(&cut[i][j],sizeof(double),1,fp);
         }
         MPI_Bcast(&epsilon[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&sigma[i][j],1,MPI_DOUBLE,0,world);
+        MPI_Bcast(&cut_in[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&cut[i][j],1,MPI_DOUBLE,0,world);
       }
     }
@@ -411,11 +351,11 @@ void PairLJBGcleavWellsPbc::read_restart(FILE *fp)
    proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void  PairLJBGcleavWellsPbc::write_restart_settings(FILE *fp)
+void  PairLJNlStep3::write_restart_settings(FILE *fp)
 {
 
-  fwrite(&cut_global,sizeof(double),1,fp);
-  fwrite(&cut_global2,sizeof(int),1,fp);
+  fwrite(&cut_global_in,sizeof(double),1,fp);
+  fwrite(&cut_global_out,sizeof(int),1,fp);
 
 }
 
@@ -423,15 +363,15 @@ void  PairLJBGcleavWellsPbc::write_restart_settings(FILE *fp)
    proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void  PairLJBGcleavWellsPbc::read_restart_settings(FILE *fp)
+void  PairLJNlStep3::read_restart_settings(FILE *fp)
 {
   int me = comm->me;
   if (me == 0) {
-    fread(&cut_global2,sizeof(double),1,fp);
-    fread(&cut_global,sizeof(double),1,fp);
+    fread(&cut_global_in,sizeof(double),1,fp);
+    fread(&cut_global_out,sizeof(double),1,fp);
   }
-  MPI_Bcast(&cut_global2,1,MPI_DOUBLE,0,world);
-  MPI_Bcast(&cut_global,1,MPI_INT,0,world);
+  MPI_Bcast(&cut_global_in,1,MPI_DOUBLE,0,world);
+  MPI_Bcast(&cut_global_out,1,MPI_INT,0,world);
 }
 
 
@@ -439,51 +379,27 @@ void  PairLJBGcleavWellsPbc::read_restart_settings(FILE *fp)
    global settings
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::settings(int narg, char **arg)
+void PairLJNlStep3::settings(int narg, char **arg)
 {
-  if (narg != 3) error->all(FLERR,"Illegal pair_style command");
+  if (narg != 5) error->all(FLERR,"Illegal pair_style command");
 
 
-  cut_global2  = force->numeric(FLERR,arg[0]);
-  cut_global = force->numeric(FLERR,arg[1]);
-
-
-  if(strcmp(arg[2],"x") != 0 && strcmp(arg[2],"y") != 0 && strcmp(arg[2],"z") != 0)
-     error->all(FLERR,"Illegal LJ-BJ wells_command (direction)");
-
-// For Now working only with NVT/NVE, because the size of the box is taken 
-// at the beginning at the simulation
-
-    if(strcmp(arg[2],"x") == 0){
-        edge = domain->boxhi[0] - domain->boxlo[0];
-        boxlo = domain->boxlo[0];
-        boxhi = domain->boxhi[0];
-        ind_dir=0;
-    }
-    else if(strcmp(arg[2],"y") == 0){
-        edge = domain->boxhi[1] - domain->boxlo[1];
-        boxlo = domain->boxlo[1];
-        boxhi = domain->boxhi[1];
-        ind_dir=1;
-    }
-    else if(strcmp(arg[2],"z") == 0){
-        edge = domain->boxhi[2] - domain->boxlo[2];
-        boxlo = domain->boxlo[2];
-        boxhi = domain->boxhi[2];
-        ind_dir=2;
-    }
-
+  cut_global_in  = force->numeric(FLERR,arg[0]);
+  cut_global_out = force->numeric(FLERR,arg[1]);
+  lambda      = force->numeric(FLERR,arg[2]);
+  npow =  force->numeric(FLERR,arg[3]);
+  Dfac =  force->numeric(FLERR,arg[4]);
   // reset cutoffs that have been explicitly set
 
   if (allocated) {
     int i,j;
     for (i = 1; i <= atom->ntypes; i++)
       for (j = i+1; j <= atom->ntypes; j++)
-        if (setflag[i][j]) cut[i][j] = cut_global;
+        if (setflag[i][j]){
+             cut[i][j] = cut_global_out;
+             cut_in[i][j] = cut_global_in;
+        }
   }
-
-
-
 }
 
 
@@ -505,13 +421,15 @@ pair_coeff    1     2       1.0      1.0      1.1      0.25      1.1
 
 */
 
-void PairLJBGcleavWellsPbc::coeff(int narg, char **arg)
+
+void PairLJNlStep3::coeff(int narg, char **arg)
 {
-  if (narg < 4 || narg > 7)
+  if (narg < 4 || narg > 8)
     error->all(FLERR,"Incorrect args for pair coefficients");
 
-  if (narg == 6 )
-    error->all(FLERR,"Incorrect args for pair coefficients. You need two cut offs");
+  if (narg == 5)
+    error->all(FLERR,"Incorrect args for pair coefficients (you need two cut-offs)");
+
 
   if (!allocated) allocate();
 
@@ -522,22 +440,32 @@ void PairLJBGcleavWellsPbc::coeff(int narg, char **arg)
   double epsilon_one = force->numeric(FLERR,arg[2]);
   double sigma_one = force->numeric(FLERR,arg[3]);
 
-  double cut_two = cut_global2;
-  if (narg > 4) cut_two = force->numeric(FLERR,arg[4]);
-  double cut_one = cut_global;
-  if (narg == 6) cut_one = force->numeric(FLERR,arg[5]);
+  double lm = lambda;
+  if (narg > 4)lm = force->numeric(FLERR,arg[4]);
+  double ftr = Dfac;
+ if (narg > 5) ftr = force->numeric(FLERR,arg[5]);
 
-  if(cut_two > cut_one)
+  double cutinner = cut_global_in;
+   if (narg > 6) cutinner = force->numeric(FLERR,arg[6]);
+  double cutouter = cut_global_out;
+  if (narg == 8) cutouter = force->numeric(FLERR,arg[7]);
+
+
+  if(cutinner > cutouter)
          error->all(FLERR,"First cut_off must be smaller than second one in the definition");
+
+  printf("COEFF %s %s %d %f %f\n",arg[0],arg[1],narg,lm,ftr);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
     for (int j = MAX(jlo,i); j <= jhi; j++) {
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;
-      cut[i][j] = cut_one;
-      cut2[i][j] = cut_two;
+      cut_in[i][j] = cutinner;
+      cut[i][j] = cutouter;
       setflag[i][j] = 1;
+      lamcoeff[i][j] = lm;
+      Dfactorlam[i][j] = ftr;
       count++;
     }
   }
@@ -548,11 +476,13 @@ void PairLJBGcleavWellsPbc::coeff(int narg, char **arg)
 
 }
 
+
+
 /* ----------------------------------------------------------------------
    proc 0 writes to data file
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::write_data(FILE *fp)
+void PairLJNlStep3::write_data(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     fprintf(fp,"%d %g %g\n",i,epsilon[i][i],sigma[i][i]);
@@ -562,11 +492,11 @@ void PairLJBGcleavWellsPbc::write_data(FILE *fp)
    proc 0 writes all pairs to data file
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::write_data_all(FILE *fp)
+void PairLJNlStep3::write_data_all(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     for (int j = i; j <= atom->ntypes; j++)
-      fprintf(fp,"%d %d %g %g %g\n",i,j,epsilon[i][j],sigma[i][j],cut[i][j]);
+      fprintf(fp,"%d %d %g %g %g %g %g %g \n",i,j,epsilon[i][j],sigma[i][j],cut_in[i][j],cut[i][j],lamcoeff[i][j],Dfactorlam[i][j]);
 }
 
 /* ----------------------------------------------------------------------
@@ -588,15 +518,15 @@ lj10 = coefficient Force r^-2 second cut-off
 
 */
 
-double PairLJBGcleavWellsPbc::init_one(int i, int j)
+double PairLJNlStep3::init_one(int i, int j)
 {
 
   if (setflag[i][j] == 0) {
     epsilon[i][j] = mix_energy(epsilon[i][i],epsilon[j][j],
                                sigma[i][i],sigma[j][j]);
     sigma[i][j] = mix_distance(sigma[i][i],sigma[j][j]);
+    cut_in[i][j] = mix_distance(cut_in[i][i],cut_in[j][j]);
     cut[i][j] = mix_distance(cut[i][i],cut[j][j]);
-    cut2[i][j] = mix_distance(cut2[i][i],cut2[j][j]);
   }
 
 
@@ -610,7 +540,18 @@ double PairLJBGcleavWellsPbc::init_one(int i, int j)
   lj8[i][j] =  C2 * epsilon[i][j] * pow(sigma[i][j],12.0);
   lj9[i][j] =  C3 * epsilon[i][j] * pow(sigma[i][j],6.0);
   lj10[i][j] = C4 * epsilon[i][j] * 1./pow(sigma[i][j],2.0);
-  cutsq2[i][j] = cut2[i][j]*cut2[i][j];
+
+
+    powlambda[i][j]  = pow(lamcoeff[i][j],npow);
+  if(npow != 1){
+    powDlambda[i][j] = Dfactorlam[i][j] * npow * pow(lamcoeff[i][j],npow-1.0);
+    }
+  else{
+    powDlambda[i][j] = Dfactorlam[i][j] * npow * 1.0;
+    }
+
+  cutsq_in[i][j] = cut_in[i][j]*cut_in[i][j];
+
 
 
   lj1[j][i]  = lj1[i][j];
@@ -625,7 +566,10 @@ double PairLJBGcleavWellsPbc::init_one(int i, int j)
   lj10[j][i] = lj10[i][j];
 
 
-  cutsq2[j][i] = cutsq2[i][j];
+  cutsq_in[j][i] = cutsq_in[i][j];
+  powlambda[j][i] = powlambda[i][j];
+  powDlambda[j][i] = powDlambda[i][j];
+  Dfactorlam[j][i] = Dfactorlam[i][j];
 
   c1[i][j] = C1*epsilon[i][j];
   c1[j][i] = c1[i][j];
@@ -640,7 +584,7 @@ double PairLJBGcleavWellsPbc::init_one(int i, int j)
    init specific to this pair style
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::init_style()
+void PairLJNlStep3::init_style()
 {
 
   // request regular neighbor lists
@@ -661,7 +605,7 @@ void PairLJBGcleavWellsPbc::init_style()
  * ------------------------------------------------------------------------- */
 
 
-double PairLJBGcleavWellsPbc::single(int i, int j, int itype, int jtype, double rsq,
+double PairLJNlStep3::single(int i, int j, int itype, int jtype, double rsq,
                          double factor_coul, double factor_lj,
                          double &fforce)
 {
@@ -671,18 +615,18 @@ double PairLJBGcleavWellsPbc::single(int i, int j, int itype, int jtype, double 
   r2inv = 1.0/rsq;
   r6inv = r2inv*r2inv*r2inv;
 
-  if( rsq < cut_global2){
+  if( rsq < cut_global_in){
   	philj = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) + c1[itype][jtype];
 	forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
   }
-  else if(rsq < cut_global){
+  else if(rsq < cut_global_out){
         philj   = r6inv*(lj8[itype][jtype]*r6inv + lj9[itype][jtype]) + lj10[itype][jtype]*rsq + c5[itype][jtype];
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
 	}
 
-  fforce = factor_lj*forcelj*r2inv;
+  fforce = powDlambda[i][j]*factor_lj*forcelj*r2inv;
 
-  return factor_lj*philj;
+  return powlambda[i][j]*factor_lj*philj;
 }
 
 

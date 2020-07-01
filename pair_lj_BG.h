@@ -13,21 +13,21 @@
 
 #ifdef PAIR_CLASS
 
-PairStyle(lj/cleavs3,PairLJStep3)
+PairStyle(lj/BG,PairLJBG)
 
 #else
 
-#ifndef LMP_PAIR_CLEAV_STEP3
-#define LMP_PAIR_CLEAV_STEP3
+#ifndef LMP_PAIR_LJBG
+#define LMP_PAIR_LJBG
 
 #include "pair.h"
 
 namespace LAMMPS_NS {
 
-class PairLJStep3 : public Pair {
+class PairLJBG : public Pair {
  public:
-  PairLJStep3(class LAMMPS *);
-  virtual ~PairLJStep3();
+  PairLJBG(class LAMMPS *);
+  virtual ~PairLJBG();
   virtual void compute(int, int);
 
   void settings(int, char **);
@@ -45,10 +45,10 @@ class PairLJStep3 : public Pair {
  protected:
 
   int pallocation;
-  double cut_global_out, cut_global_in, lambda;
-  double delta, lam, Dfac;
+  double cut_global_out, cut_global_in;
+  double delta;
   double **cut,**cut_in, **cutsq_in;
-  double **epsilon,**sigma, **lamcoeff, **Dlambda, **Dfactorlam;
+  double **epsilon,**sigma;
   double **lj1,**lj2,**lj3,**lj4, **lj5, **lj6, **lj7, **lj8, **lj9, **lj10,**c1,**c5;
 //  void set_combinations();
   void allocate();

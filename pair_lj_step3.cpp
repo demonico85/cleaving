@@ -81,8 +81,8 @@ PairLJStep3::~PairLJStep3()
     memory->destroy(setflag);
     memory->destroy(cutsq);
     memory->destroy(cut);
-    memory->destroy(cutsq2);
-    memory->destroy(cut2);
+    memory->destroy(cutsq_in);
+    memory->destroy(cut_in);
     memory->destroy(epsilon);
     memory->destroy(sigma);
     memory->destroy(lj1);
@@ -95,7 +95,9 @@ PairLJStep3::~PairLJStep3()
     memory->destroy(lj8);
     memory->destroy(lj9);
     memory->destroy(lj10);
-    memory->destroy(combination);
+    memory->destroy(lamcoeff);
+    memory->destroy(Dlambda);
+    memory->destroy(Dfactorlam);
     memory->destroy(c1);
     memory->destroy(c5);
     delete [] pvector;
@@ -122,8 +124,8 @@ void PairLJStep3::allocate()
 
   memory->create(cutsq,n+1,n+1,"pair:cutsq");
   memory->create(cut,n+1,n+1,"pair:cut");
-  memory->create(cutsq2,n+1,n+1,"pair:cutsq2");
-  memory->create(cut2,n+1,n+1,"pair:cut2");
+  memory->create(cutsq_in,n+1,n+1,"pair:cutsq2");
+  memory->create(cut_in,n+1,n+1,"pair:cut2");
   memory->create(epsilon,n+1,n+1,"pair:epsilon");
   memory->create(sigma,n+1,n+1,"pair:sigma");
   memory->create(lj1,n+1,n+1,"pair:lj1");
@@ -138,13 +140,16 @@ void PairLJStep3::allocate()
   memory->create(lj10,n+1,n+1,"pair:lj10");
   memory->create(c1,n+1,n+1,"pair:c1");
   memory->create(c5,n+1,n+1,"pair:c5");
-  memory->create(combination,n+1,n+1,"pair:combination");
-  for(int i=0; i<n+1; i++ ){
+  memory->create(lamcoeff,n+1,n+1,"pair:Dlambda");
+  memory->create(Dlambda,n+1,n+1,"pair:Dlambda");
+  memory->create(Dfactorlam,n+1,n+1,"pair:Dlambda");
+/*  for(int i=0; i<n+1; i++ ){
      for(int j=i; j<n+1; j++){
-        combination[i][j]=-10.0;
-        combination[j][i]=-10.0;
+        Dlambda[i][j]=-10.0;
+        Dlambda[j][i]=-10.0;
        }
     }
+*/
 }
 
 
@@ -221,13 +226,13 @@ MPI_Barrier(world); */
       jtype = type[j];
 
 
-      if (rsq <= cutsq2[itype][jtype]) {
+      if (rsq <= cutsq_in[itype][jtype]) {
         r2inv = 1.0/rsq;
         r6inv = r2inv*r2inv*r2inv;
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         fpair = factor_lj*forcelj*r2inv;
 
-        fpair = combination[itype][jtype]*fpair;
+        fpair = lamcoeff[itype][jtype]*fpair;
 
         f[i][0] += delx*fpair;
         f[i][1] += dely*fpair;
@@ -243,7 +248,7 @@ MPI_Barrier(world); */
             evdwl = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) + c1[itype][jtype];
             evdwl *= factor_lj;
             pvector[m] += evdwl;
-            evdwl *= combination[itype][jtype];
+            evdwl *= Dlambda[itype][jtype];
           }
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
@@ -257,7 +262,7 @@ MPI_Barrier(world); */
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
         fpair = factor_lj*(forcelj*r2inv - lj7[itype][jtype]);
 
-        fpair = combination[itype][jtype]*fpair;
+        fpair = lamcoeff[itype][jtype]*fpair;
 
         f[i][0] += delx*fpair;
         f[i][1] += dely*fpair;
@@ -273,7 +278,7 @@ MPI_Barrier(world); */
             evdwl = r6inv*(lj8[itype][jtype]*r6inv + lj9[itype][jtype]) + lj10[itype][jtype]*rsq + c5[itype][jtype];
             evdwl *= factor_lj;
             pvector[m] += evdwl;
-            evdwl *= combination[itype][jtype];
+            evdwl *= Dlambda[itype][jtype];
             }
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
@@ -308,6 +313,7 @@ void PairLJStep3::write_restart(FILE *fp)
       if (setflag[i][j]) {
         fwrite(&epsilon[i][j],sizeof(double),1,fp);
         fwrite(&sigma[i][j],sizeof(double),1,fp);
+        fwrite(&cut_in[i][j],sizeof(double),1,fp);
         fwrite(&cut[i][j],sizeof(double),1,fp);
       }
     }
@@ -332,10 +338,12 @@ void PairLJStep3::read_restart(FILE *fp)
         if (me == 0) {
           fread(&epsilon[i][j],sizeof(double),1,fp);
           fread(&sigma[i][j],sizeof(double),1,fp);
+          fread(&cut_in[i][j],sizeof(double),1,fp);
           fread(&cut[i][j],sizeof(double),1,fp);
         }
         MPI_Bcast(&epsilon[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&sigma[i][j],1,MPI_DOUBLE,0,world);
+        MPI_Bcast(&cut_in[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&cut[i][j],1,MPI_DOUBLE,0,world);
       }
     }
@@ -349,8 +357,8 @@ void PairLJStep3::read_restart(FILE *fp)
 void  PairLJStep3::write_restart_settings(FILE *fp)
 {
 
-  fwrite(&cut_global,sizeof(double),1,fp);
-  fwrite(&cut_global2,sizeof(int),1,fp);
+  fwrite(&cut_global_in,sizeof(double),1,fp);
+  fwrite(&cut_global_out,sizeof(int),1,fp);
 
 }
 
@@ -362,11 +370,11 @@ void  PairLJStep3::read_restart_settings(FILE *fp)
 {
   int me = comm->me;
   if (me == 0) {
-    fread(&cut_global2,sizeof(double),1,fp);
-    fread(&cut_global,sizeof(double),1,fp);
+    fread(&cut_global_in,sizeof(double),1,fp);
+    fread(&cut_global_out,sizeof(double),1,fp);
   }
-  MPI_Bcast(&cut_global2,1,MPI_DOUBLE,0,world);
-  MPI_Bcast(&cut_global,1,MPI_INT,0,world);
+  MPI_Bcast(&cut_global_in,1,MPI_DOUBLE,0,world);
+  MPI_Bcast(&cut_global_out,1,MPI_INT,0,world);
 }
 
 
@@ -376,13 +384,13 @@ void  PairLJStep3::read_restart_settings(FILE *fp)
 
 void PairLJStep3::settings(int narg, char **arg)
 {
-  if (narg != 3) error->all(FLERR,"Illegal pair_style command");
+  if (narg != 4) error->all(FLERR,"Illegal pair_style command");
 
 
-  cut_global2  = force->numeric(FLERR,arg[0]);
-  cut_global = force->numeric(FLERR,arg[1]);
+  cut_global_in  = force->numeric(FLERR,arg[0]);
+  cut_global_out = force->numeric(FLERR,arg[1]);
   lambda      = force->numeric(FLERR,arg[2]);
-  
+  Dfac =  force->numeric(FLERR,arg[3]);
 
   // reset cutoffs that have been explicitly set
 
@@ -390,7 +398,7 @@ void PairLJStep3::settings(int narg, char **arg)
     int i,j;
     for (i = 1; i <= atom->ntypes; i++)
       for (j = i+1; j <= atom->ntypes; j++)
-        if (setflag[i][j]) cut[i][j] = cut_global;
+        if (setflag[i][j]) cut[i][j] = cut_global_out;
   }
 }
 
@@ -413,10 +421,18 @@ pair_coeff    1     2       1.0      1.0      1.1      0.25      1.1
 
 */
 
+
+
+
 void PairLJStep3::coeff(int narg, char **arg)
 {
-  if (narg < 4 || narg > 7)
+  if (narg < 4 || narg > 8)
     error->all(FLERR,"Incorrect args for pair coefficients");
+
+  if (narg == 5)
+    error->all(FLERR,"Incorrect args for pair coefficients (you need two cut-offs)");
+
+
   if (!allocated) allocate();
 
   int ilo,ihi,jlo,jhi;
@@ -426,14 +442,18 @@ void PairLJStep3::coeff(int narg, char **arg)
   double epsilon_one = force->numeric(FLERR,arg[2]);
   double sigma_one = force->numeric(FLERR,arg[3]);
 
-  double cut_two = cut_global2;
-  if (narg == 5) cut_two = force->numeric(FLERR,arg[4]);
-  double cut_one = cut_global;
-  if (narg == 6) cut_one = force->numeric(FLERR,arg[5]);
-  double lam = lambda;
-  if (narg == 7) lam = force->numeric(FLERR,arg[6]);
+  double lm = lambda;
+  if (narg > 4)lm = force->numeric(FLERR,arg[4]);
+  double ftr = Dfac;
+ if (narg > 5) ftr = force->numeric(FLERR,arg[5]);
 
-  if(cut_two > cut_one)
+  double cutinner = cut_global_in;
+   if (narg > 6) cutinner = force->numeric(FLERR,arg[6]);
+  double cutouter = cut_global_out;
+  if (narg == 8) cutouter = force->numeric(FLERR,arg[7]);
+
+
+  if(cutinner > cutouter)
          error->all(FLERR,"First cut_off must be smaller than second one in the definition");
 
 
@@ -442,10 +462,11 @@ void PairLJStep3::coeff(int narg, char **arg)
     for (int j = MAX(jlo,i); j <= jhi; j++) {
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;
-      cut[i][j] = cut_one;
-      cut2[i][j] = cut_two;
+      cut[i][j] = cutouter;
+      cut_in[i][j] = cutinner;
       setflag[i][j] = 1;
-      combination[i][j] = lam;
+      lamcoeff[i][j] = lam;
+      Dfactorlam[i][j] = ftr;
       count++;
     }
   }
@@ -474,7 +495,7 @@ void PairLJStep3::write_data_all(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     for (int j = i; j <= atom->ntypes; j++)
-      fprintf(fp,"%d %d %g %g %g\n",i,j,epsilon[i][j],sigma[i][j],cut[i][j]);
+      fprintf(fp,"%d %d %g %g %g %g\n",i,j,epsilon[i][j],sigma[i][j],cut[i][j],cut_in[i][j]);
 }
 
 /* ----------------------------------------------------------------------
@@ -504,7 +525,7 @@ double PairLJStep3::init_one(int i, int j)
                                sigma[i][i],sigma[j][j]);
     sigma[i][j] = mix_distance(sigma[i][i],sigma[j][j]);
     cut[i][j] = mix_distance(cut[i][i],cut[j][j]);
-    cut2[i][j] = mix_distance(cut2[i][i],cut2[j][j]);
+    cut_in[i][j] = mix_distance(cut_in[i][i],cut_in[j][j]);
   }
 
 
@@ -518,7 +539,7 @@ double PairLJStep3::init_one(int i, int j)
   lj8[i][j] =  C2 * epsilon[i][j] * pow(sigma[i][j],12.0);
   lj9[i][j] =  C3 * epsilon[i][j] * pow(sigma[i][j],6.0);
   lj10[i][j] = C4 * epsilon[i][j] * 1./pow(sigma[i][j],2.0);
-  cutsq2[i][j] = cut2[i][j]*cut2[i][j];
+  cutsq_in[i][j] = cut_in[i][j]*cut_in[i][j];
 
 
   lj1[j][i]  = lj1[i][j];
@@ -533,8 +554,11 @@ double PairLJStep3::init_one(int i, int j)
   lj10[j][i] = lj10[i][j];
 
 
-  cutsq2[j][i] = cutsq2[i][j];
-  combination[j][i] = combination[i][j];
+    Dlambda[i][j] = lamcoeff[i][j]*Dfactorlam[i][j];
+
+  lamcoeff[j][i] = lamcoeff[i][j];
+  cutsq_in[j][i] = cutsq_in[i][j];
+  Dlambda[j][i] = Dlambda[i][j];
 
   c1[i][j] = C1*epsilon[i][j];
   c1[j][i] = c1[i][j];
@@ -580,18 +604,18 @@ double PairLJStep3::single(int i, int j, int itype, int jtype, double rsq,
   r2inv = 1.0/rsq;
   r6inv = r2inv*r2inv*r2inv;
 
-  if( rsq < cut_global2){
+  if( rsq < cut_global_in){
   	philj = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) + c1[itype][jtype];
 	forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
   }
-  else if(rsq < cut_global){
+  else if(rsq < cut_global_out){
         philj   = r6inv*(lj8[itype][jtype]*r6inv + lj9[itype][jtype]) + lj10[itype][jtype]*rsq + c5[itype][jtype];
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
 	}
 
-  fforce = combination[itype][jtype]*factor_lj*forcelj*r2inv;
+  fforce = lamcoeff[itype][jtype]*factor_lj*forcelj*r2inv;
 
-  return combination[itype][jtype]*factor_lj*philj;
+  return lamcoeff[itype][jtype]*factor_lj*philj;
 }
 
 

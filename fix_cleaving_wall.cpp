@@ -111,6 +111,10 @@ type       epsilon  sigma  dist_W_from cent   delta   rcut
   rw            = force->numeric(FLERR,arg[7]);
   cleav_wall    = force->numeric(FLERR,arg[8]);
 
+
+
+
+
 }
 
 
@@ -227,6 +231,9 @@ void FixForceLJWall::post_force(int vflag)
 {
 
 
+
+
+  
   int i,j,itype,ptype;
   double xtmp,ytmp,ztmp,ldelx,hdelx,ldely,hdely,fpair;
   double ldelz,hdelz;
@@ -240,6 +247,7 @@ void FixForceLJWall::post_force(int vflag)
   int *mask = atom->mask;
   int *type = atom->type;
   int nlocal = atom->nlocal;
+
 
 
   cleavwork = 0.0;

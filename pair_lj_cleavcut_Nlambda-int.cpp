@@ -511,7 +511,7 @@ void PairLJCleavCutNLInt::coeff(int narg, char **arg)
   double sigma_one = force->numeric(FLERR,arg[3]);
 
   double l = lambda;
-  if (narg == 5)  l = force->numeric(FLERR,arg[4]);
+  if (narg > 4 )   l = force->numeric(FLERR,arg[4]);
 
   double cut_one = cut_global;
   if (narg == 6) cut_one = force->numeric(FLERR,arg[5]);

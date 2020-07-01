@@ -426,7 +426,7 @@ void PairCoulNLDSF::coeff(int narg, char **arg)
   force->bounds(FLERR,arg[1],atom->ntypes,jlo,jhi);
 
   double l = lambda;
-  if (narg == 3) l = force->numeric(FLERR,arg[2]);
+  l = force->numeric(FLERR,arg[2]);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
