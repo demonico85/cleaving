@@ -394,13 +394,16 @@ void PairLJStep3::settings(int narg, char **arg)
 
   // reset cutoffs that have been explicitly set
 
-  if (allocated) {
-    int i,j;
-    for (i = 1; i <= atom->ntypes; i++)
-      for (j = i+1; j <= atom->ntypes; j++)
-        if (setflag[i][j]) cut[i][j] = cut_global_out;
+    if (allocated) {
+      int i,j;
+      for (i = 1; i <= atom->ntypes; i++)
+        for (j = i+1; j <= atom->ntypes; j++)
+          if (setflag[i][j]){
+               cut[i][j] = cut_global_out;
+               cut_in[i][j] = cut_global_in;
+          }
+    }
   }
-}
 
 
 /* ----------------------------------------------------------------------
@@ -465,7 +468,7 @@ void PairLJStep3::coeff(int narg, char **arg)
       cut[i][j] = cutouter;
       cut_in[i][j] = cutinner;
       setflag[i][j] = 1;
-      lamcoeff[i][j] = lam;
+      lamcoeff[i][j] = lm;
       Dfactorlam[i][j] = ftr;
       count++;
     }

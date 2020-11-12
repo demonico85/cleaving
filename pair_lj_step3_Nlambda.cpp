@@ -427,7 +427,7 @@ void PairLJNlStep3::coeff(int narg, char **arg)
   if (narg < 4 || narg > 8)
     error->all(FLERR,"Incorrect args for pair coefficients");
 
-  if (narg == 5)
+  if (narg == 7)
     error->all(FLERR,"Incorrect args for pair coefficients (you need two cut-offs)");
 
 
@@ -454,7 +454,7 @@ void PairLJNlStep3::coeff(int narg, char **arg)
   if(cutinner > cutouter)
          error->all(FLERR,"First cut_off must be smaller than second one in the definition");
 
-  printf("COEFF %s %s %d %f %f\n",arg[0],arg[1],narg,lm,ftr);
+//  printf("COEFF %s %s %d %f %f\n",arg[0],arg[1],narg,lm,ftr);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {

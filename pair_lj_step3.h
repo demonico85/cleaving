@@ -46,7 +46,7 @@ class PairLJStep3 : public Pair {
 
   int pallocation;
   double cut_global_out, cut_global_in, lambda;
-  double delta, lam, Dfac;
+  double delta, Dfac;
   double **cut,**cut_in, **cutsq_in;
   double **epsilon,**sigma, **lamcoeff, **Dlambda, **Dfactorlam;
   double **lj1,**lj2,**lj3,**lj4, **lj5, **lj6, **lj7, **lj8, **lj9, **lj10,**c1,**c5;
