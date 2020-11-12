@@ -432,7 +432,7 @@ void PairLJStep3::coeff(int narg, char **arg)
   if (narg < 4 || narg > 8)
     error->all(FLERR,"Incorrect args for pair coefficients");
 
-  if (narg == 5)
+  if (narg == 7)
     error->all(FLERR,"Incorrect args for pair coefficients (you need two cut-offs)");
 
 
