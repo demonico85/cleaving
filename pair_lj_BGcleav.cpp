@@ -222,6 +222,7 @@ MPI_Barrier(world); */
     jnum = numneigh[i];
 
     for (jj = 0; jj < jnum; jj++) {
+        scaling=0;
       j = jlist[jj];
 
       factor_lj = special_lj[sbmask(j)];
@@ -533,7 +534,7 @@ void  PairLJBGcleav::read_restart_settings(FILE *fp)
 
 void PairLJBGcleav::settings(int narg, char **arg)
 {
-  if (narg != 4) error->all(FLERR,"Illegal pair_style command");
+  if (narg != 5) error->all(FLERR,"Illegal pair_style command");
 
 
   cut_global_in  = force->numeric(FLERR,arg[0]);
