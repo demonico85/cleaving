@@ -671,11 +671,11 @@ double PairLJBGcleavWellsPbc::single(int i, int j, int itype, int jtype, double 
   r2inv = 1.0/rsq;
   r6inv = r2inv*r2inv*r2inv;
 
-  if( rsq < cut_global2){
+  if( rsq < cut_global2*cut_global2){
   	philj = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) + c1[itype][jtype];
 	forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
   }
-  else if(rsq < cut_global){
+  else if(rsq < cut_global*cut_global){
         philj   = r6inv*(lj8[itype][jtype]*r6inv + lj9[itype][jtype]) + lj10[itype][jtype]*rsq + c5[itype][jtype];
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
 	}

@@ -615,11 +615,11 @@ double PairLJNlStep3::single(int i, int j, int itype, int jtype, double rsq,
   r2inv = 1.0/rsq;
   r6inv = r2inv*r2inv*r2inv;
 
-  if( rsq < cut_global_in){
+  if( rsq < cut_global_in*cut_global_in){
   	philj = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) + c1[itype][jtype];
 	forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
   }
-  else if(rsq < cut_global_out){
+  else if(rsq < cut_global_out*cut_global_out){
         philj   = r6inv*(lj8[itype][jtype]*r6inv + lj9[itype][jtype]) + lj10[itype][jtype]*rsq + c5[itype][jtype];
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
 	}
