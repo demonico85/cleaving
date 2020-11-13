@@ -43,19 +43,23 @@ class PairLJBGcleav : public Pair {
   double single(int, int, int, int, double, double, double, double &);
 
  protected:
-FILE *fpl;
-  int pallocation;
+//FILE *fpl;
+  int pallocation,natoms,ind_dir;
+  int *gbox;
   double cut_global_out, cut_global_in, lambda, cleavwall;
+  double xprd,yprd,zprd,xy,yz,xz;
   double delta;
   double **cut,**cut_in, **cutsq_in;
-  double **epsilon,**sigma, **combination;
+  double **epsilon,**sigma, **lamcoeff;
   double **lj1,**lj2,**lj3,**lj4, **lj5, **lj6, **lj7, **lj8, **lj9, **lj10,**c1,**c5;
   double xhalf, yhalf, zhalf,xedge,yedge,zedge;
 
 
 //  void set_combinations();
+  
   virtual void allocate();
-  int find_scaling(int, int, double, double);
+  int find_scaling(int,int,int ,int,double *);
+  void global_boundary();
 };
 
 }
