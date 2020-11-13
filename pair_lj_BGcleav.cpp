@@ -222,7 +222,6 @@ MPI_Barrier(world); */
     jnum = numneigh[i];
 
     for (jj = 0; jj < jnum; jj++) {
-        scaling=0;
       j = jlist[jj];
 
       factor_lj = special_lj[sbmask(j)];
@@ -241,6 +240,7 @@ MPI_Barrier(world); */
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
 
 
+          scaling=0;
         flam = 1.0;
 
           if(itype != jtype)
