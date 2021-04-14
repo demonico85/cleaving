@@ -104,12 +104,12 @@ type       epsilon  sigma  dist_W_from cent   delta   rcut
 
   if (narg < 9) error->all(FLERR,"Illegal fix addforce command");
 
-  epsilon       = force->numeric(FLERR,arg[3]);
-  sigma         = force->numeric(FLERR,arg[4]);
-  zw            = force->numeric(FLERR,arg[5]);
-  delta         = force->numeric(FLERR,arg[6]);
-  rw            = force->numeric(FLERR,arg[7]);
-  cleav_wall    = force->numeric(FLERR,arg[8]);
+  epsilon       = utils::numeric(FLERR,arg[3],false,lmp);
+  sigma         = utils::numeric(FLERR,arg[4],false,lmp);
+  zw            = utils::numeric(FLERR,arg[5],false,lmp);
+  delta         = utils::numeric(FLERR,arg[6],false,lmp);
+  rw            = utils::numeric(FLERR,arg[7],false,lmp);
+  cleav_wall    = utils::numeric(FLERR,arg[8],false,lmp);
 
 
 

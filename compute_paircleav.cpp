@@ -66,7 +66,7 @@ ComputePairCl::ComputePairCl(LAMMPS *lmp, int narg, char **arg) :
         error->all(FLERR,"Illegal compute pair command (norm)");
   
 
-    nwalls = force->numeric(FLERR,arg[5]);
+    nwalls = utils::numeric(FLERR,arg[5],false,lmp);
 
 
     if(strcmp(arg[6],"x") != 0 && strcmp(arg[6],"y") != 0 && strcmp(arg[6],"z") != 0)

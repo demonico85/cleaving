@@ -384,11 +384,11 @@ void PairLJNlStep3::settings(int narg, char **arg)
   if (narg != 5) error->all(FLERR,"Illegal pair_style command");
 
 
-  cut_global_in  = force->numeric(FLERR,arg[0]);
-  cut_global_out = force->numeric(FLERR,arg[1]);
-  lambda      = force->numeric(FLERR,arg[2]);
-  npow =  force->numeric(FLERR,arg[3]);
-  Dfac =  force->numeric(FLERR,arg[4]);
+  cut_global_in  = utils::numeric(FLERR,arg[0],false,lmp);
+  cut_global_out = utils::numeric(FLERR,arg[1],false,lmp);
+  lambda      = utils::numeric(FLERR,arg[2],false,lmp);
+  npow =  utils::numeric(FLERR,arg[3],false,lmp);
+  Dfac =  utils::numeric(FLERR,arg[4],false,lmp);
   // reset cutoffs that have been explicitly set
 
   if (allocated) {
@@ -434,21 +434,21 @@ void PairLJNlStep3::coeff(int narg, char **arg)
   if (!allocated) allocate();
 
   int ilo,ihi,jlo,jhi;
-  force->bounds(FLERR,arg[0],atom->ntypes,ilo,ihi);
-  force->bounds(FLERR,arg[1],atom->ntypes,jlo,jhi);
+  utils::bounds(FLERR,arg[0],1,atom->ntypes,ilo,ihi,error);
+  utils::bounds(FLERR,arg[1],1,atom->ntypes,jlo,jhi,error);
 
-  double epsilon_one = force->numeric(FLERR,arg[2]);
-  double sigma_one = force->numeric(FLERR,arg[3]);
+  double epsilon_one = utils::numeric(FLERR,arg[2],false,lmp);
+  double sigma_one = utils::numeric(FLERR,arg[3],false,lmp);
 
   double lm = lambda;
-  if (narg > 4)lm = force->numeric(FLERR,arg[4]);
+  if (narg > 4)lm = utils::numeric(FLERR,arg[4],false,lmp);
   double ftr = Dfac;
- if (narg > 5) ftr = force->numeric(FLERR,arg[5]);
+ if (narg > 5) ftr = utils::numeric(FLERR,arg[5],false,lmp);
 
   double cutinner = cut_global_in;
-   if (narg > 6) cutinner = force->numeric(FLERR,arg[6]);
+   if (narg > 6) cutinner = utils::numeric(FLERR,arg[6],false,lmp);
   double cutouter = cut_global_out;
-  if (narg == 8) cutouter = force->numeric(FLERR,arg[7]);
+  if (narg == 8) cutouter = utils::numeric(FLERR,arg[7],false,lmp);
 
 
   if(cutinner > cutouter)

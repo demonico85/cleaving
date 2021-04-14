@@ -444,8 +444,8 @@ void PairLJBGcleavWellsPbc::settings(int narg, char **arg)
   if (narg != 3) error->all(FLERR,"Illegal pair_style command");
 
 
-  cut_global2  = force->numeric(FLERR,arg[0]);
-  cut_global = force->numeric(FLERR,arg[1]);
+  cut_global2  = utils::numeric(FLERR,arg[0],false,lmp);
+  cut_global = utils::numeric(FLERR,arg[1],false,lmp);
 
 
   if(strcmp(arg[2],"x") != 0 && strcmp(arg[2],"y") != 0 && strcmp(arg[2],"z") != 0)
@@ -516,16 +516,16 @@ void PairLJBGcleavWellsPbc::coeff(int narg, char **arg)
   if (!allocated) allocate();
 
   int ilo,ihi,jlo,jhi;
-  force->bounds(FLERR,arg[0],atom->ntypes,ilo,ihi);
-  force->bounds(FLERR,arg[1],atom->ntypes,jlo,jhi);
+  utils::bounds(FLERR,arg[0],1,atom->ntypes,ilo,ihi,error);
+  utils::bounds(FLERR,arg[1],1,atom->ntypes,jlo,jhi,error);
 
-  double epsilon_one = force->numeric(FLERR,arg[2]);
-  double sigma_one = force->numeric(FLERR,arg[3]);
+  double epsilon_one = utils::numeric(FLERR,arg[2],false,lmp);
+  double sigma_one = utils::numeric(FLERR,arg[3],false,lmp);
 
   double cut_two = cut_global2;
-  if (narg > 4) cut_two = force->numeric(FLERR,arg[4]);
+  if (narg > 4) cut_two = utils::numeric(FLERR,arg[4],false,lmp);
   double cut_one = cut_global;
-  if (narg == 6) cut_one = force->numeric(FLERR,arg[5]);
+  if (narg == 6) cut_one = utils::numeric(FLERR,arg[5],false,lmp);
 
   if(cut_two > cut_one)
          error->all(FLERR,"First cut_off must be smaller than second one in the definition");

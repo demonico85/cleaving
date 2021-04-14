@@ -24,7 +24,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "pair_coul_dsf.h"
+#include "pair_coul_dsf_sqlam.h"
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
@@ -48,7 +48,7 @@ using namespace MathConst;
 
 /* ---------------------------------------------------------------------- */
 
-PairCoulDSF::PairCoulDSF(LAMMPS *lmp) : Pair(lmp) {
+PairCoulSqlDSF::PairCoulSqlDSF(LAMMPS *lmp) : Pair(lmp) {
 
 int n=atom->ntypes;
 
@@ -67,7 +67,7 @@ int n=atom->ntypes;
 
 /* ---------------------------------------------------------------------- */
 
-PairCoulDSF::~PairCoulDSF()
+PairCoulSqlDSF::~PairCoulSqlDSF()
 {
   if (copymode) return;
 
@@ -81,7 +81,7 @@ PairCoulDSF::~PairCoulDSF()
 
 /* ---------------------------------------------------------------------- */
 
-void PairCoulDSF::compute(int eflag, int vflag)
+void PairCoulSqlDSF::compute(int eflag, int vflag)
 {
   int i,j,ii,jj,inum,jnum,itype,jtype,m;
   double qtmp,xtmp,ytmp,ztmp,delx,dely,delz,ecoul,fpair;
@@ -211,7 +211,7 @@ void PairCoulDSF::compute(int eflag, int vflag)
  *  *   Global Boundary
  *   * ------------------------------------------------------------------------- */
 
-void PairCoulDSF::global_boundary(){
+void PairCoulSqlDSF::global_boundary(){
 
 int i,k;
 int ibox[3];
@@ -273,7 +273,7 @@ tagint *tag = atom->tag;
   find scaling
 ------------------------------------------------------------------------- */
 
-int PairCoulDSF::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
+int PairCoulSqlDSF::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
 
 
 tagint *tag = atom->tag;
@@ -340,7 +340,7 @@ else
    allocate all arrays
 ------------------------------------------------------------------------- */
 
-void PairCoulDSF::allocate()
+void PairCoulSqlDSF::allocate()
 {
   allocated = 1;
   int n = atom->ntypes;
@@ -359,15 +359,15 @@ void PairCoulDSF::allocate()
    global settings
 ------------------------------------------------------------------------- */
 
-void PairCoulDSF::settings(int narg, char **arg)
+void PairCoulSqlDSF::settings(int narg, char **arg)
 {
 
   if (narg != 5) error->all(FLERR,"Illegal pair_style command");
 
-  alpha = force->numeric(FLERR,arg[0]);
-  cut_coul = force->numeric(FLERR,arg[1]);
+  alpha = utils::numeric(FLERR,arg[0],false,lmp);
+  cut_coul = utils::numeric(FLERR,arg[1],false,lmp);
 
- lambda = force->numeric(FLERR,arg[2]);
+ lambda = utils::numeric(FLERR,arg[2],false,lmp);
 
   int n = strlen(arg[3]) + 1;
   idflag = new char[n];
@@ -404,18 +404,18 @@ void PairCoulDSF::settings(int narg, char **arg)
    set coeffs for one or more type pairs
 ------------------------------------------------------------------------- */
 
-void PairCoulDSF::coeff(int narg, char **arg)
+void PairCoulSqlDSF::coeff(int narg, char **arg)
 {
 
   if (narg != 3) error->all(FLERR,"Incorrect args for pair coefficients");
   if (!allocated) allocate();
 
   int ilo,ihi,jlo,jhi;
-  force->bounds(FLERR,arg[0],atom->ntypes,ilo,ihi);
-  force->bounds(FLERR,arg[1],atom->ntypes,jlo,jhi);
+  utils::bounds(FLERR,arg[0],1,atom->ntypes,ilo,ihi,error);
+  utils::bounds(FLERR,arg[1],1,atom->ntypes,jlo,jhi,error);
 
   double l = lambda;
-  l = force->numeric(FLERR,arg[2]);
+  l = utils::numeric(FLERR,arg[2],false,lmp);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
@@ -434,7 +434,7 @@ void PairCoulDSF::coeff(int narg, char **arg)
    init specific to this pair style
 ------------------------------------------------------------------------- */
 
-void PairCoulDSF::init_style()
+void PairCoulSqlDSF::init_style()
 {
   if (!atom->q_flag)
     error->all(FLERR,"Pair style coul/dsf requires atom attribute q");
@@ -452,7 +452,7 @@ void PairCoulDSF::init_style()
    init for one type pair i,j and corresponding j,i
 ------------------------------------------------------------------------- */
 
-double PairCoulDSF::init_one(int i, int j)
+double PairCoulSqlDSF::init_one(int i, int j)
 {
   lam[j][i] = lam[i][j];
 
@@ -463,7 +463,7 @@ double PairCoulDSF::init_one(int i, int j)
   proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairCoulDSF::write_restart(FILE *fp)
+void PairCoulSqlDSF::write_restart(FILE *fp)
 {
   write_restart_settings(fp);
 
@@ -478,7 +478,7 @@ void PairCoulDSF::write_restart(FILE *fp)
   proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairCoulDSF::read_restart(FILE *fp)
+void PairCoulSqlDSF::read_restart(FILE *fp)
 {
   read_restart_settings(fp);
   allocate();
@@ -496,7 +496,7 @@ void PairCoulDSF::read_restart(FILE *fp)
   proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairCoulDSF::write_restart_settings(FILE *fp)
+void PairCoulSqlDSF::write_restart_settings(FILE *fp)
 {
   fwrite(&alpha,sizeof(double),1,fp);
   fwrite(&cut_coul,sizeof(double),1,fp);
@@ -508,7 +508,7 @@ void PairCoulDSF::write_restart_settings(FILE *fp)
   proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairCoulDSF::read_restart_settings(FILE *fp)
+void PairCoulSqlDSF::read_restart_settings(FILE *fp)
 {
   if (comm->me == 0) {
     fread(&alpha,sizeof(double),1,fp);
@@ -524,7 +524,7 @@ void PairCoulDSF::read_restart_settings(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double PairCoulDSF::single(int i, int j, int itype, int jtype, double rsq,
+double PairCoulSqlDSF::single(int i, int j, int itype, int jtype, double rsq,
                            double factor_coul, double factor_lj,
                            double &fforce)
 {
@@ -555,7 +555,7 @@ double PairCoulDSF::single(int i, int j, int itype, int jtype, double rsq,
 
 /* ---------------------------------------------------------------------- */
 
-void *PairCoulDSF::extract(const char *str, int &dim)
+void *PairCoulSqlDSF::extract(const char *str, int &dim)
 {
   if (strcmp(str,"cut_coul") == 0) {
     dim = 0;

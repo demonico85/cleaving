@@ -18,21 +18,21 @@
 
 #ifdef PAIR_CLASS
 
-PairStyle(coul/dsf,PairCoulDSF)
+PairStyle(coul/dsfsql,PairCoulSqlDSF)
 
 #else
 
-#ifndef LMP_PAIR_COUL_DSF_H
-#define LMP_PAIR_COUL_DSF_H
+#ifndef LMP_PAIR_COUL_SQL_DSF_H 
+#define LMP_PAIR_COUL_SQL_DSF_H 
 
 #include "pair.h"
 
 namespace LAMMPS_NS {
 
-class PairCoulDSF : public Pair {
+class PairCoulSqlDSF : public Pair {
  public:
-  PairCoulDSF(class LAMMPS *);
-  ~PairCoulDSF();
+  PairCoulSqlDSF(class LAMMPS *);
+  ~PairCoulSqlDSF();
   void compute(int, int);
   void settings(int, char **);
   void coeff(int, char **);

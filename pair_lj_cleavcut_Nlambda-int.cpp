@@ -435,8 +435,8 @@ void PairLJCleavCutNLInt::settings(int narg, char **arg)
 {
   if (narg != 6) error->all(FLERR,"Illegal pair_style command");
 
-  cut_global = force->numeric(FLERR,arg[0]);
-  lambda = force->numeric(FLERR,arg[1]);
+  cut_global = utils::numeric(FLERR,arg[0],false,lmp);
+  lambda = utils::numeric(FLERR,arg[1],false,lmp);
 
 
   int n = strlen(arg[2]) + 1;
@@ -467,9 +467,9 @@ void PairLJCleavCutNLInt::settings(int narg, char **arg)
     }
     
 
-    npow =  force->numeric(FLERR,arg[4]);
+    npow =  utils::numeric(FLERR,arg[4],false,lmp);
 
-    rspace = force->numeric(FLERR,arg[5]);
+    rspace = utils::numeric(FLERR,arg[5],false,lmp);
 
     calculate_int_coefficients();
   // reset cutoffs that have been explicitly set
@@ -504,17 +504,17 @@ void PairLJCleavCutNLInt::coeff(int narg, char **arg)
   if (!allocated) allocate();
 
   int ilo,ihi,jlo,jhi;
-  force->bounds(FLERR,arg[0],atom->ntypes,ilo,ihi);
-  force->bounds(FLERR,arg[1],atom->ntypes,jlo,jhi);
+  utils::bounds(FLERR,arg[0],1,atom->ntypes,ilo,ihi,error);
+  utils::bounds(FLERR,arg[1],1,atom->ntypes,jlo,jhi,error);
 
-  double epsilon_one = force->numeric(FLERR,arg[2]);
-  double sigma_one = force->numeric(FLERR,arg[3]);
+  double epsilon_one = utils::numeric(FLERR,arg[2],false,lmp);
+  double sigma_one = utils::numeric(FLERR,arg[3],false,lmp);
 
   double l = lambda;
-  if (narg > 4 )   l = force->numeric(FLERR,arg[4]);
+  if (narg > 4 )   l = utils::numeric(FLERR,arg[4],false,lmp);
 
   double cut_one = cut_global;
-  if (narg == 6) cut_one = force->numeric(FLERR,arg[5]);
+  if (narg == 6) cut_one = utils::numeric(FLERR,arg[5],false,lmp);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {

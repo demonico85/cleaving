@@ -46,7 +46,7 @@ int expand = 0;
 char **earg;
 
 nvalues=1;
-nvalues = input->expand_args(nvalues,&arg[3],1,earg);
+nvalues = utils::expand_args(FLERR,nvalues,&arg[3],1,earg,lmp);
 
 if (earg != &arg[3]) expand = 1;
 arg = earg;
