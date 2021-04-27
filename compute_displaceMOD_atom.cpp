@@ -209,7 +209,9 @@ if(update_original){
         displ[i][2] = dz;
         displ[i][3] = displace[i][3];
 
-        updateoriginal(i);
+        xoriginal[i][0] = x[i][0] + xbox*xprd;
+        xoriginal[i][1] = x[i][1] + ybox*yprd;
+        xoriginal[i][2] = x[i][2] + zbox*zprd;
 
       } else displ[i][0] = displ[i][1] = displ[i][2] = displ[i][3] = displace[i][0] = displace[i][1] =
                displace[i][2] = displace[i][3] = -10.0;
@@ -233,7 +235,9 @@ if(update_original){
         displ[i][2] = dz;
         displ[i][3] = displace[i][3];
 
-        updateoriginal(i);
+	xoriginal[i][0] = x[i][0] + h[0]*xbox + h[5]*ybox + h[4]*zbox;
+        xoriginal[i][1] = x[i][1] + h[1]*ybox + h[3]*zbox;
+        xoriginal[i][2] = x[i][2] + h[2]*zbox;
 
       } else displ[i][0] = displ[i][1] = displ[i][2] = displ[i][3] = displace[i][0] = displace[i][1] =
                displace[i][2] = displace[i][3] = 0.0;
@@ -272,20 +276,6 @@ void ComputeDisplaceMODAtom::set_arrays(int i)
 
 }
 
-/* ----------------------------------------------------------------------
-   Atom storage value must be initialized at the end of every time step
-------------------------------------------------------------------------- */
-
-void ComputeDisplaceMODAtom::updateoriginal(int i)
-{
-
-  double **xoriginal = fix->astore;
-  double **x = atom->x;
-  xoriginal[i][0] = x[i][0];
-  xoriginal[i][1] = x[i][1];
-  xoriginal[i][2] = x[i][2];
-
-}
 
 /* ----------------------------------------------------------------------
    memory usage of local atom-based array

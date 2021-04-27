@@ -40,7 +40,6 @@ class ComputeDisplaceMODAtom : public Compute {
   char *id_fix, *id_fix2;
   class FixStore *fix, *fix2;
 
-  void updateoriginal(int i);
 
 };
 
