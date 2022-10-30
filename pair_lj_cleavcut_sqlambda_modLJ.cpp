@@ -403,8 +403,8 @@ void PairLJCleavCutSqLMod::settings(int narg, char **arg)
   idflag = new char[n];
   strcpy(idflag,arg[2]);
 
-  int flag= -1;
-  index = atom->find_custom( idflag, flag);
+  int flag= -1, ncols;
+  index = atom->find_custom( idflag, flag, ncols);
 
 
 

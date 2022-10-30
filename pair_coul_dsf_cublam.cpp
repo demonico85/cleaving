@@ -376,9 +376,9 @@ void PairCoulCubLDSF::settings(int narg, char **arg)
   strcpy(idflag,arg[3]);
 
 
-  int flag;
+  int flag, ncols;
 
-  index = atom->find_custom( idflag, flag);
+  index = atom->find_custom( idflag, flag, ncols);
 
   if(flag) error->all(FLERR,"Custom property must be integer for dsf pair_style command");
 
