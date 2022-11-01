@@ -1,0 +1,319 @@
+###%***************************************************************************%
+###%                                                                          *%                                                                                                                   
+###%    Script to run Step 1 of the Cleaving Method with Walls                *%
+###%                                                                          *%
+###%***************************************************************************%
+###%                                                                          *%
+###%    Based on:                                                             *%
+###%    R. Davidchack, B. Laird, J. Chem. Phys., 118:7651-7657 (2003)         *%
+###%                                                                          *%
+###%   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~         *%
+###%                                                                          *%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%                                                                          *%
+###%***************************************************************************%
+
+
+units		lj
+atom_style	atomic
+
+boundary p p p
+read_data inputStep3.lmp 
+
+group leftW type 1 2 5 7
+group rightW type 3 4 6 8
+
+
+mass * 1.0
+
+
+group crys type 1 4 5 6
+group liquid type  2 3 7 8 
+
+group t1 type 1
+group t2 type 2
+group t3 type 3
+group t4 type 4
+group t5 type 5
+group t6 type 6
+group t7 type 7
+group t8 type 8
+
+group real type 1 2 3 4
+group dupl type 5 6 7 8
+
+
+
+region Rfrz1a prism 0.00000000 12.056731534523953 0.00000000 11.390657231461834 0.00000000 0.49221401442356644 0 0 0
+region Rfrz2a prism 0.00000000 12.056731534523953 0.00000000 11.390657231461834 31.725429867729424 32.217643882152991 0 0 0
+region Rfrz1b prism 0.00000000 12.056731534523953 0.00000000 11.390657231461834 32.217643882152991 32.709857896576558 0 0 0
+region Rfrz2b prism 0.00000000 12.056731534523953 0.00000000 11.390657231461834 63.943073749882416 64.435287764305983 0 0 0
+
+
+group hFa region Rfrz1a
+group lFa region Rfrz2a
+
+group hFb region Rfrz1b
+group lFb region Rfrz2b
+
+group FF union hFa lFa hFb lFb 
+group Freeze subtract FF liquid
+group Free subtract all Freeze
+group block union Freeze dupl
+
+# ---------------------------- Define variables --------------------------------
+
+variable clwall1 equal 16.108821941076496
+variable clwall2 equal 48.326465823229483
+variable backloop equal 0
+variable  sigma   equal  1.0
+variable  eps     equal  1.0
+variable  delta   equal  0.25
+variable  siglj   equal  1.0
+variable  epslj   equal  1.0
+variable cnt equal 1
+variable lambda equal 0.0
+variable delam equal 0.005
+variable zwf equal 0.64
+variable  crw     equal  2.0^(1.0/6.0)   
+variable  rhoc    equal  0.945
+variable  cut1    equal  2.3
+variable  cut2    equal  2.5
+variable  firsteq equal  5000
+variable  eqnts   equal  5000 
+variable  nts     equal  25000 
+variable  ts      equal  0.005
+variable thermoSteps equal 5000
+variable dumpfreq equal 20000
+variable Nevery equal 100
+variable Nrepeat equal 5 
+variable Nfreq equal 500
+variable  nloop   equal  2000
+variable Tsyst equal 1.5
+variable  Tdump   equal  0.0748
+variable restartfreq equal 200000 
+
+# ------------------------- Derivate variables ---------------------------------
+#
+
+variable  rw    equal  ${sigma}*${crw}
+variable minlam equal 1-${lambda}
+variable  cutoff1 equal  ${siglj}*${cut1} 
+variable  cutoff2 equal  ${siglj}*${cut2}
+variable lam equal ${lambda}
+variable hilimit equal 1.0-1.5*${delam} 
+variable lolimit equal 0.0+1.5*${delam} 
+
+# ---------------------------- Neighbours Exclusion ----------------------------
+
+neigh_modify every 1 delay 0 check yes exclude type 1 7 exclude type 1 8 exclude type 2 5 exclude type 2 6 exclude type 3 5 exclude type 3 6 exclude type 4 7 exclude type 4 8 exclude type 5 6 exclude type 5 7 exclude type 5 8  exclude type 6 7  exclude type 6 8  exclude type 7 8  
+
+# ----------------------------- Interactions -----------------------------------
+
+
+#### normal interactions
+
+# self
+pair_style lj/Nlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
+pair_coeff   1 1  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   2 2  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   3 3  ${epslj} ${siglj}   1.0 1.0 
+pair_coeff   4 4  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   5 5  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   6 6  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   7 7  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   8 8  ${epslj} ${siglj}   0.0 1.0
+
+# single
+pair_coeff   1 4  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   2 3  ${epslj} ${siglj}   1.0 1.0
+
+### Across cleaving plane interactions same phase
+
+pair_coeff   1 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   1 6  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 6  ${epslj} ${siglj}  ${minlam} -1.0
+
+### Across cleaving plane interactions different phases
+
+pair_coeff   1 2  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   1 3  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   2 4  ${epslj} ${siglj}  ${lambda} 1.0 
+pair_coeff   3 4  ${epslj} ${siglj}  ${lambda} 1.0
+
+neighbor     0.3 bin
+atom_modify  sort 0 0.0
+
+
+# ------------------------- fix atoms  -------------------------------
+
+velocity all zero linear
+velocity all zero angular
+velocity block set 0.0 0.0 0.0
+fix f1 block setforce 0.0 0.0 0.0 
+
+# ------------------------- Define compute style -------------------------------
+
+
+compute 1 all cleavpairs lj/Nlcleavs3 norm 4 z
+
+
+# ------------- Output thermo information and averaged variables ---------------
+
+
+
+fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall1} file fcc111-T3-walls.lmp
+fix f3 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall2} file fcc111-T3-walls.lmp
+variable totW   equal "f_f2 + f_f3"  
+
+
+fix  f4  real nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+
+compute cc1 real displace/atommod
+fix Nf1  dupl move/dupl c_cc1[*]
+
+thermo   ${thermoSteps}
+timestep ${ts}
+
+# --------------- Dumping trajectories and store restart file ------------------
+
+#dump        Dp1 all custom ${dumpfreq} dump/dump.*.xyz id type x y z 
+#restart   ${restartfreq} X.restart/X.restart
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix    f5  Free momentum 1000 linear 1 1 1
+
+# ---------- ----------------- Equilibrium at lambda = 0 ------------------------
+
+#
+
+if " ${cnt} == 1 " then &
+  "print 'Forward Interaction ${cnt}: ${lambda}' " &
+  "run    ${firsteq} " &
+  "fix    f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_1[*] file dat/inters3.${cnt}.dat mode vector " &
+  "fix    fl6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_lambda file dat/lambda.${cnt}.dat " &
+  "fix    f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_totW v_zwf f_f2 f_f3 v_lambda file out/ave.F.${cnt}.out " &
+  "run    ${nts} " &
+  "unfix  f6       " &
+  "unfix  f7       " &
+  "unfix  fl6      " &
+  "write_data data/Fstep3.${lambda}.data nocoeff "
+
+
+
+# -------------------------- changing interactions lambda ----------------------
+
+include    in.loop/loop
+
+# --------------------------- Equilibrium at lambda = 1 ------------------------
+
+variable lambda equal 1.0
+variable minlam equal 0.0
+
+
+variable    cntt equal ${cnt}+1
+variable cnt equal ${cntt}
+
+print "Forward Interaction ${cnt}: ${lambda}"
+
+### Across cleaving plane interactions same phase
+
+pair_coeff   1 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   1 6  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 6  ${epslj} ${siglj}  ${minlam} -1.0
+
+### Across cleaving plane interactions different phases
+
+pair_coeff   1 2  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   1 3  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   2 4  ${epslj} ${siglj}  ${lambda} 1.0 
+pair_coeff   3 4  ${epslj} ${siglj}  ${lambda} 1.0
+
+neighbor     0.3 bin
+neigh_modify every 1 delay 0 check yes 
+atom_modify  sort 0 0.0
+
+run  ${eqnts}
+
+
+
+fix    f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_1[*] file dat/inters3.${cnt}.dat mode vector
+fix    fl6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_lambda file dat/lambda.${cnt}.dat
+fix    f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_totW v_zwf f_f2 f_f3 v_lambda file out/ave.F.${cnt}.out
+
+run    ${nts}
+
+unfix  f6
+unfix  f7
+unfix  fl6
+
+write_data data/Fstep3.${lambda}.data nocoeff
+
+# -------------------------- Backloop ------------------------------------------
+
+if " ${backloop} == 0 " then "quit"
+
+include    in.loop/loop.back
+
+# ----------------------- Equilibrium at lambda = 0 ----------------------------
+
+variable lambda equal 0.0
+variable minlam equal 1.0
+
+
+variable    cntt equal ${cnt}-1
+variable cnt equal ${cntt}
+
+print "Interaction ${cnt}: ${lambda}"
+
+### Across cleaving plane interactions same phase
+
+pair_coeff   1 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   1 6  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 6  ${epslj} ${siglj}  ${minlam} -1.0
+
+### Across cleaving plane interactions different phases
+
+pair_coeff   1 2  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   1 3  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   2 4  ${epslj} ${siglj}  ${lambda} 1.0 
+pair_coeff   3 4  ${epslj} ${siglj}  ${lambda} 1.0
+
+neighbor     0.3 bin
+neigh_modify every 1 delay 0 check yes 
+atom_modify  sort 0 0.0
+
+run  ${eqnts}
+
+fix    f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_1[*] file dat/Binters3.${cnt}.dat mode vector
+fix    fl6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_lambda file dat/Blambda.${cnt}.dat
+fix    f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_totW v_zwf f_f2 f_f3 v_lambda file out/ave.B.${cnt}.out
+
+run    ${nts}
+
+unfix  fl6
+unfix  f6
+unfix  f7
+
+write_data data/Bstep3.${lambda}.data nocoeff
+

@@ -1,0 +1,11 @@
+wells
+
+# Cleaving wall position
+
+110   13.447169879748133 
+
+rhoc: 1.005
+fact: 1.0
+dw: 6 
+backloop: 1
+Temperature: 1.0

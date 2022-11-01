@@ -1,0 +1,168 @@
+###%********************************************************************%
+###%    Copyright The Production of y.yang.1983.comput.cmp@gmail.com    %
+###%********************************************************************%
+#
+#
+# ------------------ List of fixes ------------------------
+#
+# f1 setforce external layers = 0
+# f2 wells specification
+# f3 subtract total momentum from atoms excluding external layers
+# f4 specification NVT ensemble
+# f5 prints thermodynamic quatities and total work
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+units		lj
+atom_style	atomic
+
+boundary p p p
+read_data fcc111.lmp
+# preS1.data
+#inputFCC.lmp            #data.dump # [InputCW.lmp] is a input trajectory file of step1 (wall included)
+
+mass * 1.0
+
+region Rfrz1 prism 0.0 12.6 0.0 11.9 0.4 0.5 0.0 0.0 0.0
+region Rfrz2 prism 0.0 12.6 0.0 11.9 33.1 33.2 0.0 0.0 0.0
+
+group highF region Rfrz1
+group lowF region Rfrz2
+group Freeze union highF lowF
+group Free subtract all Freeze
+
+# ---------------------------- Define variables --------------------------------
+
+
+variable lambda equal 0.0
+variable delam  equal 0.02
+variable lam    equal 0.0
+variable  cnt   equal  1
+variable backloop equal 0
+variable rhoc equal 0.945
+variable fact equal 1.2
+variable  dw    equal 6.0 # pe per atom in liquid
+variable  expp  equal 3.0 
+variable  nloop equal  1000
+variable  eqnts equal  5000
+variable  firsteqnts equal 35000
+variable  nts   equal  45000
+variable  ts   equal  0.005
+variable  sigma equal  1.0
+variable  eps   equal  1.0
+variable  cut1  equal  2.3
+variable  cut2  equal  2.5
+variable  cutoff1 equal  ${sigma}*${cut1} 
+variable  cutoff2 equal  ${sigma}*${cut2} 
+variable Tsyst equal 0.617
+variable Tdump equal 0.0748
+
+
+# ----- Derivate variables ------
+
+variable a0 equal exp(1/3*ln(4/${rhoc}))
+variable  rrw    equal  sqrt(2)*${a0}/4.0      # nearest neighbour fcc 111
+variable  rw    equal ${rrw}*${fact}
+variable uplimit equal 1.0-1.5*${delam}
+variable lowlimit equal 0.0+1.5*${delam}
+variable  cntt  equal  ${cnt}  
+
+# ----------------------------- Interactions -----------------------------------
+
+pair_style lj/cleavs3 ${cutoff1} ${cutoff2} 1.0
+pair_coeff   * *  ${eps} ${sigma} ${cutoff1} ${cutoff2}
+neighbor     0.3 bin
+neigh_modify every 1 delay 0 check yes 
+atom_modify  sort 0 0.0
+
+# ------------------------- fix atoms  -------------------------------
+
+velocity Free create ${Tsyst} 93874090 
+velocity all zero linear
+velocity all zero angular
+velocity Freeze set 0.0 0.0 0.0
+fix f1 Freeze setforce 0.0 0.0 0.0 
+
+# ------------- Output thermo information and averaged variables ---------------
+
+thermo    1000
+timestep  ${ts}
+
+# --------------- Dumping trajectories and store restart file ------------------
+
+dump        Dp1 all xyz 20000 dump/dump.*.xyz
+restart   30000 X.restart/X.restart
+
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix    f3  Free momentum 1 linear 1 1 1
+
+# ----------------------- Equilibrium at lambda = 0 ----------------------------
+
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file wells.lmp
+fix f4 all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+run ${firsteqnts}
+
+fix    f5 all ave/time 1 100 100 c_thermo_temp c_thermo_pe f_f2 v_lambda file  out/ave.F.${cnt}.out
+run    ${nts}
+write_data data/Fstep1.${lambda}.data nocoeff
+
+unfix f2
+unfix f5
+
+# ----------------------- increasing interactions wells ------------------------
+
+include		in.loop/loop
+
+# -------------------------- Equilibrium at lambda = 1 -------------------------
+
+
+variable lambda equal 1.0
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file wells.lmp
+run ${eqnts}
+
+variable cnt equal ${cntt}+1
+variable cntt equal ${cnt}
+
+fix f5 all ave/time 1 100 100 c_thermo_temp c_thermo_pe f_f2 v_lambda file  out/ave.F.${cnt}.out
+run ${nts}
+write_data data/Fstep1.${lambda}.data nocoeff
+
+unfix f2
+unfix f5
+
+# ------------------------ moving walls backward -------------------------------
+
+if " ${backloop} == 0 " then "quit"
+
+include		in.loop/loop.back
+
+# -------------------- Equilibrium at backward lambda = 0 ----------------------
+
+
+variable lambda equal 0.0
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file wells.lmp
+run ${eqnts}
+
+variable cnt equal ${cntt}-1
+variable cntt equal ${cnt}
+
+fix f5 all ave/time 1 100 100 c_thermo_temp c_thermo_pe f_f2 v_lambda file  out/ave.B.${cnt}.out
+run ${nts}
+write_data data/Bstep1.${lambda}.data nocoeff
+
