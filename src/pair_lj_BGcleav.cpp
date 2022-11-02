@@ -59,7 +59,7 @@ PairLJBGcleav::PairLJBGcleav(LAMMPS *lmp) : Pair(lmp)
   manybody_flag = 0;
   writedata     = 1; 
   restartinfo   = 0;
-  one_coeff     = 1;
+ // one_coeff     = 1;
   pallocation   = 0;
   //eflag_global  = 1;
 

@@ -178,7 +178,7 @@ variable totW   equal "f_f2 + f_f3"
 
 fix  f4  real nvt temp ${Tsyst} ${Tsyst} ${Tdump}
 
-compute cc1 real displace/atommod
+compute cc1 real displace/atom_cleav
 fix Nf1  dupl move/dupl c_cc1[*]
 
 thermo   ${thermoSteps}

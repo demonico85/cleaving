@@ -70,7 +70,14 @@ function changeinwa34 {
 
 ################################################################################
 
-dirscripts=/mnt/iusers01/pp01/mjkssnd2/scratch/inputs_8Jul2020
+dirscripts=/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils
+
+if [ ! -d $dirscripts ];
+  then
+     echo "No dir $dirscripts found"
+     echo "Exiting..."
+     exit -1 
+fi
 
 if [ ! "$1" == "111" ] && [ ! "$1" == "110" ] && [ ! "$1" == "100" ];
 then
@@ -191,13 +198,13 @@ done
 
 if [[ -z $a ]];
   then 
-    $dirscripts/fxlyrs $syst $rho
+    $dirscripts/compiled/fxlyrs $syst $rho
 else
     if [ $a -gt 0 ]; 
       then
-        $dirscripts/fxlyrs $syst $rho -c $a $b $c
+        $dirscripts/compiled/fxlyrs $syst $rho -c $a $b $c
     else
-        $dirscripts/fxlyrs $syst $rho
+        $dirscripts/compiled/fxlyrs $syst $rho
     fi
 fi
 

@@ -1,18 +1,12 @@
 #! /bin/bash -l
 #
-#$ -P Gold
-#$ -A Brunel_allocation
 #$ -cwd
 #$ -V 
 
-# Request  wallclock time (format hours:minutes:seconds).
-#$ -l h_rt=14:00:0
 
 # request the number of virtual cores
-#$ -pe mpi 10
+#$ -pe smp.pe 16
 
-# request 2G RAM per virtual core
-#$ -l mem=2G
 
 # set number of OpenMP threads being used per MPI process
 export OMP_NUM_THREADS=1
@@ -34,9 +28,9 @@ export OMP_NUM_THREADS=1
 
 # Parameters to be changed
 
-dirscripts="/home/mmm1133/interface/inputs_8Jul2020"
-lmp="lmp_mpi_31Oct22"
-lmpath=$(echo "/home/mmm1133/interface")
+dirscripts="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils"
+lmp="lmp_mpi-01Nov22"
+lmpath="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit"
 lmp="$lmpath/$lmp"
 
 trap "exit 15" TERM
@@ -377,7 +371,12 @@ fi
 
 $dirscripts/preparation.sh $cryst $type $temp $cleav $TT $rhoc $zwi $zwf $dew $fact $dw $a $b $c $backloop $dew4  #$pbcpressure
 
-
+if [ $? -ne 0 ];
+  then
+   echo "preparation.sh failed. Check it out"
+   echo "Exiting ..."
+   exit -1 
+fi 
 
 
 #
@@ -482,7 +481,7 @@ cp $file2 .
 a=$(echo $file1 | rev | cut -d'/' -f 1 | rev)
 b=$(echo $file2 | rev | cut -d'/' -f 1 | rev)
 
-$dirscripts/s3inp $a $b $cleav >  tmp
+$dirscripts/compiled/s3inp $a $b $cleav >  tmp
 
 cleav2=$(awk '{if ($3 == "Position2:"){print $4}}' tmp )
 cp $PBS_O_WORKDIR/$step/$(echo $step".in") $PBS_O_WORKDIR/$step/$(echo $step".in-back")
@@ -567,7 +566,7 @@ fi
 rm $step/$inputnames4 2> /dev/null
 
 cp $file .
-$dirscripts/s4inp Fstep3.1.data $inputnames4
+$dirscripts/compiled/s4inp Fstep3.1.data $inputnames4
 mv $inputnames4 $PBS_O_WORKDIR/$step
 
 

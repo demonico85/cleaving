@@ -16,7 +16,6 @@
 #include "memory.h"
 #include "update.h"
 #include "error.h"
-#include "fix_store.h"
 #include "comm.h"
 
 

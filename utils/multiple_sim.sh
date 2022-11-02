@@ -1,13 +1,21 @@
 #! /bin/bash
 
+function checkcommands () {
+    if ! command -v $1 &> /dev/null
+      then
+        echo "$1 could not be found"
+        exit
+    fi
+}
 
 currdir=$(pwd)
-inpdir="/home/mmm1133/interface/inputs_8Jul2020"
+inpdir="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils"
 insim=1
 totsim=1
 nproc=20
 replace=1
 
+checkcommands  "mpirun"
 
 if [ ! -d cases ];
   then
