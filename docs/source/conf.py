@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'oxDNA'
+project = 'SurFEC'
 copyright = '2022, Nicodemo Di Pasquale and Lorenzo Rovigatti'
 author = 'Nicodemo Di Pasquale and Lorenzo Rovigatti'
 
