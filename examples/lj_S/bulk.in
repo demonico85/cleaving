@@ -1,0 +1,94 @@
+###%***************************************************************************%
+###%                                                                          *%
+###%    Script for bulk LJ crystal with Broughton-Gilmer potential            *%
+###%                                                                          *%
+###%***************************************************************************%
+###%                                                                          *%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%                                                                          *%
+###%***************************************************************************%
+
+units		lj
+atom_style	atomic
+
+boundary p p p
+read_data fcc111-T1.lmp
+
+mass * 1.0
+
+# ---------------------------- Define variables --------------------------------
+
+variable  eqnts  equal  200000 
+variable  nts    equal  300000
+variable  ts     equal  0.005
+variable  siglj  equal  1.0
+variable  epslj  equal  1.0
+variable  cut1   equal  2.3
+variable  cut2   equal  2.5
+variable  Tsyst equal 0.617
+variable  Tdump  equal  0.0748
+variable  thermoSteps  equal 1000
+variable  restartSteps equal 30000
+variable  dumpSteps    equal 10000
+
+# --------------------- Derivate variables -------------------------------------
+
+
+variable  cutoff1  equal  ${siglj}*${cut1} 
+variable  cutoff2  equal  ${siglj}*${cut2} 
+
+# ----------------------------- Interactions -----------------------------------
+
+pair_style lj/BG ${cutoff1} ${cutoff2}
+pair_coeff   * *  ${epslj} ${siglj}
+neighbor     0.3 bin
+neigh_modify every 1 delay 0 check yes 
+atom_modify  sort 0 0.0
+
+# ------------------------- initialize velocity -------------------------------
+
+velocity all create ${Tsyst} 93874090 
+velocity all zero linear
+velocity all zero angular
+
+# ------------- Output thermo information and averaged variables ---------------
+
+thermo    ${thermoSteps}
+timestep  ${ts}
+
+# --------------- Dumping trajectories and restart file ------------------------
+
+dump      Dp1 all xyz ${dumpSteps} dump/dump.*.xyz
+restart   ${restartSteps} restart/X.restart
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix    Fix2  all  momentum 1 linear 1 1 1
+
+#--------------------------- Running simulation --------------------------------
+
+
+fix  f3  all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+
+run  ${eqnts}
+
+# Definiton properties to be calculated in the sim
+
+#variable Nbin equal 500
+#variable deltaz equal 1/${Nbin}
+#compute StressAtoms all stress/atom NULL
+#compute Chunk all chunk/atom bin/1d z lower ${deltaz} units reduced
+#fix stressAve all ave/chunk 1 100 100 Chunk c_StressAtoms[*] norm none ave one file stress_profile.out
+#compute myRDF all rdf 100 * * cutoff 2.5
+#fix rdf1 all ave/time 100 1 100 c_myRDF[*] file rdf.dat mode vector
+
+# Production Run
+
+run  ${nts}
+
+write_data bulk_fin.data nocoeff
+

@@ -1,0 +1,37 @@
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable dhi equal ${zc}
+variable newzhi equal ${dhi}+${initzhi} 
+variable newzlo equal ${initzlo}
+
+print       "Forward Interaction ${cnt}: ${zc} "
+print       " ${initzhi} ${dhi} zhi "
+
+change_box all z final ${newzlo}  ${newzhi}
+
+#change_box all z delta 0 ${dhi} 
+
+print       "B ${initzhi} ${dhi} zhi "
+
+#--------------------------------------------------------------------
+
+run   ${eqnts}
+
+fix   f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq}  c_1[*] file dat/inters3.${cnt}.dat mode vector
+fix   f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_totW v_lambda f_f2 v_dhi file  out/ave.F.${cnt}.out
+
+run   ${nts}
+# --------------------------- Unfix --------------------------------------------
+
+unfix f6
+unfix f7
+
+
+#%*****************************************************************************%

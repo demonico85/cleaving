@@ -1,0 +1,157 @@
+###%***************************************************************************%
+###%                                                                          *%                                                                                                                   
+###%    Script to run Step 4 of the Cleaving Method with Walls                *%
+###%                                                                          *%
+###%***************************************************************************%
+###%                                                                          *%
+###%    Based on:                                                             *%
+###%    R. Davidchack, B. Laird, J. Chem. Phys., 118:7651-7657 (2003)         *%
+###%                                                                          *%
+###%   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~         *%
+###%                                                                          *%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%                                                                          *%
+###%***************************************************************************%
+
+units		lj
+atom_style	atomic
+
+boundary p p p
+read_data   inputStep4.lmp          
+
+group crys type 1 4 
+group liquid type  2 3 
+
+mass * 1.0
+region Rfrz2b prism 0.0 12.6 0.0 11.9 66.7 66.8 0.0 0.0 0.0
+region Rfrz1a prism 0.0 12.6 0.0 11.9 0.4 0.5 0.0 0.0 0.0
+
+group hFb region Rfrz2b
+group lFa region Rfrz1a
+
+group FF union lFa hFb
+group Freeze subtract FF liquid
+group Free subtract all Freeze
+
+group FreeL subtract Free crys
+group FreeC subtract Free liquid
+
+
+
+# ---------------------------- Define variables --------------------------------
+
+variable  clwall1 equal  0.0
+variable  clwall2 equal  33.6276
+variable  cnt     equal  1
+variable  siglj   equal  1.0
+variable  epslj   equal  1.0
+variable  sigma   equal  1.0
+variable  eps     equal  1.0
+variable  delta   equal  0.25
+variable  zwf     equal  0.60
+variable  zwi     equal  1.13
+variable  dew     equal  0.005
+variable  crw     equal  2.0^(1.0/6.0)   
+variable  nloop   equal  2000
+variable  eqnts   equal  25000
+variable  nts     equal  50000
+variable  ts      equal  0.005
+variable  cut1    equal  2.3
+variable  cut2    equal  2.5
+variable  Tsyst   equal  0.617
+variable  Tdump   equal  0.0748
+variable Nevery equal 200
+variable Nrepeat equal 5 
+variable Nfreq equal 1000
+variable dumpfreq equal 20000
+variable restartfreq equal 200000 
+variable thermoSteps equal 5000
+
+# ----- Derivate variables ------
+
+variable  hilimit equal  ${zwi}-1.5*${dew}
+variable  cutoff1  equal  ${siglj}*${cut1} 
+variable  cutoff2  equal  ${siglj}*${cut2} 
+variable  rw       equal  ${sigma}*${crw}
+variable  cntt     equal ${cnt}
+
+# ----------------------------- Interactions -----------------------------------
+
+
+pair_style lj/BG ${cutoff1} ${cutoff2}
+pair_coeff   * *  ${epslj} ${siglj}
+
+
+neighbor     0.3 bin
+neigh_modify every 1 delay 0 check yes 
+atom_modify  sort 0 0.0
+
+# ------------------------- fix atoms  -------------------------------
+
+velocity Freeze set 0.0 0.0 0.0
+fix f1 Freeze setforce 0.0 0.0 0.0 
+
+# ------------- Output thermo information and averaged variables ---------------
+
+fix  f4  all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+
+thermo    ${thermoSteps}
+timestep  ${ts}
+
+# --------------- Dumping trajectories and store restart file ------------------
+
+#dump        Dp1 all custom ${dumpfreq} dump/dump.*.xyz id type x y z 
+#restart   ${restartfreq} X.restart/X.restart
+
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix    f5  Free momentum 1000 linear 1 1 1
+
+# ---------- ----------------- Density Calcultion -------------------------------
+
+compute binchunk all chunk/atom bin/1d z lower 0.3 
+
+# -------------------------- moving walls forward for liquid ------------------------------
+
+variable    zwl equal ${zwf}
+variable    zwc equal ${zwf}
+variable    zzw equal ${zwf}
+label hereL
+include    in.loop/loop.liq
+write_data  data/Fstep4-liq.${cnt}.data  nocoeff
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+if "${zwl} >= ${zwi}" then "jump SELF breakL" else " jump SELF hereL "
+label breakL
+#next lam
+#jump SELF here
+
+# -------------------------- moving walls forward for liquid ------------------------------
+#
+
+variable cnt equal 1
+variable    zwc equal ${zwf}
+variable    zzw equal ${zwf}
+label hereC
+include    in.loop/loop.sol
+write_data  data/Fstep4-sol.${cnt}.data  nocoeff
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+if "${zwc} >= ${zwi}" then "jump SELF breakC" else " jump SELF hereC "
+label breakC
+#next lam
+##jump SELF here
+#
+
+
+
+
+
+
+
+

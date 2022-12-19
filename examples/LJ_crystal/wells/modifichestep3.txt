@@ -1,7 +1,0 @@
-aggiungere
-
-
-fix    fl6 all ave/time 1 1 1000 v_lambda file dat/lambda.${cnt}.dat
-
-
-in step3 nel primo calcolo (quello con lambda==0)
