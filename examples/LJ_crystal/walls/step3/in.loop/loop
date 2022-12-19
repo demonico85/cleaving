@@ -1,0 +1,70 @@
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+if "${lambda} >= ${hilimit}" then "jump SELF break"
+
+label		Lab0
+variable    j  loop ${nloop}
+
+
+if "${lambda} >= 0.15" then "variable delam equal 0.05"
+if "${lambda} >= 0.85" then "variable delam equal 0.005"
+variable  lambda  equal  ${lam}+${delam}
+variable  lam     equal  ${lambda}
+variable  minlam  equal  1-${lambda}
+
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+
+print       "Forward Interaction ${cnt}: ${lambda}"
+
+# -------------------- Interactions -------------------------------------------- 
+
+### Across cleaving plane interactions same phase
+
+pair_coeff   1 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   1 6  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 6  ${epslj} ${siglj}  ${minlam} -1.0
+
+### Across cleaving plane interactions different phases
+
+pair_coeff   1 2  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   1 3  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   2 4  ${epslj} ${siglj}  ${lambda} 1.0 
+pair_coeff   3 4  ${epslj} ${siglj}  ${lambda} 1.0
+
+#--------------------------------------------------------------------
+
+run   ${eqnts}
+
+fix   fl6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_lambda file dat/lambda.${cnt}.dat 
+fix   f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq}  c_1[*] file dat/inters3.${cnt}.dat mode vector
+fix   f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_totW v_zwf f_f2 f_f3 v_lambda file  out/ave.F.${cnt}.out
+
+run   ${nts}
+# --------------------------- Unfix --------------------------------------------
+
+unfix fl6
+unfix f6
+unfix f7
+
+# ------------------------------------------------------------------------------
+write_data  data/step3.${cnt}.data  nocoeff
+next		j
+print "Check ${cnt}: ${lambda} >= ${hilimit}"
+if "${lambda} >= ${hilimit}" then "jump SELF break" else " jump SELF Lab0 "
+label		break
+variable	j delete
+
+#%*****************************************************************************%

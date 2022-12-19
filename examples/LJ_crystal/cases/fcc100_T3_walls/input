@@ -1,0 +1,14 @@
+walls
+
+# Cleaving wall position
+
+100   15.500721140013775
+
+zwf: 0.63
+zwi: 1.14
+dew: 0.02
+dew4: 0.005
+rhoc: 1.074
+backloop: 0
+
+Temperature: 1.5
