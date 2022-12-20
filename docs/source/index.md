@@ -13,4 +13,5 @@ The package contains all the modified potentials and additional computes/fixes n
    
    install.md
    usage.md
+   example.md
 ```
