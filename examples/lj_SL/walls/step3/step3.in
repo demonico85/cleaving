@@ -95,12 +95,11 @@ variable Nrepeat equal 5
 variable Nfreq equal 500
 variable  nloop   equal  2000
 variable Tsyst equal 0.617
-variable  Tdump   equal  0.0748
 variable restartfreq equal 200000 
 
 # ------------------------- Derivate variables ---------------------------------
 #
-
+variable NrealDoF equal 3*count(real)+3
 variable minlam equal 1-${lambda}
 variable  rw    equal  ${sigma}*${crw}
 variable  cutoff1 equal  ${siglj}*${cut1} 
@@ -156,14 +155,15 @@ fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall1} file fcc11
 fix f3 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp
 variable totW   equal "f_f2 + f_f3"  
 
+print "GROUP Real DoF: ${NrealDoF}"
+compute_modify thermo_temp extra/dof ${NrealDoF}
+thermo   ${thermoSteps}
+timestep ${ts}
 
-fix  f4  real nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+fix  f4  real nvt temp ${Tsyst} ${Tsyst} $(100*dt) 
 
 compute cc1 real displace/atom_cleav
 fix Nf1  dupl move/dupl c_cc1[*]
-
-thermo   ${thermoSteps}
-timestep ${ts}
 
 
 # --------------- Dumping trajectories and store restart file ------------------

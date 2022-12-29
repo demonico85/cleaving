@@ -71,8 +71,6 @@ variable  rw       equal  ${sigma}*${crw}
 variable  cutoff1  equal  ${siglj}*${cut1} 
 variable  cutoff2  equal  ${siglj}*${cut2} 
 variable  cntt     equal  ${cnt}  
-variable  lowlimit equal  ${zwf}+1.5*${dew}
-variable  highlimit equal  ${zwi}-1.5*${dew}
 
 # ----------------------------- Interactions -----------------------------------
 
@@ -105,58 +103,32 @@ timestep  ${ts}
 
 fix    Fix2  Free momentum 1 linear 1 1 1
 
-# ---------- ----------------- Equilibrium at zwi -------------------------------
+# --------------------------- (Forward) Equilibrium at zw --------------------------
+
 
 variable zw equal ${zwi}
-variable zzw equal ${zw}
+variable zzw equal ${zwi}
 
-print "Equilibrium at zwi"
-print "Wall distance ${zw}"
+label           Lab0
+variable        j  loop ${nloop}
+print       "Wall distance ${zw}"
 
+print "Equilibrium at Wall distance ${zw}"
 
-fix  f2 all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall} file walls.lmp
-fix  f3  all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
-
-run  ${firsteqnts}
-
-fix  f4 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe f_f2 v_zw file  out/ave.F.${cnt}.out
-
-run  ${nts}
+include         in.loop/loop
 
 write_data data/Fstep1.${cnt}.data nocoeff
+next            j   
 
-unfix f2
-unfix f4
+variable    zw equal ${zzw}-${dew}
+variable    zzw equal ${zw}
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
 
-
-# -------------------------- moving walls Forward ------------------------------
-
-include		in.loop/loop
-
-# -------------------------- Equilibrium at zwf ---------------------------------
-
-
-variable zzw equal ${zw}-${dew} 
-variable zw equal ${zzw}
-
-print "Equilibrium at zwf"
-print "Wall distance ${zw}"
-
-
-fix  f2 all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall} file walls.lmp
-
-run   ${eqnts}
-
-variable    cnt equal ${cntt}+1
-variable    cntt equal ${cnt}
-fix   f4 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe f_f2 v_zwf file  out/ave.F.${cnt}.out
-
-run      ${nts}
-
-write_data data/Fstep1.${cnt}.data nocoeff
-
-unfix   f2
-unfix   f4
+print "Check ${cnt}: ${zw} <= ${lowlimit}"
+if "${zw} >= ${zwf}" then "jump SELF break" else " jump SELF Lab0 "
+label           break
+variable        j delete
 
 
 # ------------------------ moving walls backward -------------------------------
