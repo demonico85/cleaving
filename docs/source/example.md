@@ -1,22 +1,26 @@
 # Examples
 
+In this section `/` is the package's root folder.
 
 ## Solid-Vacuum interface of a Lennard-Jones crystal with wells
 
-In this example we will set up the cleaving calculation for the calculation of the SFE of a Lennard-Jones crystal in contact with vacuum
+In this example we will set up the cleaving calculation for the calculation of the SFE of a Lennard-Jones crystal in contact with vacuum.
 
-The input files for the whole calculations are already given in the directory `/examples/lj_SV` but in this tutorial we will go through the writing of such files from scratch
+The input files for the whole calculations are already given in the directory `/examples/lj_SV` but in this tutorial we will go through the writing of such files from scratch.
+
+First of all, create a new folder and step in it.
 
 ### Step 1 
 
-1. Copy the file `bulk.in` from the directory `/examples/lj_S`, we will build the cleaving calculations by modifying this file. 
+1. Create a `step1` folder and step in it. Create the `out/`, `data/` and `dump/` subfolders.
 
-2.  Create the data file with the initial system. In our case we will use a Lennard-Jones crystall in fcc configuration along the direction (111) at the (reduced) temperature of 0.1. Copy the file `fcc111-T01.lmp` from the directory `/examples/lj_systems/`
+2. Prepare the LAMMPS input file. Here we use `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder and delete all the lines after the `f3` fix.
 
-3. Create the input file for the wells. The exact format is given in the description of the appropriate fix. Copy the file `fcc    fcc111-T01-wells.lmp` from the directory `/examples/lj_systems/`
+3. Prepare the starting configuration. Here we copy the `/examples/lj_systems/fcc111-T01.lmp` data file to the current folder. The file contains the starting configuration, a Lennard-Jones fcc crystal oriented along the direction (111) at the (reduced) temperature of 0.1. Edit the `bulk.in` input file so that the correct data file is read (*i.e.* change the `read_data fcc111-T1.lmp` line to `read_data fcc111-T01.lmp`).
 
+4. Prepare a wells file. Here we will use the `/examples/lj_systems/fcc111-T01-wells.lmp` file, which should be copied to the current folder. The exact format of this file is given in the description of the appropriate fix.
 
-   E.g.:
+5. Prepare a file containing the variation of the strength of the wells. This file contains a sequence of increasing consecutive numbers in the interval $[0,1]$ (extremes included). Here is a (truncated) example:
 ```
 0.0
 0.001
@@ -28,28 +32,25 @@ The input files for the whole calculations are already given in the directory `/
 0.999
 1.0
 ```
+Note: 
+* The file must start at 0 and end at 1. 
+* There is no internal control in the code that checks that the boundaries are correct
+Here we will be using the `/examples/lj_SV/step1/lambda_wells.dat` file, so make sure to copy it to the current folder.
 
-    Note: 
-   * The file must start at 0 and end at 1. 
-   * There is no internal control in the code that the boundaries are correct
+6. The wells in the system are introduced using the new fix `wellPforce`:
 
-4. Create a file for the variation of the strength of the wells. This file contains a sequence of increasing consecutive numbers in the interval $[0,1]$ (extremes included). You can copy the file `/examples/lj_SV/step1/lambda_wells.dat` (if you call it differently change its name in point 6)
+```
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file fcc111-T01-wells.lmp 
+```
 
-5. The walls in the system are introduced using the new fix `wellsPforce`: 
-    
-   ```
-   fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file fcc111-T01-wells.lmp 
-   ```
-    where the explanation of the different parameters is given in the description of the new fix.
-
-6. In the wells version of the cleaving model, the wells are introduced by switching the parameter lambda from 0 (no interactions between atoms and wells) and 1 (full interactions between atoms and wells). Lammps  allows the creation of an input file which can perform several runs in a row by changing the parameter between the different runs. The code to include in the `bulk.in` file is
+where the explanation of the different parameters is given in the description of the fix. In the wells version of the cleaving model, the wells are introduced by switching the parameter lambda from 0 (no interactions between atoms and wells) and 1 (full interactions between atoms and wells). LAMMPS allows the creation of an input file which can perform several runs in a row by changing the parameter between the different runs. The relevant code that should be added to `bulk.in` is
 
 ```
 variable lam file lambda_wells.dat
-variable i   equal  1
-variable a0 equal exp(1/3*ln(4/1.05604))
+variable i     equal 1
+variable a0    equal exp(1/3*ln(4/1.05604))
 variable rw    equal sqrt(2)*${a0}/4.0*1.2
-
+variable expp  equal 3.0
 
 label here
 variable    lambda equal ${lam}
@@ -73,16 +74,18 @@ next lam
 jump SELF here
 ```
 
-   To keep the main directory clean from all the output files generated during the run, we include such files in two subdirs `out` and `data` which must be created before running the simulation, otherwise Lammps will throw an error.
-   We refer to the [Lammps documentation](https://docs.lammps.org/jump.html) for the use of the use of the `jump` command to create a loop. Each iteration of the loops produces the following files:
-   * `Fstep1.${cnt}.data`: data file containing the last configuration of the i-th iteration
-   * `ave.F.${cnt}.out`: File which contains a summary of  the properties of the system, including the work (f_f2) 
+To keep the main directory clean from all the output files generated during the run, we print those files in the `out` and `data` folders.
+
+We refer to the [LAMMPS documentation](https://docs.lammps.org/jump.html) for the use of the `jump` command to create a loop. Each iteration of the loop produces the following files:
+
+* `Fstep1.${cnt}.data`: data file containing the last configuration of the i-th iteration
+* `ave.F.${cnt}.out`: File which contains a summary of the properties of the system, including the work (`f_f2`) 
 
 ### Step 2
 
-In the second step we are switching off the interactions among the two sides of the cleaving wall. 
+In the second step we switch off the interactions among the two sides of the cleaving wall. 
 
-1. Copy the last `Fstep1.${i}.data` file from the Step1 folder
+1. Copy the last `Fstep1.${i}.data` file from the [Step 1](#step-1) folder
 
 2. The switching off is implemented directly in the definition of the pair interactions. We therefore need to change the pair interaction to the new defined type
 
@@ -90,13 +93,11 @@ In the second step we are switching off the interactions among the two sides of 
 pair_style lj/BGcleavwellspbc ${cutoff1} ${cutoff2} z
 ```
 
-   all the parameters (cutoff-1, cutoff2, epsilon, sigma) remain identical to those used in the Step1. Note that there is a third parameter in this pair_style, the direction normal to the cleaving plane (z in this case). 
+All the parameters (cutoff-1, cutoff2, epsilon, sigma) remain identical to those used in the [Step 1](#step-1). Note that there is a third parameter in this pair_style, the direction normal to the cleaving plane (z in this case). 
 
-4. Add the command for the walls in the lammps script file: `fix f2 all wellPforce 6.0 ${rw} ${expp} 1.0 file fcc111-T01-wells.lmp`. In this step the strenght of the walls remains constant, therefore we replace 1 to the variable ${lambda}
+3. Add the command for the wells in the LAMMPS script file: `fix f2 all wellPforce 6.0 ${rw} ${expp} 1.0 file fcc111-T01-wells.lmp`. In this step the strenght of the wells remains constant, therefore we replace 1 to the variable ${lambda}
 
-3. Create a file for the switching off of the interactions across teh cleaving plane. This is obtained by specifying in a file the amount of the coordinate (z in our case) the box system will be moved away from its periodic images. The file needs to always start with zero, which is the first point of the switching
-
-   E.g.:
+4. Create a file for the switching off of the interactions across teh cleaving plane. This is obtained by specifying in a file the amount of the coordinate (z in our case) the box system will be moved away from its periodic images. The file must start with zero, which is the first point of the switching. Here is an example:
 ```
 0.0
 0.001
@@ -111,10 +112,9 @@ pair_style lj/BGcleavwellspbc ${cutoff1} ${cutoff2} z
 3.2
 ...
 ```
+Note: in this case there is no upper boundary. The last value should be large enough that there are no more interactions between the box and its periodic images. Usually a value of 2.6 is enough.
 
-   Note: in this case there is no upper boundary. The limit mnust ensure that there are no more interactions between the box and its periodic images. Usually a value of 2.6 is enough.
-
-4. The actual switching off is obtained through another loop which increases the size of the box. Since the atoms are kept in place by the cleaving potential, increasing the size of the box creates a vacuum space. When the vacuum space is larger than cutoff2 than the box and its image across the cleaving wall do not interact anymore.
+5. The actual switching off is obtained through another loop which increases the size of the box. Since the atoms are kept in place by the cleaving potential, increasing the size of the box creates a vacuum space. When the vacuum space is larger than cutoff2 than the box and its image across the cleaving wall do not interact anymore.
 
 ```
 
@@ -150,16 +150,16 @@ next zc
 jump SELF here
 ```
 
-   We refer to the [Lammps documentation](https://docs.lammps.org/change_box.html) for the exact explanation of the `change_box` command
+We refer to the [LAMMPS documentation](https://docs.lammps.org/change_box.html) for the exact explanation of the `change_box` command.
 
 
 ### Step 3
 
-In the last step we are removing the wells leaving free the newly created interfaces. 
+In the last step we remove the wells leaving free the newly created interfaces. 
 
-1. Copy the last dat file from the Step2 directory
+1. Copy the last dat file from the [Step 2](#step-2) directory
 
-2. Create the new directories `/out` and `/data`
+2. Create the new directories `out/` and `data/`
 
 3. Create the input file for the wells. The exact format is given in the description of the appropriate fix. Copy the file `fcc    fcc111-T01-wells.lmp` from the directory `/examples/lj_systems/`
 
@@ -175,14 +175,12 @@ In the last step we are removing the wells leaving free the newly created interf
 0.0
 ```
 
-   Note:
-   * The file must start at 1 and end at 0
-   * There is no internal control in the code on the boundaries
-   * It does not need to be the reverse of the file used in Step1
+Note:
+* The file must start at 1 and end at 0
+* There is no internal control in the code on the boundaries
+* It does not need to be the reverse of the file used in [Step 1](#step-1)
 
-
-4. The loop in Step3 in analogous to the loop in Step1 run backwards
-
+4. The loop in [Step 3](#step-3) in analogous to the loop in [Step 1](#step-1) run backwards
 
 ```
 label here
@@ -212,14 +210,11 @@ jump SELF here
 
 #### Calculation of the SFE 
 
-The SFE is obtained by summing the work performed in the Step1, Step2, Step3
+The SFE is obtained by summing the work performed in the [Step 1](#step-1), [Step 2](#step-2), [Step 3](#step-3)
 
-1. The files `.out` generated in Step1 contains the quantity `f_f2` which is the work performed. An average of that quantity for each lambda gives the variation of the energy in Step1. The integration of the results quantity over lambda gives the total work in Step1
+1. The files `.out` generated in [Step 1](#step-1) contains the quantity `f_f2` which is the work performed. An average of that quantity for each lambda gives the variation of the energy in Step1. The integration of the results quantity over lambda gives the total work in [Step 1](#step-1).
 
-2. The files `.dat` generated in Step2 contains the interactions _switched-off_ during the Step2. By averaging these values for each value of zw we obtain the variation of the energy in Step2. The integration of the results over zw gives the total work in Step2
+2. The files `.dat` generated in [Step 2](#step-2) contains the interactions _switched-off_ during the [Step 2](#step-2). By averaging these values for each value of zw we obtain the variation of the energy, and the integration of the results over zw gives the total work done in [Step 2](#step-2).
 
-
-3. Step3 is analogous to Step1
-
-
+3. [Step 3](#step-3) is analogous to [Step 1](#step-1).
 
