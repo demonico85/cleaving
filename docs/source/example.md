@@ -32,10 +32,14 @@ First of all, create a new folder and step in it.
 0.999
 1.0
 ```
-Note: 
-* The file must start at 0 and end at 1. 
-* There is no internal control in the code that checks that the boundaries are correct
+Note:
+
+   * The file must start at 0 and end at 1. 
+   * There is no internal control in the code that checks that the boundaries are correct
+   
 Here we will be using the `/examples/lj_SV/step1/lambda_wells.dat` file, so make sure to copy it to the current folder.
+
+![Step-1](../figs/wells-S1.png "Step-1")
 
 6. The wells in the system are introduced using the new fix `wellPforce`:
 
@@ -81,6 +85,8 @@ We refer to the [LAMMPS documentation](https://docs.lammps.org/jump.html) for th
 * `Fstep1.${cnt}.data`: data file containing the last configuration of the i-th iteration
 * `ave.F.${cnt}.out`: File which contains a summary of the properties of the system, including the work (`f_f2`) 
 
+![Step-2](../figs/wells-S2.png "Step-2")
+
 ### Step 2
 
 In the second step we switch off the interactions among the two sides of the cleaving wall. 
@@ -90,7 +96,7 @@ In the second step we switch off the interactions among the two sides of the cle
 2. The switching off is implemented directly in the definition of the pair interactions. We therefore need to change the pair interaction to the new defined type
 
 ```
-pair_style lj/BGcleavwellspbc ${cutoff1} ${cutoff2} z
+pair_style lj/BGcleavpbc ${cutoff1} ${cutoff2} z
 ```
 
 All the parameters (cutoff-1, cutoff2, epsilon, sigma) remain identical to those used in the [Step 1](#step-1). Note that there is a third parameter in this pair_style, the direction normal to the cleaving plane (z in this case). 
@@ -114,7 +120,12 @@ All the parameters (cutoff-1, cutoff2, epsilon, sigma) remain identical to those
 ```
 Note: in this case there is no upper boundary. The last value should be large enough that there are no more interactions between the box and its periodic images. Usually a value of 2.6 is enough.
 
-5. The actual switching off is obtained through another loop which increases the size of the box. Since the atoms are kept in place by the cleaving potential, increasing the size of the box creates a vacuum space. When the vacuum space is larger than cutoff2 than the box and its image across the cleaving wall do not interact anymore.
+
+5. The work needed to switch off the interactions (described in the next point) is calculated through the new compute-style 
+```compute 1 all cleavpairs lj/BGcleavpbc norm 2 z```.
+ The meaning of the parameters is reported in the description of this compute style  
+
+6. The actual switching off is obtained through another loop which increases the size of the box. Since the atoms are kept in place by the cleaving potential, increasing the size of the box creates a vacuum space. When the vacuum space is larger than cutoff2 than the box and its image across the cleaving wall do not interact anymore.
 
 ```
 
@@ -206,7 +217,7 @@ next lam
 jump SELF here
 ```
 
-
+![Step-3](../figs/wells-S3.png "Step-3")
 
 #### Calculation of the SFE 
 

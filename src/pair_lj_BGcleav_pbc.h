@@ -13,21 +13,21 @@
 
 #ifdef PAIR_CLASS
 
-PairStyle(lj/BGcleavwellspbc,PairLJBGcleavWellsPbc)
+PairStyle(lj/BGcleavpbc,PairLJBGcleavPbc)
 
 #else
 
-#ifndef LMP_PAIR_CLEAVWELLS_BG
-#define LMP_PAIR_CLEAVWELLS_BG
+#ifndef LMP_PAIR_CLEAV_BG_PBC
+#define LMP_PAIR_CLEAV_BG_PBC
 
 #include "pair.h"
 
 namespace LAMMPS_NS {
 
-class PairLJBGcleavWellsPbc : public Pair {
+class PairLJBGcleavPbc : public Pair {
  public:
-  PairLJBGcleavWellsPbc(class LAMMPS *);
-  virtual ~PairLJBGcleavWellsPbc();
+  PairLJBGcleavPbc(class LAMMPS *);
+  virtual ~PairLJBGcleavPbc();
   virtual void compute(int, int);
 
   void settings(int, char **);

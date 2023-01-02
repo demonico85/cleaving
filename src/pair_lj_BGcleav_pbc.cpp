@@ -52,7 +52,7 @@ using namespace MathConst;
 
 /* ---------------------------------------------------------------------- */
 
-PairLJBGcleavWellsPbc::PairLJBGcleavWellsPbc(LAMMPS *lmp) : Pair(lmp)
+PairLJBGcleavPbc::PairLJBGcleavPbc(LAMMPS *lmp) : Pair(lmp)
 {
   single_enable = 1;
   respa_enable  = 0;
@@ -76,7 +76,7 @@ PairLJBGcleavWellsPbc::PairLJBGcleavWellsPbc(LAMMPS *lmp) : Pair(lmp)
 
 /* ---------------------------------------------------------------------- */
 
-PairLJBGcleavWellsPbc::~PairLJBGcleavWellsPbc()
+PairLJBGcleavPbc::~PairLJBGcleavPbc()
 {
   if (allocated) {
     memory->destroy(setflag);
@@ -106,7 +106,7 @@ PairLJBGcleavWellsPbc::~PairLJBGcleavWellsPbc()
    allocate all arrays
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::allocate()
+void PairLJBGcleavPbc::allocate()
 {
   allocated = 1;
   int n = atom->ntypes;
@@ -144,7 +144,7 @@ void PairLJBGcleavWellsPbc::allocate()
 
 /* ---------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::compute(int eflag, int vflag)
+void PairLJBGcleavPbc::compute(int eflag, int vflag)
 {
 
   int i,j,ii,jj,inum,jnum,itype,jtype,m,scaling;
@@ -298,7 +298,7 @@ MPI_Barrier(world); */
  *   find scaling
  *   ------------------------------------------------------------------------- */
 
-int PairLJBGcleavWellsPbc::find_scaling (double jcom)
+int PairLJBGcleavPbc::find_scaling (double jcom)
 //(int imtype, int jmtype, double icom, double jcom){
 {
      int pbcghost=0;
@@ -362,7 +362,7 @@ else return 0;
    proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::write_restart(FILE *fp)
+void PairLJBGcleavPbc::write_restart(FILE *fp)
 {
   write_restart_settings(fp);
 
@@ -382,7 +382,7 @@ void PairLJBGcleavWellsPbc::write_restart(FILE *fp)
    proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::read_restart(FILE *fp)
+void PairLJBGcleavPbc::read_restart(FILE *fp)
 {
   read_restart_settings(fp);
   allocate();
@@ -411,7 +411,7 @@ void PairLJBGcleavWellsPbc::read_restart(FILE *fp)
    proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void  PairLJBGcleavWellsPbc::write_restart_settings(FILE *fp)
+void  PairLJBGcleavPbc::write_restart_settings(FILE *fp)
 {
 
   fwrite(&cut_global,sizeof(double),1,fp);
@@ -423,7 +423,7 @@ void  PairLJBGcleavWellsPbc::write_restart_settings(FILE *fp)
    proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void  PairLJBGcleavWellsPbc::read_restart_settings(FILE *fp)
+void  PairLJBGcleavPbc::read_restart_settings(FILE *fp)
 {
   int me = comm->me;
   if (me == 0) {
@@ -439,7 +439,7 @@ void  PairLJBGcleavWellsPbc::read_restart_settings(FILE *fp)
    global settings
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::settings(int narg, char **arg)
+void PairLJBGcleavPbc::settings(int narg, char **arg)
 {
   if (narg != 3) error->all(FLERR,"Illegal pair_style command");
 
@@ -505,7 +505,7 @@ pair_coeff    1     2       1.0      1.0      1.1      0.25      1.1
 
 */
 
-void PairLJBGcleavWellsPbc::coeff(int narg, char **arg)
+void PairLJBGcleavPbc::coeff(int narg, char **arg)
 {
   if (narg < 4 || narg > 7)
     error->all(FLERR,"Incorrect args for pair coefficients");
@@ -552,7 +552,7 @@ void PairLJBGcleavWellsPbc::coeff(int narg, char **arg)
    proc 0 writes to data file
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::write_data(FILE *fp)
+void PairLJBGcleavPbc::write_data(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     fprintf(fp,"%d %g %g\n",i,epsilon[i][i],sigma[i][i]);
@@ -562,7 +562,7 @@ void PairLJBGcleavWellsPbc::write_data(FILE *fp)
    proc 0 writes all pairs to data file
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::write_data_all(FILE *fp)
+void PairLJBGcleavPbc::write_data_all(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     for (int j = i; j <= atom->ntypes; j++)
@@ -588,7 +588,7 @@ lj10 = coefficient Force r^-2 second cut-off
 
 */
 
-double PairLJBGcleavWellsPbc::init_one(int i, int j)
+double PairLJBGcleavPbc::init_one(int i, int j)
 {
 
   if (setflag[i][j] == 0) {
@@ -640,7 +640,7 @@ double PairLJBGcleavWellsPbc::init_one(int i, int j)
    init specific to this pair style
 ------------------------------------------------------------------------- */
 
-void PairLJBGcleavWellsPbc::init_style()
+void PairLJBGcleavPbc::init_style()
 {
 
   // request regular neighbor lists
@@ -661,7 +661,7 @@ void PairLJBGcleavWellsPbc::init_style()
  * ------------------------------------------------------------------------- */
 
 
-double PairLJBGcleavWellsPbc::single(int i, int j, int itype, int jtype, double rsq,
+double PairLJBGcleavPbc::single(int i, int j, int itype, int jtype, double rsq,
                          double factor_coul, double factor_lj,
                          double &fforce)
 {

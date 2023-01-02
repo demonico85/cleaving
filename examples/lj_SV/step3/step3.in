@@ -59,7 +59,7 @@ velocity all zero angular
 #### normal interactions
 
 # self
-pair_style lj/BGcleavwellspbc ${cutoff1} ${cutoff2} z 
+pair_style lj/BGcleavpbc ${cutoff1} ${cutoff2} z 
 pair_coeff   * *  ${epslj} ${siglj}  
 
 neighbor     0.3 bin
