@@ -12,7 +12,7 @@ First of all, create a new folder and step in it.
 
 ### Step 1 
 
-1. Create a `step1` folder and step in it. Create the `out/`, `data/` and `dump/` subfolders.
+1. Create a `step1` folder and enter it. Create the `out/`, `data/` and `dump/` subfolders.
 
 2. Prepare the LAMMPS input file. Here we use `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder and delete all the lines after the `f3` fix.
 
@@ -89,21 +89,23 @@ We refer to the [LAMMPS documentation](https://docs.lammps.org/jump.html) for th
 
 ### Step 2
 
-In the second step we switch off the interactions among the two sides of the cleaving wall. 
+In the second step we switch off the interactions between the two sides of the cleaving wall. 
 
-1. Copy the last `Fstep1.${i}.data` file from the [Step 1](#step-1) folder
+1. Create the `step2` folder and enter it.
 
-2. The switching off is implemented directly in the definition of the pair interactions. We therefore need to change the pair interaction to the new defined type
+2. Copy the last `Fstep1.*.data` file from the [Step 1](#step-1) folder.
+
+3. The switching off is implemented directly in the definition of the pair interactions. We therefore need to change the pair interaction to the new defined type
 
 ```
 pair_style lj/BGcleavpbc ${cutoff1} ${cutoff2} z
 ```
 
-All the parameters (cutoff-1, cutoff2, epsilon, sigma) remain identical to those used in the [Step 1](#step-1). Note that there is a third parameter in this pair_style, the direction normal to the cleaving plane (z in this case). 
+All the parameters (`cutoff1`, `cutoff2`, `epsilon`, `sigma`) are identical to those used in [Step 1](#step-1). Note that there is a third parameter in this `pair_style`, the direction normal to the cleaving plane, which is `z` in this case. 
 
-3. Add the command for the wells in the LAMMPS script file: `fix f2 all wellPforce 6.0 ${rw} ${expp} 1.0 file fcc111-T01-wells.lmp`. In this step the strenght of the wells remains constant, therefore we replace 1 to the variable ${lambda}
+4. Add the command for the wells in the LAMMPS script file: `fix f2 all wellPforce 6.0 ${rw} ${expp} 1.0 file fcc111-T01-wells.lmp`. In this step the strenght of the wells remains constant, therefore we replace `${lambda}` with 1.
 
-4. Create a file for the switching off of the interactions across teh cleaving plane. This is obtained by specifying in a file the amount of the coordinate (z in our case) the box system will be moved away from its periodic images. The file must start with zero, which is the first point of the switching. Here is an example:
+5. Create a file for the switching off of the interactions across the cleaving plane. This is obtained by specifying in a file by how much the box will be moved away from its periodic images along the normal to the cleaving plane (`z` in our case). The file must start with zero, which is the first point of the switching. Here is an example:
 ```
 0.0
 0.001
@@ -118,14 +120,12 @@ All the parameters (cutoff-1, cutoff2, epsilon, sigma) remain identical to those
 3.2
 ...
 ```
-Note: in this case there is no upper boundary. The last value should be large enough that there are no more interactions between the box and its periodic images. Usually a value of 2.6 is enough.
+Note: the upper boundary should be large enough so that, when the box has moved this much, there are no more interactions between the box and its periodic images. A value of 2.6 is usually enough.
 
 
-5. The work needed to switch off the interactions (described in the next point) is calculated through the new compute-style 
-```compute 1 all cleavpairs lj/BGcleavpbc norm 2 z```.
- The meaning of the parameters is reported in the description of this compute style  
+6. The work needed to switch off the interactions (described in the next point) is calculated through the new compute-style ```compute 1 all cleavpairs lj/BGcleavpbc norm 2 z```. The meaning of the parameters is reported in the description of this compute style.
 
-6. The actual switching off is obtained through another loop which increases the size of the box. Since the atoms are kept in place by the cleaving potential, increasing the size of the box creates a vacuum space. When the vacuum space is larger than cutoff2 than the box and its image across the cleaving wall do not interact anymore.
+7. The actual switching off is obtained through another loop which increases the size of the box. Since the atoms are kept in place by the cleaving potential, increasing the size of the box creates a vacuum space. When the vacuum space is larger than cutoff2 than the box and its image across the cleaving wall do not interact anymore.
 
 ```
 
