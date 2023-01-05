@@ -13,7 +13,7 @@ mass * 1.0
 
 # ---------------------------- Define variables --------------------------------
 
-variable lam   file rev_lambda_well.dat
+variable lam   file rev_lambda_wells.dat
 variable  cnt   equal  1
 variable rhoc equal 0.945
 variable fact equal 1.2
