@@ -23,7 +23,7 @@ Lower case: phase 2
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pair_lj_BGcleav_wellspbc.h"
+#include "pair_lj_BGcleav_pbc.h"
 #include "domain.h"
 #include "atom.h"
 #include "comm.h"
