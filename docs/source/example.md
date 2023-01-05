@@ -14,7 +14,7 @@ First of all, create a new folder and step in it.
 
 1. Create a `step1` folder and enter it. Create the `out/`, `data/`, `restart/`, and `dump/` subfolders. Note that you can safely comment out the `dump` and `restart` lines of the input, since dump and restart files are not needed for the cleaving computation. In this case you don't need to create the `restart/` and `dump/` folders.
 
-2. Prepare the LAMMPS input file. Here we use `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder and delete all the lines after the `f3` fix.
+2. Prepare the LAMMPS input file. Here we use `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder, delete all the lines after the `f3` fix and change the temperature to 0.1 `variable Tsyst equal 0.1`.
 
 3. Prepare the starting configuration. Here we copy the `/examples/lj_systems/fcc111-T01.lmp` data file to the current folder. The file contains the starting configuration, a Lennard-Jones fcc crystal oriented along the direction (111) at the (reduced) temperature of 0.1. Edit the `bulk.in` input file so that the correct data file is read (*i.e.* change the `read_data fcc111-T1.lmp` line to `read_data fcc111-T01.lmp`).
 
@@ -108,7 +108,7 @@ In the third step we switch off the interactions between the two sides of the cl
 
 2. Copy `fcc111-T01-wells.lmp` and the last `data/Fstep1.*.data` file from the [Step 1](#step-1) folder.
 
-3. Prepare a new LAMMPS input file. We again use the `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder and delete all the lines after the `f3` fix, changing the name of the data file to match the file copied in sub-step 2.
+3. Prepare a new LAMMPS input file. We again use the `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder, delete all the lines after the `f3` fix and change the temperature to 0.1 `variable Tsyst equal 0.1` and change the name of the data file to match the file copied in sub-step 2.
 
 4. The switching off is implemented directly in the definition of the pair interactions. We therefore need to change the pair interaction in the LAMMPS script file (section *Interactions*) to the new defined type
 
@@ -208,7 +208,7 @@ In the last step we remove the wells leaving free the newly created interfaces.
 
 2. Copy `fcc111-T01-wells.lmp` and the last `data/Fstep3.*.data` file from the [Step 3](#step-3) folder.
 
-3. Prepare a new LAMMPS input file. We again use the `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder and delete all the lines after the `f3` fix, changing the name of the data file to match the file copied in sub-step 2.
+3. Prepare a new LAMMPS input file. We again use the `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder, delete all the lines after the `f3` fix and change the temperature to 0.1 `variable Tsyst equal 0.1` and change the name of the data file to match the file copied in sub-step 2.
 
 4. Prepare a file containing the variation of the strength of the wells. This file contains a sequence of increasing consecutive numbers in the interval $[0,1]$ (extremes included). Here is a (truncated) example:
 
