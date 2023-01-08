@@ -1,25 +1,29 @@
-###%********************************************************************%
-###%    Copyright The Production of y.yang.1983.comput.cmp@gmail.com    %
-###%********************************************************************%
-
+#*******************************************************************************#
+##                                Wells loop                                     #
+##*******************************************************************************#
+##%       Created by:                                                           *%
+##%            Nicodemo Di Pasquale                                             *%
+##%            Department of Mathematics                                        *%
+##%            University of Leicester                                          *%
+##%            March 2018                                                       *%
+##%******************************************************************************%
 
 
 variable    lambda equal ${lam}
 
-fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file fcc111-T01-wells.lmp
-variable totW   equal "f_f2" 
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file ${wellsfile} 
 
 print       "Well depth ${lambda}"
 
 run   ${eqnts}
 
-fix  f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_lambda f_f2   file out/ave.F.${cnt}.out
+fix  f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe f_f2 v_lambda file  out/ave.${dir}.${i}.out
 
 run  ${nts}
+
+# --------------------------- Unfix --------------------------------------------
 
 unfix f2
 unfix f6
 
-###%********************************************************************%
-###%    Copyright The Production of y.yang.1983.comput.cmp@gmail.com    %
-###%********************************************************************%
+#%*****************************************************************************%

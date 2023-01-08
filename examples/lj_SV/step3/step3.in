@@ -1,6 +1,17 @@
-###%********************************************************************%
-###%    Copyright The Production of y.yang.1983.comput.cmp@gmail.com    %
-###%********************************************************************%
+###%****************************************************************************%
+#####%                                                                          *%
+#####%    Script for Step 3: LJ crystal in contact with vacuum                  *%
+#####%                             with Broughton-Gilmer potential              *%
+#####%                                                                          *%
+#####%***************************************************************************%
+#####%                                                                          *%
+#####%    Created by:                                                           *%
+#####%    Nicodemo Di Pasquale                                                  *%
+#####%    Department of Mathematics                                             *%
+#####%    University of Leicester                                               *%
+#####%    March 2018                                                            *%
+#####%                                                                          *%
+#####%***************************************************************************%
 
 units		lj
 atom_style	atomic
@@ -13,39 +24,42 @@ mass * 1.0
 
 # ---------------------------- Define variables --------------------------------
 
-variable backloop equal 0
-variable zc file zdir.dat 
-variable cnt     equal  1
-variable rhoc     equal 1.05604 
-variable fact equal 1.2
-variable  dw      equal 6.0 # pe per atom in liquid
-variable  expp    equal 3.0 
-variable  eqnts   equal  15000
-variable  nts     equal  50000
-variable  ts      equal  0.005
-variable  siglj   equal  1.0
-variable  epslj   equal  1.0
-variable  cut1    equal  2.3
-variable  cut2    equal  2.5
-variable Tsyst    equal 0.1
-variable Tdump    equal 0.0748
-variable Nevery equal 100
-variable Nrepeat equal 5
-variable Nfreq equal 500
-variable lambda equal 1.0
-variable thermoSteps equal 1000
+variable   zc file zdir.dat 
+variable   i           equal  1         # initialization counter
+variable   backloop    equal  0         # perform the backloop yes/no: 1/0
+variable   rhoc        equal  1.05604   # density at which calculate the size of the unit cell
+variable   fact        equal  1.2       # factor controlling extension wells interactopm
+variable   dw          equal  6.0       # depth of the wells, taken as the pe per atom in liquid at triple point
+variable   expp        equal  3.0       # power law exponent in wells potential shape
+variable   eqnts       equal  5000      # equilibration number of time-steps
+variable   firsteqnts  equal  35000     # equilibration before starting the cleaving
+variable   nts         equal  45000     # production number of time-steps
+variable   ts          equal  0.005     # time-step size (in lj units)
+variable   siglj       equal  1.0       # sigma coefficient for BG pair-style
+variable   epslj       equal  1.0       # epsilon coefficient for BG pair-style 
+variable   cut1        equal  2.3       # internal cut-off for BG pair-style
+variable   cut2        equal  2.5       # external cut-off for BG pair-style
+variable   Tsyst       equal  0.1       # (reduced) temperature of the system
+variable   NtsTdamp    equal  100       # Number of ts to damp temperature
+variable   Nevery      equal  100       # use input values every this many time steps
+variable   Nrepeat     equal  5         # # of times to use input values for calculating averages
+variable   Nfreq       equal  500       # calculate averages every this many time steps
+variable   thermoSteps equal  1000      # # of time-steps before printing properties on screen
+variable   lambda      equal  1.0       # strength of the wells
+
 
 # ----- Derivate variables ------
 #
 
-variable initzhi equal $(zhi) 
-variable initzlo equal $(zlo)
-variable  cutoff1 equal  ${siglj}*${cut1}
-variable  cutoff2 equal  ${siglj}*${cut2}
-variable a0 equal exp(1/3*ln(4/${rhoc}))
-variable  rrw    equal  sqrt(2)*${a0}/4.0      # nearest neighbour fcc 111
-variable  rw    equal ${rrw}*${fact}
-# 
+variable  initzhi   equal  $(zhi)                   # Initial value of the lowest z coordinate
+variable  initzlo   equal  $(zlo)                   # Initial value of the highest z coordinate
+variable  Tdamp    equal  ${NtsTdamp}*${ts}        # Value of Temperature damp
+variable  a0       equal  exp(1/3*ln(4/${rhoc}))   # size of the unit cell at the density rhoc
+variable  rrw      equal  sqrt(2)*${a0}/4.0        # nearest neighbour fcc 111
+variable  rw       equal  ${rrw}*${fact}           # extension of the interaction of the wells with atoms
+variable  ii       equal  ${i}                     # dummy counter
+variable  cutoff1  equal  ${siglj}*${cut1}         # internal cut-off for BG pair-style
+variable  cutoff2  equal  ${siglj}*${cut2}         # external cut-off for BG pair-style
 
 
 # ------------------------- fix atoms  -------------------------------
@@ -68,14 +82,14 @@ atom_modify  sort 0 0.0
 
 # ------------------------- Define cleaving options -------------------------------
 
-compute 1 all cleavpairs lj/BGcleavwellspbc norm 2 z
+compute 1 all cleavpairs lj/BGcleavpbc norm 2 z
 
 # ------------- Output thermo information and averaged variables ---------------
 
 fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file fcc111-T01-wells.lmp 
 variable totW   equal "f_f2" 
 
-fix    f5 all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+fix    f5 all nvt temp ${Tsyst} ${Tsyst} ${Tdamp}
 
 thermo    ${thermoSteps} 
 timestep  ${ts}
@@ -92,18 +106,13 @@ fix f4  all  momentum 1000 linear 1 1 1
 
 # -------------------------- Forward changing interactions lambda ----------------------
 
-
-#variable newzhi equal zhi+4
-#variable newzlo equal zlo
-#change_box all z final ${newzlo}  ${newzhi}
-#write_data  data/Fstep3.F.data  nocoeff
-#quit
+variable dir string "F"
 
 label here
 include    in.loop/loop
-write_data  data/Fstep3.${cnt}.data  nocoeff
-variable    cntt equal ${cnt}+1
-variable    cnt  equal ${cntt}
+write_data  data/${dir}step3.${i}.data  nocoeff
+variable    ii equal ${i}+1
+variable    i  equal ${ii}
 next zc
 jump SELF here
 
@@ -112,5 +121,16 @@ jump SELF here
 
 if " ${backloop} == 0 " then "quit"
 
-#include		in.loop/loop.back
+variable dir string "B"
+variable i  equal 1
+variable zc file rev_zdir.dat
+variable  initzhi   equal  ${zhi}                   # Initial value of the lowest z coordinate
+variable  initzlo   equal  ${zlo}                   # Initial value of the highest z coordinate
 
+label bloophere
+include    in.loop/loop
+write_data  data/${dir}step3.${i}.data  nocoeff
+variable    ii equal ${i}+1
+variable    i  equal ${ii}
+next zc
+jump SELF bloophere

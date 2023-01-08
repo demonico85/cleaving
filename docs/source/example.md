@@ -49,7 +49,7 @@ Here we will be using the `/examples/lj_SV/step1/lambda_wells.dat` file, so make
 fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file fcc111-T01-wells.lmp 
 ```
 
-where the explanation of the different parameters is given in the description of the fix. In the wells version of the cleaving model, the wells are introduced by switching the parameter lambda from 0 (no interactions between atoms and wells) and 1 (full interactions between atoms and wells). LAMMPS allows the creation of an input file which can perform several runs in a row by changing the parameter between the different runs. The relevant code that should be added to `bulk.in` is
+where the explanation of the different parameters is given in the [description](./fix_well.md) of the fix. In the wells version of the cleaving model, the wells are introduced by switching the parameter lambda from 0 (no interactions between atoms and wells) and 1 (full interactions between atoms and wells). LAMMPS allows the creation of an input file which can perform several runs in a row by changing the parameter between the different runs. The relevant code that should be added to `bulk.in` is
 
 ```
 variable Nevery  equal 100
@@ -150,7 +150,7 @@ In this step the strenght of the wells remains constant, therefore we replace `$
 
 Note: the upper boundary should be large enough so that, when the box has moved this much, there are no more interactions between the box and its periodic images. A value of 2.6 is usually enough.
 
-7. The work needed to switch off the interactions (described in the next point) is calculated by adding the line `compute 1 all cleavpairs lj/BGcleavpbc norm 2 z` to end of the LAMMPS script file. The meaning of the parameters is reported in the description of this compute style.
+7. The work needed to switch off the interactions (described in the next point) is calculated by adding the line `compute 1 all cleavpairs lj/BGcleavpbc norm 2 z` to end of the LAMMPS script file. The meaning of the parameters is reported in the [description](./compute_pcleav.md) of this compute style.
 
 8. The actual switching off is obtained through another loop which increases the size of the box. Since the atoms are kept in place by the cleaving potential, increasing the size of the box creates a vacuum space. When the vacuum space is larger than `cutoff2` than the box and its image across the cleaving wall do not interact anymore. Add the following loop to the end of the LAMMPS script file:
 
