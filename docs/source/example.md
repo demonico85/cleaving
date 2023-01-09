@@ -271,10 +271,42 @@ jump SELF here
 
 ### Calculation of the SFE 
 
-The SFE is obtained by summing the work performed in the [Step 1](#step-1), [Step 3](#step-3), [Step 4](#step-4)
+The SFE is obtained by summing the work performed in the [Step 1](#step-1), [Step 3](#step-3), [Step 4](#step-4). The work is calculated by using the results produced in each step. The folder `/utils/` contains some small programs for the post-processing. 
 
-1. The files `.out` generated in [Step 1](#step-1) contains the quantity `f_f2`, which is the work performed. An average of that quantity for each lambda gives the variation of the energy in Step1. The integration of the results quantity over lambda gives the total work in [Step 1](#step-1).
+* `work.sh`: bash script to calculate the average of the relevant properties for each step of the thermodynamic integration
+
+* `c3cryst.f90`: fortran program to extract the value of the interactions calculated in  Step 3. It must be compiled by running the command `gfortran c3cryst.f90` from within the `/utils/` folder
+
+* `calcSFE.m`: Matlab script to perform the integration of each curve 
+
+Before analyzing the calculations, let's create a folder '/results/' at the same level of the folders `./step1/`, `./step3`, `./step4`. Here, we will copy the results for each step.
+
+1. The files `.out` generated in [Step 1](#step-1) contains the quantity `f_f2`, which is the work performed. An average of that quantity for each lambda gives the variation of the energy in Step1. The integration of the results quantity over lambda gives the total work in [Step 1](#step-1). In order to calculate the work performed in Step 1:
+
+    1. Enter in the dir `./step1/out/`
+    2. Call the script `../../utils/work.sh F`
+    3. Copy the file `F-work.dat` in the folder `./results/` by changing its name to `step1_work.dat`
+
+The profile of the work obtained as function of $\lambda$ is represented in the next figure.
+![Step-1 profile](../figs/ws1.png "Step-1 profile")
 
 2. The files `.dat` generated in [Step 3](#step-3) contains the interactions _switched-off_ during the [Step 3](#step-3). By averaging these values for each value of zw we obtain the variation of the energy, and the integration of the results over zw gives the total work done in [Step 3](#step-3).
 
-3. [Step 4](#step-4) is analogous to [Step 1](#step-1).
+In order to calculate the work performed in Step 3:
+ 
+    1. Enter in the dir `./step3/out/`
+    2. Call the program `../../utils/a.out`
+    3. Call the script `../../utils/work.sh F`
+    4. Copy the file `F-work.dat` in the folder `./results/` by changing its name to `step3_work.dat`
+
+
+The profile of the work obtained as function of $z$ is represented in the next figure.
+![Step-3 profile](../figs/ws3.png "Step-3 profile")
+
+3. [Step 4](#step-4) is analogous to [Step 1](#step-1). Remember to change the name of the file obtained to `step4_work.dat`
+
+The profile of the work obtained as function of $\lambda$ is represented in the next figure.
+![Step-4 profile](../figs/ws4.png "Step-4 profile")
+
+
+4. After the profile of the work in the three steps is obtained, we can calculate the SFE by integrating the three curves. Enter in the dir `/results`, copy the Matlab script  `/utils/calcSFE.m` and run it in Matlab from this folder. The final value of the SFE is: $2.095\pm 7$ in units of $\epsilon\sigma^{-2}$ 

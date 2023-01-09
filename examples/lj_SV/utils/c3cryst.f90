@@ -51,7 +51,7 @@ do
         exit
     end if
     read(10,*,iostat=ios)
-    read(10,*,iostat=ios)a, interaction
+    read(10,*,iostat=ios)a, b, interaction
 
 
     if(iexit .eq. 0)exit
