@@ -309,4 +309,4 @@ The profile of the work obtained as function of $\lambda$ is represented in the 
 ![Step-4 profile](../figs/ws4.png "Step-4 profile")
 
 
-4. After the profile of the work in the three steps is obtained, we can calculate the SFE by integrating the three curves. Enter in the dir `/results`, copy the Matlab script  `/utils/calcSFE.m` and run it in Matlab from this folder. The final value of the SFE is: $2.095\pm 7$ in units of $\epsilon\sigma^{-2}$ 
+4. After the profile of the work in the three steps is obtained, we can calculate the SFE by integrating the three curves. Enter in the dir `/results`, copy the Matlab script  `/utils/calcSFE.m` and run it in Matlab from this folder. The final value of the SFE is: $2.095\pm 0.007$ in units of $\epsilon\sigma^{-2}$ 
