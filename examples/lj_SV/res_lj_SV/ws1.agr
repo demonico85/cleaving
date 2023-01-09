@@ -123,7 +123,7 @@
 @timestamp rot 0
 @timestamp font 0
 @timestamp char size 1.000000
-@timestamp def "Mon Jan  9 11:45:50 2023"
+@timestamp def "Mon Jan  9 12:18:13 2023"
 @r0 off
 @link r0 to g0
 @r0 type above
@@ -244,7 +244,7 @@
 @    yaxis  bar color 1
 @    yaxis  bar linestyle 1
 @    yaxis  bar linewidth 1.0
-@    yaxis  label "w \s1\N (\f{Symbol} e s\S-3\N)"
+@    yaxis  label "w \s1\N (\f{Symbol} e s\S-2\N)"
 @    yaxis  label layout para
 @    yaxis  label place auto
 @    yaxis  label char size 2.380000
