@@ -6,7 +6,7 @@ The package contains all the modified potentials and additional computes/fixes n
 
 ## Documentation
 
-The documentation can be browsed online at [this link](...). The documentation can also be generated locally through the following procedure, which requires a working python3 installation and an active internet connection
+The documentation can be browsed online at [this link](https://demonico85.github.io/cleaving/). The documentation can also be generated locally through the following procedure, which requires a working python3 installation and an active internet connection
 
 ```bash
 cd docs
