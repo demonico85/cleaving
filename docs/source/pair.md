@@ -29,5 +29,4 @@ where $r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|$ for each couple of atoms $l,n$ in the
 The constants are hardcorded within the pair style and they not need to be defined.
 
 
-#### (Davidchak)
- R. L. Davidchack, B. Laird, J. Chem. Phys., 118, 765 (2003)
+#### (Davidchak) <span class='notbold'> R. L. Davidchack, B. Laird, J. Chem. Phys., 118, 765 (2003)</span>
