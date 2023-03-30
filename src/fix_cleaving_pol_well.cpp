@@ -1,27 +1,26 @@
 /* ----------------------------------------------------------------------
-   Contributing author: Nicodemo Di Pasquale (nicodemo.dipasquale@gmail.com)
-------------------------------------------------------------------------- 
+   LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
+   http://lammps.sandia.gov, Sandia National Laboratories
+   Steve Plimpton, sjplimp@sandia.gov
 
-Walls position
-                                    cleaving
-   zlo                               plane                                   zhi
-   _____________________________________________________________________________
-   |                    *              x              *                        |
-   |                    *              x              *                        |
-   |                    *              x              *                        |
-   |                    *              x              *                        |
-   |                    *              x              *                        |
-   |____________________*______________x______________*________________________|
+   Copyright (2003) Sandia Corporation.  Under the terms of Contract
+   DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
+   certain rights in this software.  This software is distributed under
+   the GNU General Public License.
 
-                      wall2                        wall1
-                        |<------------>|<------------>|
-                               zw             zw
+   See the README file in the top-level LAMMPS directory.
 
-Position of the cleaving plane: cleaving_plane = (zhi-zlo)/2
-Position of the wall1 : cleaving_plane + zw
-Position of the wall2 : cleaving_plane - zw
 
-*/
+This fix calculates the well cleaving interactions
+
+   Author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+
+ ----------------------------------------------------------------------*/
 
 #include <math.h>
 #include <stdio.h>

@@ -1,4 +1,4 @@
-/* -*- c++ -*- ----------------------------------------------------------
+/* ----------------------------------------------------------------------
    LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
    http://lammps.sandia.gov, Sandia National Laboratories
    Steve Plimpton, sjplimp@sandia.gov
@@ -9,6 +9,17 @@
    the GNU General Public License.
 
    See the README file in the top-level LAMMPS directory.
+
+   Contributing author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+    
+% Known issues:
+   Force single not yet changed to include lambda
+
 ------------------------------------------------------------------------- */
 
 #ifdef PAIR_CLASS

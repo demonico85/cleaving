@@ -1,4 +1,4 @@
-/* -*- c++ -*- ----------------------------------------------------------
+/* ----------------------------------------------------------------------
    LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
    http://lammps.sandia.gov, Sandia National Laboratories
    Steve Plimpton, sjplimp@sandia.gov
@@ -9,7 +9,19 @@
    the GNU General Public License.
 
    See the README file in the top-level LAMMPS directory.
-------------------------------------------------------------------------- */
+
+
+This fix calculates the well cleaving interactions
+
+   Author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+
+ ----------------------------------------------------------------------*/
+
 
 #ifdef FIX_CLASS
 

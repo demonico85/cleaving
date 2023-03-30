@@ -1,23 +1,27 @@
 /* ----------------------------------------------------------------------
-   Contributing author: Nicodemo Di Pasquale (nicodemo.dipasquale@gmail.com) 
+   LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
+   http://lammps.sandia.gov, Sandia National Laboratories
+   Steve Plimpton, sjplimp@sandia.gov
+
+   Copyright (2003) Sandia Corporation.  Under the terms of Contract
+   DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
+   certain rights in this software.  This software is distributed under
+   the GNU General Public License.
+
+   See the README file in the top-level LAMMPS directory.
+
+   Contributing author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+    
+% Known issues:
+   Force single not yet changed to include lambda
+
 ------------------------------------------------------------------------- */
-/*
-      __________________________________________________________________
-      | A1        #  a2             |            a3      #         A4   |                               
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |  a7       #   A5            |            A6      #        a8    |
-      -------------------------------------------------------------------
 
-Capital case: phase 1
-Lower case: phase 2
-
-*/
 
 #include <math.h>
 #include <stdio.h>
@@ -61,7 +65,7 @@ PairLJBGcleavPbc::PairLJBGcleavPbc(LAMMPS *lmp) : Pair(lmp)
   restartinfo   = 0;
   one_coeff     = 1;
   pallocation   = 0;
-  //eflag_global  = 1;
+
 
   int n=atom->ntypes;
   if(n > 0){
@@ -164,15 +168,6 @@ void PairLJBGcleavPbc::compute(int eflag, int vflag)
   double *special_lj = force->special_lj;
   int newton_pair = force->newton_pair;
 
-/*
-  double xprd = domain->xprd;
-  double yprd = domain->yprd;
-  double zprd = domain->zprd;
-
-    xbox = (image[i] & IMGMASK) - IMGMAX;
-    ybox = (image[i] >> IMGBITS & IMGMASK) - IMGMAX;
-    zbox = (image[i] >> IMG2BITS) - IMGMAX;
-*/
 
   for(i=0; i<nextra ; i++){
     pvector[i] = 0.0;
@@ -184,22 +179,6 @@ void PairLJBGcleavPbc::compute(int eflag, int vflag)
   firstneigh = list->firstneigh;
 
 
-//fpl =NULL;
-//fpl=fopen("forces.log", "a");
-/*
-if(update->ntimestep == 1)if(comm->me == 0){fprintf(fpl," TIMESTEP %d  \n",update->ntimestep);}
-if(update->ntimestep < 10){
-//  for(i=0; i<n+1 ; i++){
-//    for(j=0; j<n+1; j++)fprintf(fpl,"%d %d \n %f %f %f %f %f \n %f %f %f %f %f \n %f %f %f %f\n\n",i,j,lj1[i][j],lj2[i][j],lj3[i][j],lj4[i][j],lj5[i][j],lj6[i][j],lj7[i][j],lj8[i][j],lj9[i][j],lj10[i][j],cutsq[i][j],cutsq2[i][j],cut[i][j],cut2[i][j],combination[i][j]);
-//    }}
-
-
-for (i=0;i<nlocal;i++)
-    fprintf(fpl,"%d %f %f %f\n",i,f[i][0],f[i][1],f[i][2]);
-}
-
-
-MPI_Barrier(world); */
 
   for (ii = 0; ii < inum; ii++) {
 
@@ -230,9 +209,8 @@ MPI_Barrier(world); */
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
 
 
-//if(itype != jtype) fprintf(fpl,"A %d %d %d \n %f %f\n",itype,jtype,scaling,ztmp,x[j][2]); 
+
         scaling = find_scaling(x[j][ind_dir]);
-//(itype,jtype,ztmp,x[j][2]);
         fpair = factor_lj*forcelj*r2inv;
 
         f[i][0] += delx*fpair;
@@ -287,7 +265,7 @@ MPI_Barrier(world); */
       }
     }
   }
-//fclose (fpl);
+
 
   if (vflag_fdotr) virial_fdotr_compute();
 
@@ -299,62 +277,18 @@ MPI_Barrier(world); */
  *   ------------------------------------------------------------------------- */
 
 int PairLJBGcleavPbc::find_scaling (double jcom)
-//(int imtype, int jmtype, double icom, double jcom){
+
 {
      int pbcghost=0;
 
 
 
-//    double ipbccom,jpbccom, idiff, jdiff, ij;
-
-// Check if the molecules are of the same type
-
-//if(imtype == jmtype)
-//  return 0;
-
-  // Check if the molecules are on the same side of the cleaving wall
-
-//idiff = cleavwall - icom;
-//jdiff = cleavwall - jcom;
-
-//ij = idiff*jdiff;
-//fprintf(fpl,"C %d %d \n %f %f %f %f %f %f \n",imtype,jmtype,icom,jcom,ij,idiff,jdiff,zhalf);
-
-// Then you need to check if they are on the same side near the cleaving wall 
-// or on one of the boundaries (i.e. the atoms of type one near zhi that interacts
-// with the images of atoms of type 2 over the boundary zhi) without the conditions
-// on zhalf they are considered to be scald but they should not
-
-//if(ij > 0.0 ) return 0;
-
-// Check the relative position of the molecules with respect the cleaving plane
-
-// Even if LAMMPS uses wrapped coordinates for atoms, j could be a ghost atom
-// i.e. it could be outside the box
-//ipbccom=icom;
-//jpbccom=jcom;
-
-//if (icom < boxlo ) ipbccom = icom + edge;
-//else if (icom > boxhi ) ipbccom = icom - edge;
-
-if (jcom < boxlo ) pbcghost=1;
-else if (jcom > boxhi ) pbcghost=1;
+	if (jcom < boxlo ) pbcghost=1;
+	else if (jcom > boxhi ) pbcghost=1;
 
 
-/*
-idiff = cleavwall - ipbccom;
-jdiff = cleavwall - jpbccom;
-
-ij = idiff*jdiff;
-*/
-// Molecules must fullfil the following conditions when they are put back in the box:
-// 1. their distance must be less than zhalf
-// 2. they have to be at different side of the cleaving wall
-//
-//fprintf(fpl,"D %d %d \n %f %f %f %f %f %f \n",imtype,jmtype,icom,jcom,ij,idiff,jdiff,zhalf);
-
-if( pbcghost) return 1;
-else return 0;
+	if( pbcghost) return 1;
+	else return 0;
 
  }
 
@@ -490,20 +424,7 @@ void PairLJBGcleavPbc::settings(int narg, char **arg)
 /* ----------------------------------------------------------------------
    set coeffs for one or more type pairs
 ------------------------------------------------------------------------- */
-/*
 
-come funziona setflag:
-
-se nell file .in sono specificati i,j allora setta le mixed sigma,eps,cut tutti 
-ai valori indicati nel file per tutte le coppie i,j. 
-Altrimenti per quella coppia setflag[i][j] = 0 e vengono calcolate (dopo) le mixed interactions
-
-
-narg          1     2        3       4         5        6       7 
-type          I     J      epsilon  sigma     cut1     cut2      
-pair_coeff    1     2       1.0      1.0      1.1      0.25      1.1
-
-*/
 
 void PairLJBGcleavPbc::coeff(int narg, char **arg)
 {

@@ -14,12 +14,25 @@
 /* ----------------------------------------------------------------------
    Contributing author: Trung Dac Nguyen (ORNL)
    References: Fennell and Gezelter, JCP 124, 234104 (2006)
-
-   Contributing author: Di Pasquale Nicodemo
-    University of Leicester, March 2020
-
 ------------------------------------------------------------------------- */
 
+/* ----------------------------------------------------------------------
+
+
+This subroutine is written from the original pair_lj_cut in LAMMPS adapted for
+cleaving calculations
+
+   Contributing author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+    
+% Known issues:
+   Force single not yet changed to include lambda
+
+------------------------------------------------------------------------- */
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

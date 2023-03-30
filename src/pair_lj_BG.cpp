@@ -1,23 +1,27 @@
 /* ----------------------------------------------------------------------
-   Contributing author: Nicodemo Di Pasquale (nicodemo.dipasquale@gmail.com) 
+   LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
+   http://lammps.sandia.gov, Sandia National Laboratories
+   Steve Plimpton, sjplimp@sandia.gov
+
+   Copyright (2003) Sandia Corporation.  Under the terms of Contract
+   DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
+   certain rights in this software.  This software is distributed under
+   the GNU General Public License.
+
+   See the README file in the top-level LAMMPS directory.
+
+   Contributing author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+    
+
+
 ------------------------------------------------------------------------- */
-/*
-      __________________________________________________________________
-      | A1        #  a2             |            a3      #         A4   |                               
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |  a7       #   A5            |            A6      #        a8    |
-      -------------------------------------------------------------------
 
-Capital case: phase 1
-Lower case: phase 2
 
-*/
 
 #include <math.h>
 #include <stdio.h>
@@ -58,9 +62,6 @@ PairLJBG::PairLJBG(LAMMPS *lmp) : Pair(lmp)
   manybody_flag = 0;
   writedata     = 1; 
   restartinfo   = 0;
-//  one_coeff     = 1;
-//  pallocation   = 0;
-  //eflag_global  = 1;
 
 
 }
@@ -159,25 +160,6 @@ void PairLJBG::compute(int eflag, int vflag)
   numneigh = list->numneigh;
   firstneigh = list->firstneigh;
 
-
-/*FILE *fpl;
-fpl =NULL;
-fpl=fopen("forces.log", "a");
-
-if(update->ntimestep == 1)if(comm->me == 0){fprintf(fpl," TIMESTEP %d  \n",update->ntimestep);}
-if(update->ntimestep < 10){
-//  for(i=0; i<n+1 ; i++){
-//    for(j=0; j<n+1; j++)fprintf(fpl,"%d %d \n %f %f %f %f %f \n %f %f %f %f %f \n %f %f %f %f\n\n",i,j,lj1[i][j],lj2[i][j],lj3[i][j],lj4[i][j],lj5[i][j],lj6[i][j],lj7[i][j],lj8[i][j],lj9[i][j],lj10[i][j],cutsq[i][j],cutsq2[i][j],cut[i][j],cut2[i][j],combination[i][j]);
-//    }}
-
-
-for (i=0;i<nlocal;i++)
-    fprintf(fpl,"%d %f %f %f\n",i,f[i][0],f[i][1],f[i][2]);
-}
-
-
-MPI_Barrier(world); */
-
   for (ii = 0; ii < inum; ii++) {
 
     i = ilist[ii];
@@ -256,10 +238,6 @@ MPI_Barrier(world); */
   }
 
   if (vflag_fdotr) virial_fdotr_compute();
-
-
-//fclose (fpl);
-
 
 
 }
@@ -371,21 +349,6 @@ void PairLJBG::settings(int narg, char **arg)
 /* ----------------------------------------------------------------------
    set coeffs for one or more type pairs
 ------------------------------------------------------------------------- */
-/*
-
-come funziona setflag:
-
-se nell file .in sono specificati i,j allora setta le mixed sigma,eps,cut tutti 
-ai valori indicati nel file per tutte le coppie i,j. 
-Altrimenti per quella coppia setflag[i][j] = 0 e vengono calcolate (dopo) le mixed interactions
-
-
-narg          1     2        3       4         5        6       7 
-type          I     J      epsilon  sigma     cut1     cut2      
-pair_coeff    1     2       1.0      1.0      1.1      0.25      1.1
-
-*/
-
 
 
 

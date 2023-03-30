@@ -1,23 +1,27 @@
 /* ----------------------------------------------------------------------
-   Contributing author: Nicodemo Di Pasquale (nicodemo.dipasquale@gmail.com) 
+   LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
+   http://lammps.sandia.gov, Sandia National Laboratories
+   Steve Plimpton, sjplimp@sandia.gov
+
+   Copyright (2003) Sandia Corporation.  Under the terms of Contract
+   DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
+   certain rights in this software.  This software is distributed under
+   the GNU General Public License.
+
+   See the README file in the top-level LAMMPS directory.
+
+   Contributing author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+    
+% Known issues:
+   Force single not yet changed to include lambda
+
 ------------------------------------------------------------------------- */
-/*
-      __________________________________________________________________
-      | A1        #  a2             |            a3      #         A4   |                               
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |           #                 |                    #              |
-      |  a7       #   A5            |            A6      #        a8    |
-      -------------------------------------------------------------------
 
-Capital case: phase 1
-Lower case: phase 2
-
-*/
 
 #include <math.h>
 #include <stdio.h>

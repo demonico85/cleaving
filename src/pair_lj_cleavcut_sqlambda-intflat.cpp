@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------
    LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
-   http://lammps.sandia.gov, Sandia National Laboratories
+   https://www.lammps.org/, Sandia National Laboratories
    Steve Plimpton, sjplimp@sandia.gov
 
    Copyright (2003) Sandia Corporation.  Under the terms of Contract
@@ -14,10 +14,20 @@
 /* ----------------------------------------------------------------------
    Contributing author: Paul Crozier (SNL)
 ------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------
-   Contributing author: Di Pasquale Nicodemo
 
-    University of Leicester, March 2020
+/* ----------------------------------------------------------------------
+
+
+This subroutine is written from the original pair_lj_cut in LAMMPS adapted for
+cleaving calculations
+
+   Contributing author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+    
 
 ------------------------------------------------------------------------- */
 

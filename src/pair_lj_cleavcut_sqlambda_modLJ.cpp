@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------
    LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
-   http://lammps.sandia.gov, Sandia National Laboratories
+   https://www.lammps.org/, Sandia National Laboratories
    Steve Plimpton, sjplimp@sandia.gov
 
    Copyright (2003) Sandia Corporation.  Under the terms of Contract
@@ -15,6 +15,23 @@
    Contributing author: Paul Crozier (SNL)
 ------------------------------------------------------------------------- */
 
+/* ----------------------------------------------------------------------
+
+
+This subroutine is written from the original pair_lj_cut in LAMMPS adapted for
+cleaving calculations. 
+
+It includes a modification of the LJ interactions which go to zero at a finite cut-off
+
+   Contributing author: Di Pasquale Nicodemo
+   University of Leicester, March 2020
+   email: nicodemo.dipasquale@gmail.com    
+   
+   The documentation for this pair potential can be browsed at the following link:
+   https://demonico85.github.io/cleaving/
+    
+
+------------------------------------------------------------------------- */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -114,9 +131,6 @@ void PairLJCleavCutSqLMod::compute(int eflag, int vflag)
   double *special_lj = force->special_lj;
   int newton_pair = force->newton_pair;
 
-//tagint *tag = atom->tag;
-
-//  imageint *image = atom->image;
   tagint *molecule = atom->molecule;
   inum = list->inum;
   ilist = list->ilist;
@@ -126,10 +140,6 @@ void PairLJCleavCutSqLMod::compute(int eflag, int vflag)
   global_boundary(); 
  
   int *ivector = atom->ivector[index];
-
-//FILE *fpl;
-
-//fpl=fopen("com.log","a");
 
   for(i=0; i<nextra ; i++){
     pvector[i] = 0.0;
@@ -182,11 +192,9 @@ void PairLJCleavCutSqLMod::compute(int eflag, int vflag)
         else
             denom=0.0;
         
- //      fprintf(fpl,"%d %f %f %f\n %f %f %f %f \n",tag[i],coeff1,coeff2,coeff3,rsq,lj4[itype][jtype],alphaLJ,fac1);         
 
         forcelj =  rsq*rsq*lj4[itype][jtype]*denom*denom*(lj1[itype][jtype]*denom - lj2[itype][jtype]);
         fpair = flam * flam * factor_lj * forcelj;
-//        facevdwl=(1.0/coeff2 - 1.0/coeff1);
        
 
  
@@ -202,8 +210,6 @@ void PairLJCleavCutSqLMod::compute(int eflag, int vflag)
         if (eflag) {
           m=jtype+(itype-1)*n;
           evdwl=flam*flam*lj3[itype][jtype]*denom*(denom - 1.0);
-//          evdwl = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) -
-//          offset[itype][jtype];
           evdwl *= factor_lj;
           if(scaling){
             deUdel = flam*2.0*denom*(denom - 1.0) + 
@@ -218,7 +224,6 @@ void PairLJCleavCutSqLMod::compute(int eflag, int vflag)
     }
   }
 
-//fclose(fpl);
 
   if (vflag_fdotr) virial_fdotr_compute();
 }
@@ -532,13 +537,7 @@ double PairLJCleavCutSqLMod::init_one(int i, int j)
   else
       lj4[i][j] = 0.0;
 
-/*
 
-  lj1[i][j] = 48.0 * epsilon[i][j] * pow(sigma[i][j],12.0);
-  lj2[i][j] = 24.0 * epsilon[i][j] * pow(sigma[i][j],6.0);
-  lj3[i][j] = 4.0 * epsilon[i][j] * pow(sigma[i][j],12.0);
-  lj4[i][j] = 4.0 * epsilon[i][j] * pow(sigma[i][j],6.0);
-*/
   if (offset_flag) {
     double ratio = sigma[i][j] / cut[i][j];
     offset[i][j] = 4.0 * epsilon[i][j] * (pow(ratio,12.0) - pow(ratio,6.0));
