@@ -36,8 +36,11 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinxarg.ext',
     'myst_parser',
-    "sphinx_rtd_theme"
+    "sphinx_rtd_theme",
+    "sphinxcontrib.bibtex"
 ]
+
+bibtex_bibfiles = ['refs.bib']
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3/', None),
                        'numpy': ('https://numpy.org/doc/stable/', None),
