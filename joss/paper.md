@@ -6,7 +6,7 @@ tags:
   - Molecular simulations
   - Phase Transitions
 authors:
-  - name: Nicodemo "Di Pasquale"^[Corresponding author]
+  - name: Nicodemo Di Pasquale^[Corresponding author]
     orcid:  0000-0001-5676-8527
     affiliation: 1
   - name: Lorenzo Rovigatti
