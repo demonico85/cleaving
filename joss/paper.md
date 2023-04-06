@@ -34,7 +34,7 @@ A short summary
 
 # Statement of need
 
-Why what we do is needed
+Why what we do is needed. Here is an example reference: [@davidchack2003direct]-
 
 # Functionality
 
