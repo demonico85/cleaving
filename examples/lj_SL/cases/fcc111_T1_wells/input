@@ -1,12 +1,12 @@
 wells
 
-# Cleaving wall position
+# Cleaved interface position
 
-111   16.810782865717499 
+111 16.810782865717499   
 
 rhoc: 0.945
 fact: 1.0
 dw: 6 
-backloop: 1
+backloop: 0
 
 Temperature: 0.617

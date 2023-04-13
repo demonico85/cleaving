@@ -14,5 +14,6 @@ The package contains all the modified potentials and additional computes/fixes n
    install.md
    usage.md
    lammps.md
-   example.md
+   example_SV_wells.md
+   example_SL_walls.md
 ```
