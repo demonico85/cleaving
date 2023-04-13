@@ -23,10 +23,11 @@ $$
 				0, 		\; r_{ln} \geq 2.5\sigma		
 		\end{cases}
 $$
-where $r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|$ for each couple of atoms $l,n$ in the system, and $C_1, C_2, C_3, C_4, C_5$ are constants we used the values reported in [Davidchack](####Davidchack).
+where $r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|$ for each couple of atoms $l,n$ in the system, and $C_1, C_2, C_3, C_4, C_5$ are constants we used the values reported in {footcite:t}`davidchack2003direct`
 
 
 The constants are hardcorded within the pair style and they not need to be defined.
 
+```{footbibliography}
 
-#### (Davidchak) <span style="font-weight:normal"> R. L. Davidchack, B. Laird, J. Chem. Phys., 118, 765 (2003)</span>
+```
