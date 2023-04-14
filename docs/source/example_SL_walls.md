@@ -20,34 +20,34 @@ First of all, create a new folder and step in it.
 
 4. Prepare a walls file. Here we will use the `/examples/lj_systems/fcc111-T1-walls.lmp` file, which should be copied to the current folder. The exact format of this file is given in the description of the appropriate fix.
 
-5. Prepare a file containing the variation of the strength of the walls. The varying quantity in this case is the position of the walls with respect the cleaving plane which we call $z_w$. The starting position of the walls is denoted as $z_{w,i}$, whereas the final position will be denoted as $z_{w,f}$. This file contains a sequence of increasing consecutive numbers in the interval $[z_{w,i},z_{w,f}]$ (extremes included). In this case, the values of the $z_{w}$'s can be arbitrary. The only contraint is that at the initial point the walls do not interact with any atoms in the system. Following {footcite:t}`davidchack2003direct` we choose for this particular system $z_{w,i}=1.10$ and $z_{w,i}=0.62$. 
+5. Prepare a file containing the variation of the strength of the walls. The varying quantity in this case is the position of the walls with respect the cleaving plane which we call $z_w$. The starting position of the walls is denoted as $z_{w,i}$, whereas the final position will be denoted as $z_{w,f}$. This file contains a sequence of decreasing consecutive numbers in the interval $[z_{w,i},z_{w,f}]$ (extremes included). In this case, the values of the $z_{w}$'s can be arbitrary. The only contraint is that at the initial point the walls do not interact with any atoms in the system. Following {footcite:t}`davidchack2003direct` we choose for this particular system $z_{w,i}=1.10$ and $z_{w,i}=0.62$. 
 Here is a (truncated) example of the file:
 
 ```
-0.62
-0.63
-0.64
-...
-1.00
-1.05
 1.10
+1.05
+1.00
+...
+0.64
+0.63
+0.62
 ```
 
 Note:
 
-* There is no internal control in the code that checks that the boundaries are correct and the sequence of number is an increasing sequence
+* There is no internal control in the code that checks that the boundaries are correct and the sequence of number is an decreasing sequence
    
 Here we will be using the `/examples/lj_SL/cases/fcc111_T1_walls/zwall_111_T1.dat` file, so make sure to copy it to the current folder.
 
 ![Step-1](../figs/walls-S1.png "Step-1")
 
-6. The wells in the system are introduced using the new fix `wallforce`:
+6. The walls in the system are introduced using the new fix `wallforce`:
 
 ```
 fix f2 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
 ```
 
-where the explanation of the different parameters is given in the [description](./fix_wall.md) of the fix. In the walls version of the cleaving model, the walls moves from the position $z_{w,i}$ where they do not interact with the atoms in the system to the position $z_{f,i}$ where they interacts with the atoms. LAMMPS allows the creation of an input file which can perform several runs in a row by changing the parameter between the different runs. The relevant code that should be added to `bulk.in` is
+where the explanation of the different parameters is given in the [description](./fix_wall.md) of the fix. In the walls version of the cleaving model, the walls moves from the position $z_{w,i}$ where they do not interact with the atoms in the system to the position $z_{w,f}$ where they interacts with the atoms. LAMMPS allows the creation of an input file which can perform several runs in a row by changing the parameter between the different runs. The relevant code that should be added to `bulk.in` is
 
 ```
 variable Nevery  equal 100
@@ -124,8 +124,6 @@ write_data data/Fstep2.${i}.data nocoeff
 
 ### Step 3
 
-![Step-3](../figs/wells-S3.png "Step-3")
-
 In the third step we reorganize the liquid and solid systems in order to put them in contact and we replace the solid-solid and liquid-liquid interactions to the solid-liquid ones. In this step we need to create a new input file that combines the two systems and determine which interactions needs to be changed.
 
 1. Create the `step3` folder and enter it. Create the `out/`, `data/`, `dat/`, `restart/`, and `dump/` subfolders (where the latter two can be omitted if the related commands in the LAMMPS script file are commented). The `dat/` folder will contain the output of this step.
@@ -135,13 +133,15 @@ In the third step we reorganize the liquid and solid systems in order to put the
     2. The atom types 1-2-3-4 will represents the "true" atoms, whereas the atom with types 5-6-7-8 will represent the duplicate
     3. The atoms of type 1 have the same coordinate as the atoms in the region a
     4. The atoms of type 2 have the same coordinate as the atoms in the region d
-    5. The atoms of type 3 have the same coordinate as the atoms in the region c with the z coordinate translated by one box size (i.e. znew=zold+xbox )
-    6. The atoms of type 4 have the same coordinate as the atoms in the region b with the z coordinate translated by one box size (i.e. znew=zold+xbox )
+    5. The atoms of type 3 have the same coordinate as the atoms in the region c with the z coordinate translated by one box size (i.e. $znew=zold+zbox$ )
+    6. The atoms of type 4 have the same coordinate as the atoms in the region b with the z coordinate translated by one box size (i.e. $znew=zold+zbox$ )
     7. The atoms of type 5 have the same coordinate as the atoms in the region b
-    8. The atoms of type 6 have the same coordinate as the atoms in the region a with the z coordinate translated by one box size (i.e. znew=zold+xbox )  
+    8. The atoms of type 6 have the same coordinate as the atoms in the region a with the z coordinate translated by one box size (i.e. $znew=zold+zbox$ )  
     9. The atoms of type 7 have the same coordinate as the atoms in the region c
-    10. The atoms of type 8 have the same coordinate as the atoms in the region d with the z coordinate translated by one box size (i.e. znew=zold+xbox )
+    10. The atoms of type 8 have the same coordinate as the atoms in the region d with the z coordinate translated by one box size (i.e. $znew=zold+zbox$ )
     11. The coordinates of the eight atom types must be written in a particular order in the data file. Each true type (i.e., types 1-4) must have an odd index with the following even index occupied by the corresponding duplicate atom
+    
+where `zbox` is the length of the box in the z-direction.
     
     E.g. Output of step1 with position of atoms in the crystal:
     
@@ -170,14 +170,14 @@ Atoms # atomic
 ```
         
         
-However, in this tutorial we will use the fortran program `step3IN.f90` available which will produce the input data automatically.
+However, in this tutorial we will use the fortran program `step3IN.f90` which will produce the input data automatically.
 
     1. Copy `step3IN.f90` from `/utils/` to the current directory
     2. Compile it: `gfortran step3IN.f90`
     3. Copy the last `data/Fstep1.*.data` file from the [Step 1](#step-1) folder
     4. Copy the last `data/Fstep2.*.data` file from the [Step 2](#step-2) folder
     5. Run: `./a.out  Fstep1.*.data  Fstep2.*.data 16.81` where 16.81 is the position of the cleaving plane used in both [Step 1](#step-1) and [Step 2](#step-2) 
-    6. The results is the file `inputStep3.lmp`    
+    6. The output is the file `inputStep3.lmp`    
     
     
 
@@ -222,7 +222,7 @@ pair_coeff   2 3  ${epslj} ${siglj}   1.0 1.0
 
 The remaining interactions will be either redefined within the loop which switched the interactions between the different phases or completely excluded from the simulations.
 
-5. We need to exclude the unphysical interactions, i.e. the interactions among overlapping atoms. We use the option `exclude` of the LAMMPS command `neigh_modify` Replace the command 
+7. We need to exclude the unphysical interactions, i.e. the interactions among overlapping atoms. We use the option `exclude` of the LAMMPS command `neigh_modify` Replace the command 
 
 ```
 neigh_modify every 1 delay 0 check yes 
@@ -234,7 +234,7 @@ with the command
 neigh_modify every 1 delay 0 check yes exclude type 1 7 exclude type 1 8 exclude type 2 5 exclude type 2 6 exclude type 3 5 exclude type 3 6 exclude type 4 7 exclude type 4 8 exclude type 5 6 exclude type 5 7 exclude type 5 8  exclude type 6 7  exclude type 6 8  exclude type 7 8
 ```
 
-6. Remove the line 
+8. Remove the line 
 
 ```
 velocity all create ${Tsyst} 93874090 
@@ -247,12 +247,12 @@ velocity real zero linear
 velocity real zero angular
 ```
 
-7. The work needed to switch off the interactions (described in the next point) is calculated by adding the line `compute 1 all cleavpairs lj/Nlcleavs3 norm 4 z` to end of the LAMMPS script file. The meaning of the parameters is reported in the [description](./compute_pcleav.md) of this compute style.
+9. The work needed to switch off the interactions (described in the next point) is calculated by adding the line `compute 1 all cleavpairs lj/Nlcleavs3 norm 4 z` to end of the LAMMPS script file. The meaning of the parameters is reported in the [description](./compute_pcleav.md) of this compute style.
 
 
-8. Prepare a walls file. Here we will use the `/examples/lj_systems/fcc111-T1-walls.lmp` file, which should be copied to the current folder. 
+10. Prepare a walls file. Here we will use the `/examples/lj_systems/fcc111-T1-walls.lmp` file, which should be copied to the current folder. 
 
-9. Add the command for the walls, together with the definition of the variables that sets the parameters specifying the walls characteristics:
+11. Add the command for the walls, together with the definition of the variables that sets the parameters specifying the walls characteristics:
 
 ```
 variable  clwall   equal 16.81
@@ -270,7 +270,9 @@ fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall} file fcc111
 
 In this step the position of the walls is fixed and equal to the final position $z_{w,f}$ defined for  [Step 1](#step-1) and [Step 2](#step-2).
 
-10. The actual switching off is obtained through another loop which increases the size of the box. In this loop the solid-solid interactions across the cleaving plane are switched-off whereas the solid-liquid interactions across the cleaving plane are swithced on. Add the following loop to the end of the LAMMPS script file:
+12. In step3 the interactions are calculated among all pairs of atoms (modified as explained in sub-steps 5-6-12). However, the equation of motion are integrated only for the real atoms (i.e., the ones defined in the group `real`, see sub-step 4). Once the new position is calculated, we need to move the duplicate atoms of the same quantity, in order to match the position of the corresponding real atoms. This is done through the new compute `compute cc1 real displace/atom_cleav` and nex fix `fix Nf1  dupl move/dupl c_cc1[*]` which need to be added to the input file. The meaning of the parameters is reported in the [description](./compute_displace.md) of the compute style and the [description](./fix_movedupl.md) of the fix style.
+
+13. The actual switching off is obtained through another loop which increases the size of the box. In this loop the solid-solid interactions across the cleaving plane are switched-off whereas the solid-liquid interactions across the cleaving plane are swithced on. Add the following loop to the end of the LAMMPS script file:
 
 ```
 variable Nevery  equal 100
@@ -324,7 +326,7 @@ next lam
 jump SELF here
 ```
 
-11.  Prepare a file containing the variation of the strength of the interactions. This file contains a sequence of increasing consecutive numbers in the interval $[0,1]$ (extremes included). Here is a (truncated) example:
+14.  Prepare a file containing the variation of the strength of the interactions. This file contains a sequence of increasing consecutive numbers in the interval $[0,1]$ (extremes included). Here is a (truncated) example:
 
 ```
 0.0
@@ -343,40 +345,52 @@ Note:
 
 Here we will be using the `/examples/lj_SL/walls/step3/lambda.dat` file, so make sure to copy it to the current folder. 
 
-12. Launch the simulation.
+15. Launch the simulation.
 
 
 ### Step 4 [TBD]
 
-![Step-4](../figs/wells-S4.png "Step-4")
 
-In the last step we remove the wells leaving free the newly created interfaces. 
+In the last step we remove the walls leaving free the newly created interfaces between solid and liquid. 
 
 1. Create the `step4` folder and enter it. Create the `out/`, `data/`, `restart/`, and `dump/` subfolders (where the latter two can be omitted if the related commands in the LAMMPS script file are commented). The `out/` folder will contain the output of this step.
 
-2. Copy `fcc111-T01-wells.lmp` and the last `data/Fstep3.*.data` file from the [Step 3](#step-3) folder.
+2. Prepare a walls file. Here we will use the `/examples/lj_systems/fcc111-T1-walls.lmp` file, which should be copied to the current folder
 
-3. Prepare a new LAMMPS input file. We again use the `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder, delete all the lines after the `f3` fix and change the temperature to 0.1 `variable Tsyst equal 0.1` and change the name of the data file to match the file copied in sub-step 2.
+3. Copy the last `data/Fstep3.*.data` file from the [Step 3](#step-3) folder. We cannot use this file as it is, we need in this step only the `real` atoms. From the file `data/Fstep3.*.data` we should therefore get rid of all the atoms with type 5-6-7-8 and adjust the data file accordingly (i.e., modifying the total number of atoms and the list of the velocity). However, in this tutorial we will use the fortran program `step4IN.f90` which will produce the input data automatically.
 
-4. Prepare a file containing the variation of the strength of the wells. This file contains a sequence of increasing consecutive numbers in the interval $[0,1]$ (extremes included). Here is a (truncated) example:
+    1. Copy `step4IN.f90` from `/utils/` to the current directory
+    2. Compile it: `gfortran step4IN.f90`
+    3. Run: `./a.out  Fstep3.*.data` 
+    4. The output is the file `inputStep4.lmp`    
+    
+
+3. Prepare a new LAMMPS input file. We again use the `/examples/lj_S/bulk.in` file as a starting point. Copy it to the current folder, delete all the lines after the `f3` fix and change the temperature to 0.617 `variable Tsyst equal 0.617` and change the name of the data file to match the file produced in sub-step 3.
+
+4. Prepare a walls file. Here we will use the `/examples/lj_systems/fcc111-T1-walls.lmp` file, which should be copied to the current folder. The exact format of this file is given in the description of the appropriate fix.
+
+5. Prepare a file containing the variation of the strength of the walls. This file specify the position of the walls which are moving backward with respect the motion in [Step 1](#step-1) or  [Step 2](#step-2). The starting point is therefore $z_{w,f}$ whereas the last position is $z_{w,i}$. This file contains a sequence of decreasing consecutive numbers in the interval $[z_{w,f},z_{w,i}]$ (extremes included). 
+Here is a (truncated) example of the file:
 
 ```
-1.0
-0.99
-0.98
+0.62
+0.63
+0.64
 ...
-0.02
-0.01
-0.0
+1.00
+1.05
+1.10
 ```
 
 Note:
 
-* The file must start at 1 and end at 0. 
-* There is no internal control in the code that checks that the boundaries are correct.
-* The values does not need to be the same (in reverse order) of those used in [Step 1](#step-1).
+* There is no internal control in the code that checks that the boundaries are correct and the sequence of number is an increasing sequence
+* The sequence of points does not need to be the exact reverse of the one used in [Step 1](#step-1) or  [Step 2](#step-2)
+* The initial ($z_{w,f}$) and final ($z_{w,i}$) points must be the same used [Step 1](#step-1) and  [Step 2](#step-2)
+   
+Here we will be using the `/examples/lj_SL/cases/fcc111_T1_walls/zwall_back_111_T1.dat` file, so make sure to copy it to the current folder.
 
-Here we will be using the `/examples/lj_SV/step4/rev_lambda_wells.dat` file, so make sure to copy it to the current folder.
+
 
 5. The loop in [Step 4](#step-4) in analogous to the loop in [Step 1](#step-1) run backwards
 
@@ -385,34 +399,35 @@ variable Nevery  equal 100
 variable Nrepeat equal 5
 variable Nfreq   equal 500
 
-variable lam   file rev_lambda_wells.dat
-variable dw    equal 6.0
-variable a0    equal exp(1/3*ln(4/1.05604))
-variable rw    equal sqrt(2)*${a0}/4.0*1.2
-variable expp  equal 3.0
-variable i     equal 1
+variable  zw file  zwall_back_111_T1.dat
+variable  clwall   equal 16.81
+variable  sigma    equal  1.0
+variable  eps      equal  1.0
+variable  crw      equal  2.0^(1.0/6.0)
+variable  rw       equal  ${sigma}*${crw}
+variable  delta    equal  0.25
+variable  i        equal 1
 
 label here
-variable    lambda equal ${lam}
 
-fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file fcc111-T01-wells.lmp
-variable totW   equal "f_f2"
-
-print       "Well depth ${lambda}"
+variable    zwalls equal ${zw}
+fix f2 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+print       "Wall Position ${zwalls}"
 
 run   ${eqnts}
-
-fix  f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_lambda f_f2   file out/ave.F.$i.out
-
+fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwalls f_f2  file  out/ave.F.${i}.out
 run  ${nts}
 
-unfix f2
-unfix f6
-write_data data/Fstep4.$i.data nocoeff
-variable    ii equal $i+1
-variable    i  equal ${ii}
-next lam
+
+unfix f5
+unfix totW
+
+write_data data/Fstep4.${i}.data nocoeff
+variable    cntt equal ${i}+1
+variable    cnt  equal ${i}
+next zw
 jump SELF here
+
 ```
 
 6. Launch the simulation.
@@ -423,7 +438,7 @@ The SFE is obtained by summing the work performed in the [Step 1](#step-1), [Ste
 
 * `work.sh`: bash script to calculate the average of the relevant properties for each step of the thermodynamic integration
 
-* `c3cryst.f90`: fortran program to extract the value of the interactions calculated in  Step 3. It must be compiled by running the command `gfortran c3cryst.f90` from within the `/utils/` folder
+* `calcworkstep3.f90`: fortran program to extract the value of the interactions calculated in  Step 3. It must be compiled by running the command `gfortran c3cryst.f90` from within the `/utils/` folder
 
 * `calcSFE.m`: Matlab script to perform the integration of each curve 
 
@@ -438,7 +453,17 @@ Before analyzing the calculations, let's create a folder '/results/' at the same
 The profile of the work obtained as function of $\lambda$ is represented in the next figure.
 ![Step-1 profile](../figs/ws1.png "Step-1 profile")
 
-2. The files `.dat` generated in [Step 3](#step-3) contains the interactions _switched-off_ during the [Step 3](#step-3). By averaging these values for each value of zw we obtain the variation of the energy, and the integration of the results over zw gives the total work done in [Step 3](#step-3).
+
+2. The files `.out` generated in [Step 2](#step-2) contains the quantity `f_f2`, which is the work performed. An average of that quantity for each lambda gives the variation of the energy in Step1. The integration of the results quantity over lambda gives the total work in [Step 2](#step-2). In order to calculate the work performed in Step 2:
+
+    1. Enter in the dir `./step1/out/`
+    2. Call the script `../../utils/work.sh F`
+    3. Copy the file `F-work.dat` in the folder `./results/` by changing its name to `step2_work.dat`
+
+The profile of the work obtained as function of $\lambda$ is represented in the next figure.
+![Step-1 profile](../figs/ws1.png "Step-1 profile")
+
+3. The files `.dat` generated in [Step 3](#step-3) contains the interactions _switched-off_ during the [Step 3](#step-3). By averaging these values for each value of lambda we obtain the variation of the energy, and the integration of the results over zw gives the total work done in [Step 3](#step-3).
 
 In order to calculate the work performed in Step 3:
  
@@ -451,7 +476,7 @@ In order to calculate the work performed in Step 3:
 The profile of the work obtained as function of $z$ is represented in the next figure.
 ![Step-3 profile](../figs/ws3.png "Step-3 profile")
 
-3. [Step 4](#step-4) is analogous to [Step 1](#step-1). Remember to change the name of the file obtained to `step4_work.dat`
+4. [Step 4](#step-4) is analogous to [Step 1](#step-1). Remember to change the name of the file obtained to `step4_work.dat`
 
 The profile of the work obtained as function of $\lambda$ is represented in the next figure.
 ![Step-4 profile](../figs/ws4.png "Step-4 profile")
