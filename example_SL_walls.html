@@ -1,0 +1,652 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Examples &mdash; SurFEC  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Examples" href="example_SV_wells.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SurFEC
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_SV_wells.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#solid-liquid-interface-of-a-lennard-jones-crystal-in-contact-with-a-lennard-jones-liquid-with-walls">Solid-Liquid interface of a Lennard-Jones crystal in contact with a Lennard-Jones liquid with walls</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1">Step 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2">Step 2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3">Step 3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-tbd">Step 4 [TBD]</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calculation-of-the-sfe">Calculation of the SFE</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SurFEC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/example_SL_walls.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="tex2jax_ignore mathjax_ignore section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>In this section <code class="docutils literal notranslate"><span class="pre">/</span></code> is the package’s root folder.</p>
+<div class="section" id="solid-liquid-interface-of-a-lennard-jones-crystal-in-contact-with-a-lennard-jones-liquid-with-walls">
+<h2>Solid-Liquid interface of a Lennard-Jones crystal in contact with a Lennard-Jones liquid with walls<a class="headerlink" href="#solid-liquid-interface-of-a-lennard-jones-crystal-in-contact-with-a-lennard-jones-liquid-with-walls" title="Permalink to this headline">¶</a></h2>
+<p>In this example we will set up the cleaving calculation for the calculation of the SFE of a Lennard-Jones crystal in contact with its liquid.</p>
+<p>The input files for the whole calculations are already given in the directory <code class="docutils literal notranslate"><span class="pre">/examples/lj_SL</span></code> but in this tutorial we will go through the writing of such files from scratch. Note that whole example requires few hours of computation time on 16 cores to generate a sensible output. However, you can run shorter simulations to acquaintance yourself with the code. To do this, change the input file variables <code class="docutils literal notranslate"><span class="pre">eqnts</span></code> and <code class="docutils literal notranslate"><span class="pre">nts</span></code> (equilibration and production number of time steps) to smaller values and/or reduce the number of points to move the walls (step1, step2 or step4) or switch off the interactions (step3).</p>
+<p>First of all, create a new folder and step in it.</p>
+<div class="section" id="step-1">
+<h3>Step 1<a class="headerlink" href="#step-1" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">step1</span></code> folder and enter it. Create the <code class="docutils literal notranslate"><span class="pre">out/</span></code>, <code class="docutils literal notranslate"><span class="pre">data/</span></code>, <code class="docutils literal notranslate"><span class="pre">restart/</span></code>, and <code class="docutils literal notranslate"><span class="pre">dump/</span></code> subfolders. Note that you can safely comment out the <code class="docutils literal notranslate"><span class="pre">dump</span></code> and <code class="docutils literal notranslate"><span class="pre">restart</span></code> lines of the input, since dump and restart files are not needed for the cleaving computation. In this case you don’t need to create the <code class="docutils literal notranslate"><span class="pre">restart/</span></code> and <code class="docutils literal notranslate"><span class="pre">dump/</span></code> folders.</p></li>
+<li><p>Prepare the LAMMPS input file. Here we use <code class="docutils literal notranslate"><span class="pre">/examples/lj_S/bulk.in</span></code> file as a starting point. Copy it to the current folder, delete all the lines after the <code class="docutils literal notranslate"><span class="pre">f3</span></code> fix and change the temperature to 0.617 <code class="docutils literal notranslate"><span class="pre">variable</span> <span class="pre">Tsyst</span> <span class="pre">equal</span> <span class="pre">0.617</span></code>.</p></li>
+<li><p>Prepare the starting configuration. Here we copy the <code class="docutils literal notranslate"><span class="pre">/examples/lj_systems/fcc111-T1.lmp</span></code> data file to the current folder. The file contains the starting configuration, a Lennard-Jones fcc crystal oriented along the direction (111) at the (reduced) temperature of 0.617.</p></li>
+<li><p>Prepare a walls file. Here we will use the <code class="docutils literal notranslate"><span class="pre">/examples/lj_systems/fcc111-T1-walls.lmp</span></code> file, which should be copied to the current folder. The exact format of this file is given in the description of the appropriate fix.</p></li>
+<li><p>Prepare a file containing the variation of the strength of the walls. The varying quantity in this case is the position of the walls with respect the cleaving plane which we call <span class="math notranslate nohighlight">\(z_w\)</span>. The starting position of the walls is denoted as <span class="math notranslate nohighlight">\(z_{w,i}\)</span>, whereas the final position will be denoted as <span class="math notranslate nohighlight">\(z_{w,f}\)</span>. This file contains a sequence of increasing consecutive numbers in the interval <span class="math notranslate nohighlight">\([z_{w,i},z_{w,f}]\)</span> (extremes included). In this case, the values of the <span class="math notranslate nohighlight">\(z_{w}\)</span>’s can be arbitrary. The only contraint is that at the initial point the walls do not interact with any atoms in the system. Following Davidchack and Laird<a class="footnote-reference brackets" href="#footcite-davidchack2003direct" id="id1">1</a> we choose for this particular system <span class="math notranslate nohighlight">\(z_{w,i}=1.10\)</span> and <span class="math notranslate nohighlight">\(z_{w,i}=0.62\)</span>.
+Here is a (truncated) example of the file:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.62</span>
+<span class="mf">0.63</span>
+<span class="mf">0.64</span>
+<span class="o">...</span>
+<span class="mf">1.00</span>
+<span class="mf">1.05</span>
+<span class="mf">1.10</span>
+</pre></div>
+</div>
+<p>Note:</p>
+<ul class="simple">
+<li><p>There is no internal control in the code that checks that the boundaries are correct and the sequence of number is an increasing sequence</p></li>
+</ul>
+<p>Here we will be using the <code class="docutils literal notranslate"><span class="pre">/examples/lj_SL/cases/fcc111_T1_walls/zwall_111_T1.dat</span></code> file, so make sure to copy it to the current folder.</p>
+<p><img alt="Step-1" src="_images/walls-S1.png" /></p>
+<ol class="arabic simple" start="6">
+<li><p>The wells in the system are introduced using the new fix <code class="docutils literal notranslate"><span class="pre">wallforce</span></code>:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>fix f2 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+</pre></div>
+</div>
+<p>where the explanation of the different parameters is given in the <a class="reference internal" href="fix_wall.html"><span class="doc std std-doc">description</span></a> of the fix. In the walls version of the cleaving model, the walls moves from the position <span class="math notranslate nohighlight">\(z_{w,i}\)</span> where they do not interact with the atoms in the system to the position <span class="math notranslate nohighlight">\(z_{f,i}\)</span> where they interacts with the atoms. LAMMPS allows the creation of an input file which can perform several runs in a row by changing the parameter between the different runs. The relevant code that should be added to <code class="docutils literal notranslate"><span class="pre">bulk.in</span></code> is</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable Nevery  equal 100
+variable Nrepeat equal 5
+variable Nfreq   equal 500
+
+variable  zw file  zwall_111_T1.dat
+variable  clwall   equal 16.81
+variable  sigma    equal  1.0
+variable  eps      equal  1.0
+variable  crw      equal  2.0^(1.0/6.0)
+variable  rw       equal  ${sigma}*${crw}
+variable  delta    equal  0.25
+variable  i        equal 1
+
+label here
+
+variable    zwalls equal ${zw}
+fix f2 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+print       &quot;Wall Position ${zwalls}&quot;
+
+run   ${eqnts}
+fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwalls f_f2  file  out/ave.F.${i}.out
+run  ${nts}
+
+
+unfix f5
+unfix totW
+
+write_data data/Fstep1.${i}.data nocoeff
+variable    cntt equal ${i}+1
+variable    cnt  equal ${i}
+next zw
+jump SELF here
+
+</pre></div>
+</div>
+<p>To keep the main directory clean from all the output files generated during the run, we print those files in the <code class="docutils literal notranslate"><span class="pre">out</span></code> and <code class="docutils literal notranslate"><span class="pre">data</span></code> folders.</p>
+<p>We refer to the <a class="reference external" href="https://docs.lammps.org/jump.html">LAMMPS documentation</a> for the use of the <code class="docutils literal notranslate"><span class="pre">jump</span></code> command to create a loop. Each iteration of the loop produces the following files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Fstep1.${i}.data</span></code>: data file containing the last configuration of the i-th iteration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ave.F.${i}.out</span></code>: File which contains a summary of the properties of the system, including the work (<code class="docutils literal notranslate"><span class="pre">f_f2</span></code>)</p></li>
+</ul>
+<ol class="arabic simple" start="7">
+<li><p>Launch the simulation.</p></li>
+</ol>
+</div>
+<div class="section" id="step-2">
+<h3>Step 2<a class="headerlink" href="#step-2" title="Permalink to this headline">¶</a></h3>
+<p>In the step2 we are repeating the same operations described for the step1 but for the liquid system. For this reason, we will only describe the point where it is different from step1</p>
+<ol class="arabic simple">
+<li><p>Same as <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a></p></li>
+<li><p>Same as <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a></p></li>
+<li><p>Prepare the starting configuration. Here we copy the <code class="docutils literal notranslate"><span class="pre">/examples/lj_systems/inputLIQ-111-T1.lmp</span></code> data file to the current folder. The file contains the starting configuration, a Lennard-Jones liquid at the (reduced) temperature of 0.617. Edit the <code class="docutils literal notranslate"><span class="pre">bulk.in</span></code> input file so that the correct data file is read (<em>i.e.</em> change the <code class="docutils literal notranslate"><span class="pre">read_data</span> <span class="pre">fcc111-T1.lmp</span></code> line to <code class="docutils literal notranslate"><span class="pre">read_data</span> <span class="pre">inputLIQ-111-T1.lmp</span></code>).</p></li>
+<li><p>Same as <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a></p></li>
+<li><p>Same as step1. Note, the file with the different position of the walls does not need to be identical to the one used in step1. Only the initial and final positions of the walls (i.e., <span class="math notranslate nohighlight">\(z_{w,i}\)</span> and <span class="math notranslate nohighlight">\(z_{w,f}\)</span>) must agree between step1 and step2. However, for the sake of the tutorial we will use the same file used in step1, <code class="docutils literal notranslate"><span class="pre">/examples/lj_SL/cases/fcc111_T1_walls/zwall_111_T1.dat</span></code> file, so make sure to copy it to the current folder.</p></li>
+<li><p>Same as <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>. Note: it is convenient to avoid using the same name for the data files produced. In the list of commands given in the point 6 of the <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>, replace</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>write_data data/Fstep1.${i}.data nocoeff
+</pre></div>
+</div>
+<p>with</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>write_data data/Fstep2.${i}.data nocoeff
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>Launch the simulation.</p></li>
+</ol>
+</div>
+<div class="section" id="step-3">
+<h3>Step 3<a class="headerlink" href="#step-3" title="Permalink to this headline">¶</a></h3>
+<p><img alt="Step-3" src="_images/wells-S3.png" /></p>
+<p>In the third step we reorganize the liquid and solid systems in order to put them in contact and we replace the solid-solid and liquid-liquid interactions to the solid-liquid ones. In this step we need to create a new input file that combines the two systems and determine which interactions needs to be changed.</p>
+<ol class="arabic">
+<li><p>Create the <code class="docutils literal notranslate"><span class="pre">step3</span></code> folder and enter it. Create the <code class="docutils literal notranslate"><span class="pre">out/</span></code>, <code class="docutils literal notranslate"><span class="pre">data/</span></code>, <code class="docutils literal notranslate"><span class="pre">dat/</span></code>, <code class="docutils literal notranslate"><span class="pre">restart/</span></code>, and <code class="docutils literal notranslate"><span class="pre">dump/</span></code> subfolders (where the latter two can be omitted if the related commands in the LAMMPS script file are commented). The <code class="docutils literal notranslate"><span class="pre">dat/</span></code> folder will contain the output of this step.</p></li>
+<li><p>The following are the list of steps needed to create the input for the step3, (refer to the Figure for the definition of the types):</p>
+<ol class="arabic simple">
+<li><p>Make a copy of each of the solid and liquid system and redefine the types of the atoms in each of the 8 halves as 1-8 following the figure. The regions of the solid and liquid system a-b and c-d are defined depending on their position relatively to the cleaving plane</p></li>
+<li><p>The atom types 1-2-3-4 will represents the “true” atoms, whereas the atom with types 5-6-7-8 will represent the duplicate</p></li>
+<li><p>The atoms of type 1 have the same coordinate as the atoms in the region a</p></li>
+<li><p>The atoms of type 2 have the same coordinate as the atoms in the region d</p></li>
+<li><p>The atoms of type 3 have the same coordinate as the atoms in the region c with the z coordinate translated by one box size (i.e. znew=zold+xbox )</p></li>
+<li><p>The atoms of type 4 have the same coordinate as the atoms in the region b with the z coordinate translated by one box size (i.e. znew=zold+xbox )</p></li>
+<li><p>The atoms of type 5 have the same coordinate as the atoms in the region b</p></li>
+<li><p>The atoms of type 6 have the same coordinate as the atoms in the region a with the z coordinate translated by one box size (i.e. znew=zold+xbox )</p></li>
+<li><p>The atoms of type 7 have the same coordinate as the atoms in the region c</p></li>
+<li><p>The atoms of type 8 have the same coordinate as the atoms in the region d with the z coordinate translated by one box size (i.e. znew=zold+xbox )</p></li>
+<li><p>The coordinates of the eight atom types must be written in a particular order in the data file. Each true type (i.e., types 1-4) must have an odd index with the following even index occupied by the corresponding duplicate atom</p></li>
+</ol>
+<p>E.g. Output of step1 with position of atoms in the crystal:</p>
+</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Atoms</span> <span class="c1"># atomic</span>
+
+<span class="mi">1</span> <span class="mi">1</span> <span class="mf">0.8578716707860459</span> <span class="mf">0.4952924400584776</span> <span class="mf">0.4669661907143749</span> 
+<span class="mi">2</span> <span class="mi">1</span> <span class="mf">0.2859572235953486</span> <span class="mf">1.4858773201754327</span> <span class="mf">0.4669661907143749</span>
+<span class="mi">3</span> <span class="mi">1</span> <span class="mf">2.0017005651674404</span> <span class="mf">0.4952924400584776</span> <span class="mf">0.4669661907143749</span> 
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>New input file for step3:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Atoms</span> <span class="c1"># atomic</span>
+
+<span class="mi">1</span>       <span class="mi">1</span>        <span class="mf">0.8578716707860459</span>       <span class="mf">0.4952924400584776</span>       <span class="mf">0.4669661907143749</span>
+<span class="mi">2</span>       <span class="mi">6</span>        <span class="mf">0.8578716707860459</span>       <span class="mf">0.4952924400584776</span>      <span class="mf">34.0885319221493717</span>
+<span class="mi">3</span>       <span class="mi">1</span>        <span class="mf">0.2859572235953486</span>       <span class="mf">1.4858773201754327</span>       <span class="mf">0.4669661907143749</span>
+<span class="mi">4</span>       <span class="mi">6</span>        <span class="mf">0.2859572235953486</span>       <span class="mf">1.4858773201754327</span>      <span class="mf">34.0885319221493717</span>
+<span class="mi">5</span>       <span class="mi">1</span>        <span class="mf">2.0017005651674404</span>       <span class="mf">0.4952924400584776</span>       <span class="mf">0.4669661907143749</span>
+<span class="mi">6</span>       <span class="mi">6</span>        <span class="mf">2.0017005651674404</span>       <span class="mf">0.4952924400584776</span>      <span class="mf">34.0885319221493717</span>
+<span class="o">...</span>
+
+</pre></div>
+</div>
+<p>However, in this tutorial we will use the fortran program <code class="docutils literal notranslate"><span class="pre">step3IN.f90</span></code> available which will produce the input data automatically.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>1. Copy `step3IN.f90` from `/utils/` to the current directory
+2. Compile it: `gfortran step3IN.f90`
+3. Copy the last `data/Fstep1.*.data` file from the [Step 1](#step-1) folder
+4. Copy the last `data/Fstep2.*.data` file from the [Step 2](#step-2) folder
+5. Run: `./a.out  Fstep1.*.data  Fstep2.*.data 16.81` where 16.81 is the position of the cleaving plane used in both [Step 1](#step-1) and [Step 2](#step-2) 
+6. The results is the file `inputStep3.lmp`    
+</pre></div>
+</div>
+<p><img alt="Step-3" src="_images/walls-S3.png" /></p>
+<ol class="arabic simple" start="3">
+<li><p>Prepare a new LAMMPS input file. We again use the <code class="docutils literal notranslate"><span class="pre">/examples/lj_S/bulk.in</span></code> file as a starting point. Copy it to the current folder, delete all the lines after the <code class="docutils literal notranslate"><span class="pre">f3</span></code> fix and change the temperature to 0.617 <code class="docutils literal notranslate"><span class="pre">variable</span> <span class="pre">Tsyst</span> <span class="pre">equal</span> <span class="pre">0.617</span></code> and change the name of the data file to match the file generated in sub-step 2.</p></li>
+<li><p>We define two atom groups using the <code class="docutils literal notranslate"><span class="pre">group</span></code> command of LAMMPS to distinguish between the <code class="docutils literal notranslate"><span class="pre">real</span></code> and the <code class="docutils literal notranslate"><span class="pre">duplicate</span></code> atoms</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">group</span> <span class="n">real</span> <span class="nb">type</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="n">group</span> <span class="n">dupl</span> <span class="nb">type</span> <span class="mi">5</span> <span class="mi">6</span> <span class="mi">7</span> <span class="mi">8</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>The switching off is implemented directly in the definition of the pair interactions. We therefore need to change the pair interaction in the LAMMPS script file (section <em>Interactions</em>) to the new defined type</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pair_style lj/Nlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
+</pre></div>
+</div>
+<p>All the parameters (<code class="docutils literal notranslate"><span class="pre">cutoff1</span></code>, <code class="docutils literal notranslate"><span class="pre">cutoff2</span></code>, <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma</span></code>) are identical to those used in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>. Note the three additional parameters. They allow to specify a global swithich if needed. However, in this we need to change the interactions specifically for each pair, therefore we will set these three numbers to 1.0 and modify the switching for each pair interaction.</p>
+<ol class="arabic simple" start="6">
+<li><p>We need to define explicitily for each pair interaction if they need to be swithched. We start with the interactions which do not change in the course of the simulation. These interactions are the <code class="docutils literal notranslate"><span class="pre">self</span></code> interactions (i.e., interactions among atoms of the same type) and the interactions which do not <code class="docutils literal notranslate"><span class="pre">cross</span></code> the cleaving planes:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Self interactions
+pair_coeff   1 1  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   2 2  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   3 3  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   4 4  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   5 5  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   6 6  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   7 7  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   8 8  ${epslj} ${siglj}   0.0 1.0
+
+# Interactions not crossing the cleaving plane
+pair_coeff   1 4  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   2 3  ${epslj} ${siglj}   1.0 1.0
+
+</pre></div>
+</div>
+<p>The remaining interactions will be either redefined within the loop which switched the interactions between the different phases or completely excluded from the simulations.</p>
+<ol class="arabic simple" start="5">
+<li><p>We need to exclude the unphysical interactions, i.e. the interactions among overlapping atoms. We use the option <code class="docutils literal notranslate"><span class="pre">exclude</span></code> of the LAMMPS command <code class="docutils literal notranslate"><span class="pre">neigh_modify</span></code> Replace the command</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">neigh_modify</span> <span class="n">every</span> <span class="mi">1</span> <span class="n">delay</span> <span class="mi">0</span> <span class="n">check</span> <span class="n">yes</span> 
+</pre></div>
+</div>
+<p>with the command</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">neigh_modify</span> <span class="n">every</span> <span class="mi">1</span> <span class="n">delay</span> <span class="mi">0</span> <span class="n">check</span> <span class="n">yes</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">1</span> <span class="mi">7</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">1</span> <span class="mi">8</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">2</span> <span class="mi">5</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">2</span> <span class="mi">6</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">3</span> <span class="mi">5</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">3</span> <span class="mi">6</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">4</span> <span class="mi">7</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">4</span> <span class="mi">8</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">5</span> <span class="mi">6</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">5</span> <span class="mi">7</span> <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">5</span> <span class="mi">8</span>  <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">6</span> <span class="mi">7</span>  <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">6</span> <span class="mi">8</span>  <span class="n">exclude</span> <span class="nb">type</span> <span class="mi">7</span> <span class="mi">8</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Remove the line</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>velocity all create ${Tsyst} 93874090 
+</pre></div>
+</div>
+<p>and replace the group used in the <code class="docutils literal notranslate"><span class="pre">velocity</span></code> commands from <code class="docutils literal notranslate"><span class="pre">all</span></code> to <code class="docutils literal notranslate"><span class="pre">real</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">velocity</span> <span class="n">real</span> <span class="n">zero</span> <span class="n">linear</span>
+<span class="n">velocity</span> <span class="n">real</span> <span class="n">zero</span> <span class="n">angular</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>The work needed to switch off the interactions (described in the next point) is calculated by adding the line <code class="docutils literal notranslate"><span class="pre">compute</span> <span class="pre">1</span> <span class="pre">all</span> <span class="pre">cleavpairs</span> <span class="pre">lj/Nlcleavs3</span> <span class="pre">norm</span> <span class="pre">4</span> <span class="pre">z</span></code> to end of the LAMMPS script file. The meaning of the parameters is reported in the <a class="reference internal" href="compute_pcleav.html"><span class="doc std std-doc">description</span></a> of this compute style.</p></li>
+<li><p>Prepare a walls file. Here we will use the <code class="docutils literal notranslate"><span class="pre">/examples/lj_systems/fcc111-T1-walls.lmp</span></code> file, which should be copied to the current folder.</p></li>
+<li><p>Add the command for the walls, together with the definition of the variables that sets the parameters specifying the walls characteristics:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable  clwall   equal 16.81
+variable  sigma    equal  1.0
+variable  eps      equal  1.0
+variable  crw      equal  2.0^(1.0/6.0)
+variable  rw       equal  ${sigma}*${crw}
+variable  delta    equal  0.25
+variable  i        equal 1
+variable  zwf equal 0.62
+
+fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+
+</pre></div>
+</div>
+<p>In this step the position of the walls is fixed and equal to the final position <span class="math notranslate nohighlight">\(z_{w,f}\)</span> defined for  <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a> and <a class="reference internal" href="#step-2"><span class="std std-doc">Step 2</span></a>.</p>
+<ol class="arabic simple" start="10">
+<li><p>The actual switching off is obtained through another loop which increases the size of the box. In this loop the solid-solid interactions across the cleaving plane are switched-off whereas the solid-liquid interactions across the cleaving plane are swithced on. Add the following loop to the end of the LAMMPS script file:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable Nevery  equal 100
+variable Nrepeat equal 5
+variable Nfreq   equal 500
+variable i       equal 1
+variable lam file lambda.dat
+
+
+label here
+variable lambda equal ${lam}
+variable minlam equal 1-${lam}
+
+### Across cleaving plane interactions same phase
+
+pair_coeff   1 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   1 6  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   2 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 7  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   3 8  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 5  ${epslj} ${siglj}  ${minlam} -1.0
+pair_coeff   4 6  ${epslj} ${siglj}  ${minlam} -1.0
+
+### Across cleaving plane interactions different phases
+
+pair_coeff   1 2  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   1 3  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   2 4  ${epslj} ${siglj}  ${lambda} 1.0
+pair_coeff   3 4  ${epslj} ${siglj}  ${lambda} 1.0
+
+
+#--------------------------------------------------------------------
+
+run   ${eqnts}
+
+fix   fl6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_lambda file dat/lambda.${i}.dat
+fix   f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq}  c_1[*] file dat/inters3.${i}.dat mode vector
+
+run   ${nts}
+# --------------------------- Unfix --------------------------------------------
+
+unfix fl6
+unfix f6
+
+write_data  data/Fstep3.${i}.data  nocoeff
+variable    cntt equal ${i}+1
+variable    cnt  equal ${i}
+
+next lam
+jump SELF here
+</pre></div>
+</div>
+<ol class="arabic simple" start="11">
+<li><p>Prepare a file containing the variation of the strength of the interactions. This file contains a sequence of increasing consecutive numbers in the interval <span class="math notranslate nohighlight">\([0,1]\)</span> (extremes included). Here is a (truncated) example:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.0</span>
+<span class="mf">0.01</span>
+<span class="mf">0.02</span>
+<span class="o">...</span>
+<span class="mf">0.98</span>
+<span class="mf">0.99</span>
+<span class="mf">1.0</span>
+</pre></div>
+</div>
+<p>Note:</p>
+<ul class="simple">
+<li><p>The file must start at 0 and end at 1.</p></li>
+<li><p>There is no internal control in the code that checks that the boundaries are correct.</p></li>
+</ul>
+<p>Here we will be using the <code class="docutils literal notranslate"><span class="pre">/examples/lj_SL/walls/step3/lambda.dat</span></code> file, so make sure to copy it to the current folder.</p>
+<ol class="arabic simple" start="12">
+<li><p>Launch the simulation.</p></li>
+</ol>
+</div>
+<div class="section" id="step-4-tbd">
+<h3>Step 4 [TBD]<a class="headerlink" href="#step-4-tbd" title="Permalink to this headline">¶</a></h3>
+<p><img alt="Step-4" src="_images/wells-S4.png" /></p>
+<p>In the last step we remove the wells leaving free the newly created interfaces.</p>
+<ol class="arabic simple">
+<li><p>Create the <code class="docutils literal notranslate"><span class="pre">step4</span></code> folder and enter it. Create the <code class="docutils literal notranslate"><span class="pre">out/</span></code>, <code class="docutils literal notranslate"><span class="pre">data/</span></code>, <code class="docutils literal notranslate"><span class="pre">restart/</span></code>, and <code class="docutils literal notranslate"><span class="pre">dump/</span></code> subfolders (where the latter two can be omitted if the related commands in the LAMMPS script file are commented). The <code class="docutils literal notranslate"><span class="pre">out/</span></code> folder will contain the output of this step.</p></li>
+<li><p>Copy <code class="docutils literal notranslate"><span class="pre">fcc111-T01-wells.lmp</span></code> and the last <code class="docutils literal notranslate"><span class="pre">data/Fstep3.*.data</span></code> file from the <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a> folder.</p></li>
+<li><p>Prepare a new LAMMPS input file. We again use the <code class="docutils literal notranslate"><span class="pre">/examples/lj_S/bulk.in</span></code> file as a starting point. Copy it to the current folder, delete all the lines after the <code class="docutils literal notranslate"><span class="pre">f3</span></code> fix and change the temperature to 0.1 <code class="docutils literal notranslate"><span class="pre">variable</span> <span class="pre">Tsyst</span> <span class="pre">equal</span> <span class="pre">0.1</span></code> and change the name of the data file to match the file copied in sub-step 2.</p></li>
+<li><p>Prepare a file containing the variation of the strength of the wells. This file contains a sequence of increasing consecutive numbers in the interval <span class="math notranslate nohighlight">\([0,1]\)</span> (extremes included). Here is a (truncated) example:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.0</span>
+<span class="mf">0.99</span>
+<span class="mf">0.98</span>
+<span class="o">...</span>
+<span class="mf">0.02</span>
+<span class="mf">0.01</span>
+<span class="mf">0.0</span>
+</pre></div>
+</div>
+<p>Note:</p>
+<ul class="simple">
+<li><p>The file must start at 1 and end at 0.</p></li>
+<li><p>There is no internal control in the code that checks that the boundaries are correct.</p></li>
+<li><p>The values does not need to be the same (in reverse order) of those used in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>.</p></li>
+</ul>
+<p>Here we will be using the <code class="docutils literal notranslate"><span class="pre">/examples/lj_SV/step4/rev_lambda_wells.dat</span></code> file, so make sure to copy it to the current folder.</p>
+<ol class="arabic simple" start="5">
+<li><p>The loop in <span class="xref myst">Step 4</span> in analogous to the loop in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a> run backwards</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable Nevery  equal 100
+variable Nrepeat equal 5
+variable Nfreq   equal 500
+
+variable lam   file rev_lambda_wells.dat
+variable dw    equal 6.0
+variable a0    equal exp(1/3*ln(4/1.05604))
+variable rw    equal sqrt(2)*${a0}/4.0*1.2
+variable expp  equal 3.0
+variable i     equal 1
+
+label here
+variable    lambda equal ${lam}
+
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file fcc111-T01-wells.lmp
+variable totW   equal &quot;f_f2&quot;
+
+print       &quot;Well depth ${lambda}&quot;
+
+run   ${eqnts}
+
+fix  f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_lambda f_f2   file out/ave.F.$i.out
+
+run  ${nts}
+
+unfix f2
+unfix f6
+write_data data/Fstep4.$i.data nocoeff
+variable    ii equal $i+1
+variable    i  equal ${ii}
+next lam
+jump SELF here
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Launch the simulation.</p></li>
+</ol>
+</div>
+<div class="section" id="calculation-of-the-sfe">
+<h3>Calculation of the SFE<a class="headerlink" href="#calculation-of-the-sfe" title="Permalink to this headline">¶</a></h3>
+<p>The SFE is obtained by summing the work performed in the <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>, <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>, <span class="xref myst">Step 4</span>. The work is calculated by using the results produced in each step. The folder <code class="docutils literal notranslate"><span class="pre">/utils/</span></code> contains some small programs for the post-processing.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">work.sh</span></code>: bash script to calculate the average of the relevant properties for each step of the thermodynamic integration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c3cryst.f90</span></code>: fortran program to extract the value of the interactions calculated in  Step 3. It must be compiled by running the command <code class="docutils literal notranslate"><span class="pre">gfortran</span> <span class="pre">c3cryst.f90</span></code> from within the <code class="docutils literal notranslate"><span class="pre">/utils/</span></code> folder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calcSFE.m</span></code>: Matlab script to perform the integration of each curve</p></li>
+</ul>
+<p>Before analyzing the calculations, let’s create a folder ‘/results/’ at the same level of the folders <code class="docutils literal notranslate"><span class="pre">./step1/</span></code>, <code class="docutils literal notranslate"><span class="pre">./step3</span></code>, <code class="docutils literal notranslate"><span class="pre">./step4</span></code>. Here, we will copy the results for each step.</p>
+<ol class="arabic simple">
+<li><p>The files <code class="docutils literal notranslate"><span class="pre">.out</span></code> generated in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a> contains the quantity <code class="docutils literal notranslate"><span class="pre">f_f2</span></code>, which is the work performed. An average of that quantity for each lambda gives the variation of the energy in Step1. The integration of the results quantity over lambda gives the total work in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>. In order to calculate the work performed in Step 1:</p>
+<ol class="arabic simple">
+<li><p>Enter in the dir <code class="docutils literal notranslate"><span class="pre">./step1/out/</span></code></p></li>
+<li><p>Call the script <code class="docutils literal notranslate"><span class="pre">../../utils/work.sh</span> <span class="pre">F</span></code></p></li>
+<li><p>Copy the file <code class="docutils literal notranslate"><span class="pre">F-work.dat</span></code> in the folder <code class="docutils literal notranslate"><span class="pre">./results/</span></code> by changing its name to <code class="docutils literal notranslate"><span class="pre">step1_work.dat</span></code></p></li>
+</ol>
+</li>
+</ol>
+<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(\lambda\)</span> is represented in the next figure.
+<img alt="Step-1 profile" src="_images/ws1.png" /></p>
+<ol class="arabic simple" start="2">
+<li><p>The files <code class="docutils literal notranslate"><span class="pre">.dat</span></code> generated in <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a> contains the interactions <em>switched-off</em> during the <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>. By averaging these values for each value of zw we obtain the variation of the energy, and the integration of the results over zw gives the total work done in <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>.</p></li>
+</ol>
+<p>In order to calculate the work performed in Step 3:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>1. Enter in the dir `./step3/out/`
+2. Call the program `../../utils/a.out`
+3. Call the script `../../utils/work.sh F`
+4. Copy the file `F-work.dat` in the folder `./results/` by changing its name to `step3_work.dat`
+</pre></div>
+</div>
+<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(z\)</span> is represented in the next figure.
+<img alt="Step-3 profile" src="_images/ws3.png" /></p>
+<ol class="arabic simple" start="3">
+<li><p><span class="xref myst">Step 4</span> is analogous to <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>. Remember to change the name of the file obtained to <code class="docutils literal notranslate"><span class="pre">step4_work.dat</span></code></p></li>
+</ol>
+<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(\lambda\)</span> is represented in the next figure.
+<img alt="Step-4 profile" src="_images/ws4.png" /></p>
+<ol class="arabic simple" start="4">
+<li><p>After the profile of the work in the three steps is obtained, we can calculate the SFE by integrating the three curves. Enter in the dir <code class="docutils literal notranslate"><span class="pre">/results</span></code>, copy the Matlab script  <code class="docutils literal notranslate"><span class="pre">/utils/calcSFE.m</span></code> and run it in Matlab from this folder. The final value of the SFE is: <span class="math notranslate nohighlight">\(2.095\pm 0.007\)</span> in units of <span class="math notranslate nohighlight">\(\epsilon\sigma^{-2}\)</span></p></li>
+</ol>
+<div class="docutils container" id="id2">
+<dl class="footnote brackets">
+<dt class="label" id="footcite-davidchack2003direct"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Ruslan L Davidchack and Brian B Laird. Direct calculation of the crystal–melt interfacial free energies for continuous potentials: application to the lennard-jones system. <em>The Journal of chemical physics</em>, 118(16):7651–7657, 2003.</p>
+</dd>
+</dl>
+</div>
+<hr class="footnotes docutils" />
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="example_SV_wells.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2022, Nicodemo Di Pasquale and Lorenzo Rovigatti
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
