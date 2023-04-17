@@ -1,16 +1,20 @@
-# Examples
+# Solid-Vacuum interface of a Lennard-Jones crystal with wells
 
+````{note}
+This example requires few hours of computation time on 16 cores to generate a sensible output. However, you can run shorter simulations to acquaintance yourself with the code. To do this, change the input file variables `eqnts` and `nts` (equilibration and production number of time steps) to smaller values and/or reduce the number of points to move the walls ([Step 1](#step-1), [Step 2](#step-2) or [Step 4](#step-4)) or switch off the interactions ([Step 3](#step-3)).
+````
+
+````{note}
 In this section `/` is the package's root folder.
-
-## Solid-Vacuum interface of a Lennard-Jones crystal with wells
+````
 
 In this example we will set up the cleaving calculation for the calculation of the SFE of a Lennard-Jones crystal in contact with vacuum.
 
-The input files for the whole calculations are already given in the directory `/examples/lj_SV` but in this tutorial we will go through the writing of such files from scratch. Note that whole example requires roughly one hour of computation time on 16 cores to generate a sensible output. However, you can run shorter simulations to acquaintance yourself with the code. To do this, change the input file variables `eqnts` and `nts` (equilibration and production number of time steps) to smaller values.
+The input files for the whole calculations are already given in the directory `/examples/lj_SV` but in this tutorial we will go through the writing of such files from scratch.
 
 First of all, create a new folder and step in it.
 
-### Step 1 
+## Step 1 
 
 1. Create a `step1` folder and enter it. Create the `out/`, `data/`, `restart/`, and `dump/` subfolders. Note that you can safely comment out the `dump` and `restart` lines of the input, since dump and restart files are not needed for the cleaving computation. In this case you don't need to create the `restart/` and `dump/` folders.
 
@@ -94,11 +98,11 @@ We refer to the [LAMMPS documentation](https://docs.lammps.org/jump.html) for th
 
 7. Launch the simulation.
 
-### Step 2
+## Step 2
 
 This step for this particular system (a crystal in coexistence with vacuum) is empty, so we can directly go to [Step 3](#step-3).
 
-### Step 3
+## Step 3
 
 ![Step-3](../figs/wells-S3.png "Step-3")
 
@@ -198,7 +202,7 @@ We refer to the [LAMMPS documentation](https://docs.lammps.org/change_box.html) 
 9. Launch the simulation.
 
 
-### Step 4
+## Step 4
 
 ![Step-4](../figs/wells-S4.png "Step-4")
 
@@ -269,7 +273,7 @@ jump SELF here
 
 6. Launch the simulation.
 
-### Calculation of the SFE 
+## Calculation of the SFE 
 
 The SFE is obtained by summing the work performed in the [Step 1](#step-1), [Step 3](#step-3), [Step 4](#step-4). The work is calculated by using the results produced in each step. The folder `/utils/` contains some small programs for the post-processing. 
 

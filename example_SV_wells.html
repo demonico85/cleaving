@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Examples &mdash; SurFEC  documentation</title>
+  <title>Solid-Vacuum interface of a Lennard-Jones crystal with wells &mdash; SurFEC  documentation</title>
   
 
   
@@ -36,7 +36,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Solid-Liquid interface of a Lennard-Jones crystal in contact with a Lennard-Jones liquid with walls" href="example_SL_walls.html" />
+    <link rel="prev" title="Examples" href="example.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,11 +84,22 @@
             
             
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="example.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Solid-Vacuum interface of a Lennard-Jones crystal with wells</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1">Step 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2">Step 2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3">Step 3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4">Step 4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calculation-of-the-sfe">Calculation of the SFE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="example_SL_walls.html">Solid-Liquid interface of a Lennard-Jones crystal in contact with a Lennard-Jones liquid with walls</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -133,7 +146,9 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Examples</li>
+          <li><a href="example.html">Examples</a> &raquo;</li>
+        
+      <li>Solid-Vacuum interface of a Lennard-Jones crystal with wells</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -152,16 +167,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="examples">
-<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+  <div class="tex2jax_ignore mathjax_ignore section" id="solid-vacuum-interface-of-a-lennard-jones-crystal-with-wells">
+<h1>Solid-Vacuum interface of a Lennard-Jones crystal with wells<a class="headerlink" href="#solid-vacuum-interface-of-a-lennard-jones-crystal-with-wells" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This example requires few hours of computation time on 16 cores to generate a sensible output. However, you can run shorter simulations to acquaintance yourself with the code. To do this, change the input file variables <code class="docutils literal notranslate"><span class="pre">eqnts</span></code> and <code class="docutils literal notranslate"><span class="pre">nts</span></code> (equilibration and production number of time steps) to smaller values and/or reduce the number of points to move the walls (<a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>, <a class="reference internal" href="#step-2"><span class="std std-doc">Step 2</span></a> or <a class="reference internal" href="#step-4"><span class="std std-doc">Step 4</span></a>) or switch off the interactions (<a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>In this section <code class="docutils literal notranslate"><span class="pre">/</span></code> is the package’s root folder.</p>
-<div class="section" id="solid-vacuum-interface-of-a-lennard-jones-crystal-with-wells">
-<h2>Solid-Vacuum interface of a Lennard-Jones crystal with wells<a class="headerlink" href="#solid-vacuum-interface-of-a-lennard-jones-crystal-with-wells" title="Permalink to this headline">¶</a></h2>
+</div>
 <p>In this example we will set up the cleaving calculation for the calculation of the SFE of a Lennard-Jones crystal in contact with vacuum.</p>
-<p>The input files for the whole calculations are already given in the directory <code class="docutils literal notranslate"><span class="pre">/examples/lj_SV</span></code> but in this tutorial we will go through the writing of such files from scratch. Note that whole example requires roughly one hour of computation time on 16 cores to generate a sensible output. However, you can run shorter simulations to acquaintance yourself with the code. To do this, change the input file variables <code class="docutils literal notranslate"><span class="pre">eqnts</span></code> and <code class="docutils literal notranslate"><span class="pre">nts</span></code> (equilibration and production number of time steps) to smaller values.</p>
+<p>The input files for the whole calculations are already given in the directory <code class="docutils literal notranslate"><span class="pre">/examples/lj_SV</span></code> but in this tutorial we will go through the writing of such files from scratch.</p>
 <p>First of all, create a new folder and step in it.</p>
 <div class="section" id="step-1">
-<h3>Step 1<a class="headerlink" href="#step-1" title="Permalink to this headline">¶</a></h3>
+<h2>Step 1<a class="headerlink" href="#step-1" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li><p>Create a <code class="docutils literal notranslate"><span class="pre">step1</span></code> folder and enter it. Create the <code class="docutils literal notranslate"><span class="pre">out/</span></code>, <code class="docutils literal notranslate"><span class="pre">data/</span></code>, <code class="docutils literal notranslate"><span class="pre">restart/</span></code>, and <code class="docutils literal notranslate"><span class="pre">dump/</span></code> subfolders. Note that you can safely comment out the <code class="docutils literal notranslate"><span class="pre">dump</span></code> and <code class="docutils literal notranslate"><span class="pre">restart</span></code> lines of the input, since dump and restart files are not needed for the cleaving computation. In this case you don’t need to create the <code class="docutils literal notranslate"><span class="pre">restart/</span></code> and <code class="docutils literal notranslate"><span class="pre">dump/</span></code> folders.</p></li>
 <li><p>Prepare the LAMMPS input file. Here we use <code class="docutils literal notranslate"><span class="pre">/examples/lj_S/bulk.in</span></code> file as a starting point. Copy it to the current folder, delete all the lines after the <code class="docutils literal notranslate"><span class="pre">f3</span></code> fix and change the temperature to 0.1 <code class="docutils literal notranslate"><span class="pre">variable</span> <span class="pre">Tsyst</span> <span class="pre">equal</span> <span class="pre">0.1</span></code>.</p></li>
@@ -238,11 +258,11 @@ jump SELF here
 </ol>
 </div>
 <div class="section" id="step-2">
-<h3>Step 2<a class="headerlink" href="#step-2" title="Permalink to this headline">¶</a></h3>
+<h2>Step 2<a class="headerlink" href="#step-2" title="Permalink to this headline">¶</a></h2>
 <p>This step for this particular system (a crystal in coexistence with vacuum) is empty, so we can directly go to <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>.</p>
 </div>
 <div class="section" id="step-3">
-<h3>Step 3<a class="headerlink" href="#step-3" title="Permalink to this headline">¶</a></h3>
+<h2>Step 3<a class="headerlink" href="#step-3" title="Permalink to this headline">¶</a></h2>
 <p><img alt="Step-3" src="_images/wells-S3.png" /></p>
 <p>In the third step we switch off the interactions between the two sides of the cleaving wall.</p>
 <ol class="arabic simple">
@@ -333,7 +353,7 @@ jump SELF here
 </ol>
 </div>
 <div class="section" id="step-4">
-<h3>Step 4<a class="headerlink" href="#step-4" title="Permalink to this headline">¶</a></h3>
+<h2>Step 4<a class="headerlink" href="#step-4" title="Permalink to this headline">¶</a></h2>
 <p><img alt="Step-4" src="_images/wells-S4.png" /></p>
 <p>In the last step we remove the wells leaving free the newly created interfaces.</p>
 <ol class="arabic simple">
@@ -400,7 +420,7 @@ jump SELF here
 </ol>
 </div>
 <div class="section" id="calculation-of-the-sfe">
-<h3>Calculation of the SFE<a class="headerlink" href="#calculation-of-the-sfe" title="Permalink to this headline">¶</a></h3>
+<h2>Calculation of the SFE<a class="headerlink" href="#calculation-of-the-sfe" title="Permalink to this headline">¶</a></h2>
 <p>The SFE is obtained by summing the work performed in the <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>, <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>, <a class="reference internal" href="#step-4"><span class="std std-doc">Step 4</span></a>. The work is calculated by using the results produced in each step. The folder <code class="docutils literal notranslate"><span class="pre">/utils/</span></code> contains some small programs for the post-processing.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">work.sh</span></code>: bash script to calculate the average of the relevant properties for each step of the thermodynamic integration</p></li>
@@ -441,13 +461,21 @@ jump SELF here
 </ol>
 </div>
 </div>
-</div>
 
 
            </div>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="example_SL_walls.html" class="btn btn-neutral float-right" title="Solid-Liquid interface of a Lennard-Jones crystal in contact with a Lennard-Jones liquid with walls" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="example.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
