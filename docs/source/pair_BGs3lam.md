@@ -20,6 +20,7 @@ This pair style implements the Broughton and Gilmer modification to Lennard-Jone
 
 
 The potential implemented in this pair style is 
+
 $$
 	U(r_{ln},\lambda) =
 		\begin{cases}
@@ -28,6 +29,7 @@ $$
 				0, 		\; r_{ln} \geq 2.5\sigma		
 		\end{cases}
 $$
+
 where $r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|$ for each couple of atoms $l,n$ in the system, and $C_1, C_2, C_3, C_4, C_5$ are constants we used the values reported in {footcite:t}`davidchack2003direct`.
 
 ````{note}
