@@ -23,7 +23,7 @@ Lower case: phase 2
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pair_lj_step3_Nlambda.h"
+#include "pair_lj_BGstep3_lambda.h"
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
@@ -51,14 +51,14 @@ using namespace MathConst;
 
 /* ---------------------------------------------------------------------- */
 
-PairLJNlStep3::PairLJNlStep3(LAMMPS *lmp) : Pair(lmp)
+PairLJBGStep3::PairLJBGStep3(LAMMPS *lmp) : Pair(lmp)
 {
   single_enable = 1;
   respa_enable  = 0;
   manybody_flag = 0;
   writedata     = 1; 
   restartinfo   = 0;
-//  one_coeff     = 1;
+ // one_coeff     = 1;
   pallocation   = 0;
   //eflag_global  = 1;
 
@@ -75,14 +75,14 @@ PairLJNlStep3::PairLJNlStep3(LAMMPS *lmp) : Pair(lmp)
 
 /* ---------------------------------------------------------------------- */
 
-PairLJNlStep3::~PairLJNlStep3()
+PairLJBGStep3::~PairLJBGStep3()
 {
   if (allocated) {
     memory->destroy(setflag);
-    memory->destroy(cutsq_in);
     memory->destroy(cutsq);
-    memory->destroy(cut_in);
     memory->destroy(cut);
+    memory->destroy(cutsq_in);
+    memory->destroy(cut_in);
     memory->destroy(epsilon);
     memory->destroy(sigma);
     memory->destroy(lj1);
@@ -95,9 +95,8 @@ PairLJNlStep3::~PairLJNlStep3()
     memory->destroy(lj8);
     memory->destroy(lj9);
     memory->destroy(lj10);
-    memory->destroy(powlambda);
     memory->destroy(lamcoeff);
-    memory->destroy(powDlambda);
+    memory->destroy(Dlambda);
     memory->destroy(Dfactorlam);
     memory->destroy(c1);
     memory->destroy(c5);
@@ -109,7 +108,7 @@ PairLJNlStep3::~PairLJNlStep3()
    allocate all arrays
 ------------------------------------------------------------------------- */
 
-void PairLJNlStep3::allocate()
+void PairLJBGStep3::allocate()
 {
   allocated = 1;
   int n = atom->ntypes;
@@ -123,11 +122,10 @@ void PairLJNlStep3::allocate()
     pvector = new double[nextra]; 
     pallocation = 1;}
 
-
-  memory->create(cutsq,n+1,n+1,"pair:cutsq_out");
-  memory->create(cut,n+1,n+1,"pair:cutsq_out");
-  memory->create(cutsq_in,n+1,n+1,"pair:cutsq_in");
-  memory->create(cut_in,n+1,n+1,"pair:cut_in");
+  memory->create(cutsq,n+1,n+1,"pair:cutsq");
+  memory->create(cut,n+1,n+1,"pair:cut");
+  memory->create(cutsq_in,n+1,n+1,"pair:cutsq2");
+  memory->create(cut_in,n+1,n+1,"pair:cut2");
   memory->create(epsilon,n+1,n+1,"pair:epsilon");
   memory->create(sigma,n+1,n+1,"pair:sigma");
   memory->create(lj1,n+1,n+1,"pair:lj1");
@@ -142,17 +140,22 @@ void PairLJNlStep3::allocate()
   memory->create(lj10,n+1,n+1,"pair:lj10");
   memory->create(c1,n+1,n+1,"pair:c1");
   memory->create(c5,n+1,n+1,"pair:c5");
-  memory->create(lamcoeff,n+1,n+1,"pair:lamcoeff");
-  memory->create(powlambda,n+1,n+1,"pair:powlambda");
-  memory->create(powDlambda,n+1,n+1,"pair:powDlambda");
-  memory->create(Dfactorlam,n+1,n+1,"pair:Dfactorlam");
-
+  memory->create(lamcoeff,n+1,n+1,"pair:Dlambda");
+  memory->create(Dlambda,n+1,n+1,"pair:Dlambda");
+  memory->create(Dfactorlam,n+1,n+1,"pair:Dlambda");
+/*  for(int i=0; i<n+1; i++ ){
+     for(int j=i; j<n+1; j++){
+        Dlambda[i][j]=-10.0;
+        Dlambda[j][i]=-10.0;
+       }
+    }
+*/
 }
 
 
 /* ---------------------------------------------------------------------- */
 
-void PairLJNlStep3::compute(int eflag, int vflag)
+void PairLJBGStep3::compute(int eflag, int vflag)
 {
 
   int i,j,ii,jj,inum,jnum,itype,jtype,m;
@@ -181,24 +184,6 @@ void PairLJNlStep3::compute(int eflag, int vflag)
   numneigh = list->numneigh;
   firstneigh = list->firstneigh;
 
-
-/*FILE *fpl;
-fpl =NULL;
-fpl=fopen("forces.log", "a");
-
-if(update->ntimestep == 1)if(comm->me == 0){fprintf(fpl," TIMESTEP %d  \n",update->ntimestep);}
-if(update->ntimestep < 10){
-//  for(i=0; i<n+1 ; i++){
-//    for(j=0; j<n+1; j++)fprintf(fpl,"%d %d \n %f %f %f %f %f \n %f %f %f %f %f \n %f %f %f %f\n\n",i,j,lj1[i][j],lj2[i][j],lj3[i][j],lj4[i][j],lj5[i][j],lj6[i][j],lj7[i][j],lj8[i][j],lj9[i][j],lj10[i][j],cutsq[i][j],cutsq2[i][j],cut[i][j],cut2[i][j],combination[i][j]);
-//    }}
-
-
-for (i=0;i<nlocal;i++)
-    fprintf(fpl,"%d %f %f %f\n",i,f[i][0],f[i][1],f[i][2]);
-}
-
-
-MPI_Barrier(world); */
 
   for (ii = 0; ii < inum; ii++) {
 
@@ -229,7 +214,7 @@ MPI_Barrier(world); */
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         fpair = factor_lj*forcelj*r2inv;
 
-        fpair = powlambda[itype][jtype]*fpair;
+        fpair = lamcoeff[itype][jtype]*fpair;
 
         f[i][0] += delx*fpair;
         f[i][1] += dely*fpair;
@@ -244,8 +229,8 @@ MPI_Barrier(world); */
             m=jtype+(itype-1)*n;
             evdwl = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) + c1[itype][jtype];
             evdwl *= factor_lj;
-            pvector[m] += powDlambda[itype][jtype]*evdwl;
-            evdwl *= powlambda[itype][jtype];
+            pvector[m] += evdwl;
+            evdwl *= Dlambda[itype][jtype];
           }
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
@@ -259,7 +244,7 @@ MPI_Barrier(world); */
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
         fpair = factor_lj*(forcelj*r2inv - lj7[itype][jtype]);
 
-        fpair = powlambda[itype][jtype]*fpair;
+        fpair = lamcoeff[itype][jtype]*fpair;
 
         f[i][0] += delx*fpair;
         f[i][1] += dely*fpair;
@@ -274,8 +259,8 @@ MPI_Barrier(world); */
             m=jtype+(itype-1)*n;
             evdwl = r6inv*(lj8[itype][jtype]*r6inv + lj9[itype][jtype]) + lj10[itype][jtype]*rsq + c5[itype][jtype];
             evdwl *= factor_lj;
-            pvector[m] += powDlambda[itype][jtype]*evdwl;
-            evdwl *= powlambda[itype][jtype];
+            pvector[m] += Dlambda[itype][jtype]*evdwl;
+            evdwl *= lamcoeff[itype][jtype];
             }
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
@@ -299,7 +284,7 @@ MPI_Barrier(world); */
    proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairLJNlStep3::write_restart(FILE *fp)
+void PairLJBGStep3::write_restart(FILE *fp)
 {
   write_restart_settings(fp);
 
@@ -320,7 +305,7 @@ void PairLJNlStep3::write_restart(FILE *fp)
    proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairLJNlStep3::read_restart(FILE *fp)
+void PairLJBGStep3::read_restart(FILE *fp)
 {
   read_restart_settings(fp);
   allocate();
@@ -351,7 +336,7 @@ void PairLJNlStep3::read_restart(FILE *fp)
    proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void  PairLJNlStep3::write_restart_settings(FILE *fp)
+void  PairLJBGStep3::write_restart_settings(FILE *fp)
 {
 
   fwrite(&cut_global_in,sizeof(double),1,fp);
@@ -363,7 +348,7 @@ void  PairLJNlStep3::write_restart_settings(FILE *fp)
    proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void  PairLJNlStep3::read_restart_settings(FILE *fp)
+void  PairLJBGStep3::read_restart_settings(FILE *fp)
 {
   int me = comm->me;
   if (me == 0) {
@@ -379,28 +364,28 @@ void  PairLJNlStep3::read_restart_settings(FILE *fp)
    global settings
 ------------------------------------------------------------------------- */
 
-void PairLJNlStep3::settings(int narg, char **arg)
+void PairLJBGStep3::settings(int narg, char **arg)
 {
-  if (narg != 5) error->all(FLERR,"Illegal pair_style command");
+  if (narg != 4) error->all(FLERR,"Illegal pair_style command");
 
 
   cut_global_in  = utils::numeric(FLERR,arg[0],false,lmp);
   cut_global_out = utils::numeric(FLERR,arg[1],false,lmp);
   lambda      = utils::numeric(FLERR,arg[2],false,lmp);
-  npow =  utils::numeric(FLERR,arg[3],false,lmp);
-  Dfac =  utils::numeric(FLERR,arg[4],false,lmp);
+  Dfac =  utils::numeric(FLERR,arg[3],false,lmp);
+
   // reset cutoffs that have been explicitly set
 
-  if (allocated) {
-    int i,j;
-    for (i = 1; i <= atom->ntypes; i++)
-      for (j = i+1; j <= atom->ntypes; j++)
-        if (setflag[i][j]){
-             cut[i][j] = cut_global_out;
-             cut_in[i][j] = cut_global_in;
-        }
+    if (allocated) {
+      int i,j;
+      for (i = 1; i <= atom->ntypes; i++)
+        for (j = i+1; j <= atom->ntypes; j++)
+          if (setflag[i][j]){
+               cut[i][j] = cut_global_out;
+               cut_in[i][j] = cut_global_in;
+          }
+    }
   }
-}
 
 
 /* ----------------------------------------------------------------------
@@ -422,7 +407,9 @@ pair_coeff    1     2       1.0      1.0      1.1      0.25      1.1
 */
 
 
-void PairLJNlStep3::coeff(int narg, char **arg)
+
+
+void PairLJBGStep3::coeff(int narg, char **arg)
 {
   if (narg < 4 || narg > 8)
     error->all(FLERR,"Incorrect args for pair coefficients");
@@ -454,15 +441,14 @@ void PairLJNlStep3::coeff(int narg, char **arg)
   if(cutinner > cutouter)
          error->all(FLERR,"First cut_off must be smaller than second one in the definition");
 
-//  printf("COEFF %s %s %d %f %f\n",arg[0],arg[1],narg,lm,ftr);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
     for (int j = MAX(jlo,i); j <= jhi; j++) {
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;
-      cut_in[i][j] = cutinner;
       cut[i][j] = cutouter;
+      cut_in[i][j] = cutinner;
       setflag[i][j] = 1;
       lamcoeff[i][j] = lm;
       Dfactorlam[i][j] = ftr;
@@ -476,13 +462,11 @@ void PairLJNlStep3::coeff(int narg, char **arg)
 
 }
 
-
-
 /* ----------------------------------------------------------------------
    proc 0 writes to data file
 ------------------------------------------------------------------------- */
 
-void PairLJNlStep3::write_data(FILE *fp)
+void PairLJBGStep3::write_data(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     fprintf(fp,"%d %g %g\n",i,epsilon[i][i],sigma[i][i]);
@@ -492,11 +476,11 @@ void PairLJNlStep3::write_data(FILE *fp)
    proc 0 writes all pairs to data file
 ------------------------------------------------------------------------- */
 
-void PairLJNlStep3::write_data_all(FILE *fp)
+void PairLJBGStep3::write_data_all(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     for (int j = i; j <= atom->ntypes; j++)
-      fprintf(fp,"%d %d %g %g %g %g %g %g \n",i,j,epsilon[i][j],sigma[i][j],cut_in[i][j],cut[i][j],lamcoeff[i][j],Dfactorlam[i][j]);
+      fprintf(fp,"%d %d %g %g %g %g\n",i,j,epsilon[i][j],sigma[i][j],cut_in[i][j],cut[i][j],lamcoeff[i][j],Dfactorlam[i][j]);
 }
 
 /* ----------------------------------------------------------------------
@@ -518,15 +502,15 @@ lj10 = coefficient Force r^-2 second cut-off
 
 */
 
-double PairLJNlStep3::init_one(int i, int j)
+double PairLJBGStep3::init_one(int i, int j)
 {
 
   if (setflag[i][j] == 0) {
     epsilon[i][j] = mix_energy(epsilon[i][i],epsilon[j][j],
                                sigma[i][i],sigma[j][j]);
     sigma[i][j] = mix_distance(sigma[i][i],sigma[j][j]);
-    cut_in[i][j] = mix_distance(cut_in[i][i],cut_in[j][j]);
     cut[i][j] = mix_distance(cut[i][i],cut[j][j]);
+    cut_in[i][j] = mix_distance(cut_in[i][i],cut_in[j][j]);
   }
 
 
@@ -540,18 +524,7 @@ double PairLJNlStep3::init_one(int i, int j)
   lj8[i][j] =  C2 * epsilon[i][j] * pow(sigma[i][j],12.0);
   lj9[i][j] =  C3 * epsilon[i][j] * pow(sigma[i][j],6.0);
   lj10[i][j] = C4 * epsilon[i][j] * 1./pow(sigma[i][j],2.0);
-
-
-    powlambda[i][j]  = pow(lamcoeff[i][j],npow);
-  if(npow != 1){
-    powDlambda[i][j] = Dfactorlam[i][j] * npow * pow(lamcoeff[i][j],npow-1.0);
-    }
-  else{
-    powDlambda[i][j] = Dfactorlam[i][j] * npow * 1.0;
-    }
-
   cutsq_in[i][j] = cut_in[i][j]*cut_in[i][j];
-
 
 
   lj1[j][i]  = lj1[i][j];
@@ -566,10 +539,11 @@ double PairLJNlStep3::init_one(int i, int j)
   lj10[j][i] = lj10[i][j];
 
 
+    Dlambda[i][j] = lamcoeff[i][j]*Dfactorlam[i][j];
+
+  lamcoeff[j][i] = lamcoeff[i][j];
   cutsq_in[j][i] = cutsq_in[i][j];
-  powlambda[j][i] = powlambda[i][j];
-  powDlambda[j][i] = powDlambda[i][j];
-  Dfactorlam[j][i] = Dfactorlam[i][j];
+  Dlambda[j][i] = Dlambda[i][j];
 
   c1[i][j] = C1*epsilon[i][j];
   c1[j][i] = c1[i][j];
@@ -584,7 +558,7 @@ double PairLJNlStep3::init_one(int i, int j)
    init specific to this pair style
 ------------------------------------------------------------------------- */
 
-void PairLJNlStep3::init_style()
+void PairLJBGStep3::init_style()
 {
 
   // request regular neighbor lists
@@ -605,7 +579,7 @@ void PairLJNlStep3::init_style()
  * ------------------------------------------------------------------------- */
 
 
-double PairLJNlStep3::single(int i, int j, int itype, int jtype, double rsq,
+double PairLJBGStep3::single(int i, int j, int itype, int jtype, double rsq,
                          double factor_coul, double factor_lj,
                          double &fforce)
 {
@@ -624,9 +598,9 @@ double PairLJNlStep3::single(int i, int j, int itype, int jtype, double rsq,
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
 	}
 
-  fforce = powDlambda[i][j]*factor_lj*forcelj*r2inv;
+  fforce = lamcoeff[itype][jtype]*factor_lj*forcelj*r2inv;
 
-  return powlambda[i][j]*factor_lj*philj;
+  return lamcoeff[itype][jtype]*factor_lj*philj;
 }
 
 

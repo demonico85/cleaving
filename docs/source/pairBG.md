@@ -1,7 +1,7 @@
-# pair_style BG
+# pair_style lj/BG
 
 ```
-pair_style BG args
+pair_style lj/BG args
 ```
 
 - args=list of the possible arguments
@@ -13,7 +13,7 @@ lj/BG args = cutoff1 cutoff2
 ```
 
 
-The Broughton and Gilmer modification to Lennard-Jones potential [REF] is given by
+The Broughton and Gilmer modification to Lennard-Jones potential {footcite:t}`Broughton1983` is given by:
 
 $$
 	U(r_{ln}) =

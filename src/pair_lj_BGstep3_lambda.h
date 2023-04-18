@@ -13,20 +13,20 @@
 
 #ifdef PAIR_CLASS
 
-PairStyle(lj/cleavs3,PairLJStep3)
+PairStyle(lj/cleavs3,PairLJBGStep3)
 
 #else
 
-#ifndef LMP_PAIR_CLEAV_STEP3
-#define LMP_PAIR_CLEAV_STEP3
+#ifndef LMP_PAIR_LJBG_CLEAV_S3
+#define LMP_PAIR_LJBG_CLEAV_S3
 
 #include "pair.h"
 
 namespace LAMMPS_NS {
 
-class PairLJStep3 : public Pair {
+class PairLJBGStep3 : public Pair {
  public:
-  PairLJStep3(class LAMMPS *);
+  PairLJBGStep3(class LAMMPS *);
   virtual ~PairLJStep3();
   virtual void compute(int, int);
 
