@@ -154,6 +154,9 @@
             
   <div class="tex2jax_ignore mathjax_ignore section" id="pair-style-lj-bgnlcleavs3">
 <h1>pair_style lj/BGNlcleavs3<a class="headerlink" href="#pair-style-lj-bgnlcleavs3" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="syntax">
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
+<p>k</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">lj</span><span class="o">/</span><span class="n">BGNlcleavs3args</span>
 </pre></div>
 </div>
@@ -168,18 +171,52 @@
     <span class="n">Dfac</span>    <span class="o">=</span> <span class="n">multiplicative</span> <span class="n">factor</span> <span class="n">to</span> <span class="n">multiply</span> <span class="n">the</span> <span class="n">derivative</span> <span class="n">of</span> <span class="n">the</span> <span class="n">interaction</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="k">lambda</span> 
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> accept the same arguments of the pair_style. However, keep in mind that the order is not the same</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_coeff</span> <span class="n">a</span> <span class="n">b</span> <span class="k">lambda</span> <span class="n">Dfac</span> <span class="n">cutoff1</span> <span class="n">cutoff2</span>
+</pre></div>
+</div>
+<p>where</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">a</span>       <span class="o">=</span> <span class="n">atom</span> <span class="n">of</span> <span class="nb">type</span> <span class="n">a</span> <span class="p">[</span><span class="n">mandatory</span><span class="p">]</span>
+    <span class="n">b</span>       <span class="o">=</span> <span class="n">atom</span> <span class="n">of</span> <span class="nb">type</span> <span class="n">b</span> <span class="p">[</span><span class="n">mandatory</span><span class="p">]</span>
+    <span class="k">lambda</span>  <span class="o">=</span> <span class="k">global</span> <span class="n">scaling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">potential</span>
+    <span class="n">Dfac</span>    <span class="o">=</span> <span class="n">multiplicative</span> <span class="n">factor</span> <span class="k">for</span> <span class="n">the</span> <span class="n">derivative</span> <span class="n">of</span> <span class="n">the</span> <span class="n">interaction</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="k">lambda</span>     
+    <span class="n">cutoff1</span> <span class="o">=</span> <span class="k">global</span> <span class="n">internal</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span>
+    <span class="n">cutoff2</span> <span class="o">=</span> <span class="k">global</span> <span class="n">external</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span>
+</pre></div>
+</div>
+<p>the arguments in the <code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> are all optional except for the atom types. Note that the order is important. If we want to specify a new lambda for a different pair of types we can just write</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_coeff</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mf">1.0</span>
+</pre></div>
+</div>
+<p>However, in order to specify a new (e.g., external) cutoff we need to rewrite all the preceeding arguments:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_coeff</span> <span class="mi">1</span> <span class="mi">1</span> <span class="k">lambda</span> <span class="n">Dfac</span> <span class="n">cutoff1</span> <span class="n">cutoff2</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair</span> <span class="n">lj</span><span class="o">/</span><span class="n">BGNlcleavs3</span> <span class="mf">2.3</span> <span class="mf">2.5</span> 
+<span class="n">pair</span> <span class="n">coeff</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mf">1.0</span>
+<span class="n">pair</span> <span class="n">coeff</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mf">1.0</span>
+<span class="n">pair</span> <span class="n">coeff</span> <span class="mi">1</span> <span class="mi">3</span> <span class="o">-</span><span class="mf">1.0</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>This pair style implements the Broughton and Gilmer modification to Lennard-Jones potential Broughton and Gilmer<a class="footnote-reference brackets" href="#footcite-broughton1983" id="id1">1</a> (see [pair lj/BG]{pairBG.md}) to be used in the step3 of the cleaving algorithm. This pair style returns also an array with all the calculated interactions which are needed to calculate the work in the step3. This array can be accessed using the new compute [compute paircleav]}{compute_pcleav.md}.</p>
 <p>The potential implemented in this pair style is</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
 	U(r_{ln},\lambda) =
 		\begin{cases}
-			f(\lambda)^N\left[ 4\epsilon \left(\left(\frac{\sigma}{r_{ln}}\right)^{12} -\left(\frac{\sigma}{r_{ln}}\right)^{6}  \right)+C_1 \right],\;\mbox{if}\; r_{ln} \leq 2.3\sigma \\
-			f(\lambda)^N\left[ C_2\left(\frac{\sigma}{r_{ln}}\right)^{12} + C_3\left(\frac{\sigma}{r_{ln}}\right)^{6} + C_4\left(\frac{r_{ln}}{\sigma}\right)^2 + C_5\right],\;\mbox{if}\; r_{ln} \leq 2.5\sigma \\
+			\lambda^N\left[ 4\epsilon \left(\left(\frac{\sigma}{r_{ln}}\right)^{12} -\left(\frac{\sigma}{r_{ln}}\right)^{6}  \right)+C_1 \right],\;\mbox{if}\; r_{ln} \leq 2.3\sigma \\
+			\lambda^N\left[ C_2\left(\frac{\sigma}{r_{ln}}\right)^{12} + C_3\left(\frac{\sigma}{r_{ln}}\right)^{6} + C_4\left(\frac{r_{ln}}{\sigma}\right)^2 + C_5\right],\;\mbox{if}\; r_{ln} \leq 2.5\sigma \\
 				0, 		\; r_{ln} \geq 2.5\sigma		
 		\end{cases}
 \end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|\)</span> for each couple of atoms <span class="math notranslate nohighlight">\(l,n\)</span> in the system, and <span class="math notranslate nohighlight">\(C_1, C_2, C_3, C_4, C_5\)</span> are constants we used the values reported in Davidchack and Laird<a class="footnote-reference brackets" href="#footcite-davidchack2003direct" id="id2">2</a>.</p>
+<p>where <span class="math notranslate nohighlight">\(r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|\)</span> for each couple of atoms <span class="math notranslate nohighlight">\(l,n\)</span> in the system, and <span class="math notranslate nohighlight">\(C_1, C_2, C_3, C_4, C_5\)</span> are constants we used the values reported in Davidchack and Laird<a class="footnote-reference brackets" href="#footcite-davidchack2003direct" id="id2">2</a>.
+The constants are hardcorded within the pair style and they not need to be defined.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
@@ -187,7 +224,26 @@
 <li><p>There is no internal check that <span class="math notranslate nohighlight">\(\lambda\)</span> is changing consistently (i.e., always decreasing or increasing)</p></li>
 </ul>
 </div>
-<p>The constants are hardcorded within the pair style and they not need to be defined.</p>
+<p>The work performed on the system to switch from <span class="math notranslate nohighlight">\(\lambda=1\)</span> to <span class="math notranslate nohighlight">\(\lambda=0\)</span> is then given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+	\frac{\partial U(r_{ln},\lambda)}{\partial \lambda} =
+		\begin{cases}
+			N\lambda^{N-1}\left[ 4\epsilon \left(\left(\frac{\sigma}{r_{ln}}\right)^{12} -\left(\frac{\sigma}{r_{ln}}\right)^{6}  \right)+C_1 \right],\;\mbox{if}\; r_{ln} \leq 2.3\sigma \\
+			N\lambda^{N-1}\left[ C_2\left(\frac{\sigma}{r_{ln}}\right)^{12} + C_3\left(\frac{\sigma}{r_{ln}}\right)^{6} + C_4\left(\frac{r_{ln}}{\sigma}\right)^2 + C_5\right],\;\mbox{if}\; r_{ln} \leq 2.5\sigma \\
+				0, 		\; r_{ln} \geq 2.5\sigma		
+		\end{cases}
+\end{split}\]</div>
+<p>In this case the the expression of the potential is multiplied by the derivatibe of <span class="math notranslate nohighlight">\(\lambda\)</span> with respect itself which is equal to 1 (i.e., <span class="math notranslate nohighlight">\(\partial \lambda / \partial \lambda=1\)</span>), and therefore the value of Dfrac must be set equal to 1.</p>
+<p>Dfrac needs to be used when we are passing to the pair_style an expression like <span class="math notranslate nohighlight">\((1-\lambda)\)</span>. In this case we need to set Dfrac=-1.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">variable</span> <span class="k">lambda</span> <span class="n">file</span> <span class="k">lambda</span><span class="o">.</span><span class="n">dat</span>
+<span class="n">variable</span> <span class="n">minl</span>   <span class="n">equal</span> <span class="mi">1</span><span class="o">-</span><span class="k">lambda</span>
+
+<span class="n">pair_style</span> <span class="n">lj</span><span class="o">/</span><span class="n">BGNlcleavs3</span>  <span class="n">cutoff1</span>  <span class="n">cutoff2</span> <span class="k">lambda</span> <span class="mf">1.0</span>
+<span class="n">pair_coeff</span> <span class="mi">1</span> <span class="mi">2</span> <span class="n">minl</span> <span class="o">-</span><span class="mf">1.0</span>
+
+</pre></div>
+</div>
 <div class="docutils container" id="id3">
 <dl class="footnote brackets">
 <dt class="label" id="footcite-broughton1983"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
@@ -199,6 +255,7 @@
 </dl>
 </div>
 <hr class="footnotes docutils" />
+</div>
 </div>
 
 

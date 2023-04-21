@@ -8,5 +8,6 @@
    pair_cleav.md
    fix_wall.md
    fix_well.md
+   fix_move_duplicate.md
    compute_pcleav.md
 ```

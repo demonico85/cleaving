@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Compute cleavpairs" href="compute_pcleav.html" />
+    <link rel="next" title="Fix move duplicate" href="fix_move_duplicate.html" />
     <link rel="prev" title="Fix style wall" href="fix_wall.html" /> 
 </head>
 
@@ -90,6 +90,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="lammps.html">LAMMPS commands</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="fix_wall.html">Fix style wall</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Fix style well</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">Fix move duplicate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">Compute cleavpairs</a></li>
 </ul>
 </li>
@@ -177,8 +178,8 @@
     <span class="o">&lt;</span> <span class="n">name</span> <span class="n">file</span> <span class="o">&gt;</span> <span class="o">=</span> <span class="n">external</span> <span class="n">file</span> <span class="n">which</span> <span class="n">contains</span> <span class="n">the</span> <span class="n">position</span> <span class="n">of</span> <span class="n">the</span> <span class="n">wells</span>
 </pre></div>
 </div>
-<p>On each side of the cleaving plane we place two planes with fixed interaction sites. Each site interacts with surrounding atoms through a wells shaped potential: The main difference is that the two planes are now fixed and the strength of the potential is the quantity which is varied within the simulation.
-The well potential we use in this work is  defined as \cite{Handel2008}:</p>
+<p>On each side of the cleaving plane we place two planes with fixed interaction sites. Each site interacts with surrounding atoms through a wells shaped potential. The main difference with the walls (see <a class="reference internal" href="fix_wall.html"><span class="doc std std-doc">walls</span></a>) version is that the two planes are now fixed, and the strength of the potential is the quantity which is varied within the simulation.</p>
+<p>The well potential we use in this work is  defined as Handel <em>et al.</em><a class="footnote-reference brackets" href="#footcite-handel2008direct" id="id1">1</a>:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
 	\psi(r;\lambda) = 
@@ -209,6 +210,14 @@ The format of the file is</p>
    <span class="mf">11.724246167409296</span>        <span class="mf">11.391726121344988</span>        <span class="mf">17.277749056431873</span>
 </pre></div>
 </div>
+<div class="docutils container" id="id2">
+<dl class="footnote brackets">
+<dt class="label" id="footcite-handel2008direct"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Richard Handel, Ruslan L Davidchack, Jamshed Anwar, and Andrey Brukhno. Direct calculation of solid-liquid interfacial free energy for molecular systems: tip4p ice-water interface. <em>Physical review letters</em>, 100(3):036104, 2008.</p>
+</dd>
+</dl>
+</div>
+<hr class="footnotes docutils" />
 </div>
 
 
@@ -219,7 +228,7 @@ The format of the file is</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="compute_pcleav.html" class="btn btn-neutral float-right" title="Compute cleavpairs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="fix_move_duplicate.html" class="btn btn-neutral float-right" title="Fix move duplicate" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="fix_wall.html" class="btn btn-neutral float-left" title="Fix style wall" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

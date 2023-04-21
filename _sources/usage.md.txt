@@ -8,3 +8,4 @@
 5. Walls external potential [fix wallforce style](fix_wall.md)
 6. Collect work [compute paircleav style](compute_pcleav.md)
 7. PBC cleaving [pair style](pair_cleav.md)
+8. Move duplicate [fix move_duplicate](fix_move_duplicate.md)

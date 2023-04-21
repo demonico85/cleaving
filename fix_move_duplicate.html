@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; SurFEC  documentation</title>
+  <title>Fix move duplicate &mdash; SurFEC  documentation</title>
   
 
   
@@ -37,8 +37,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="LAMMPS commands" href="lammps.html" />
-    <link rel="prev" title="Installation" href="install.html" /> 
+    <link rel="next" title="Compute cleavpairs" href="compute_pcleav.html" />
+    <link rel="prev" title="Fix style well" href="fix_well.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,8 +86,17 @@
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="lammps.html">LAMMPS commands</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fix_wall.html">Fix style wall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_well.html">Fix style well</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fix move duplicate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#syntax">Syntax</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">Compute cleavpairs</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a></li>
 </ul>
 
@@ -135,13 +144,15 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Usage</li>
+          <li><a href="lammps.html">LAMMPS commands</a> &raquo;</li>
+        
+      <li>Fix move duplicate</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/usage.md.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/fix_move_duplicate.md.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -154,18 +165,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<ol class="arabic simple">
-<li><p>Broughton and Gilmer (BG) potential <a class="reference internal" href="pairBG.html"><span class="doc std std-doc">pair style</span></a></p></li>
-<li><p>BG potential modified potential for step3 switch-off interaction polynomial f(lambda) <a class="reference internal" href="pair_BGs3Nlam.html"><span class="doc std std-doc">pair style</span></a></p></li>
-<li><p>BG potential modified potential for step3 switch-off interaction lambda<a class="reference internal" href="pair_BGs3lam.html"><span class="doc std std-doc">pair style</span></a></p></li>
-<li><p>Wells external potential <a class="reference internal" href="fix_well.html"><span class="doc std std-doc">fix wellPforce style</span></a></p></li>
-<li><p>Walls external potential <a class="reference internal" href="fix_wall.html"><span class="doc std std-doc">fix wallforce style</span></a></p></li>
-<li><p>Collect work <a class="reference internal" href="compute_pcleav.html"><span class="doc std std-doc">compute paircleav style</span></a></p></li>
-<li><p>PBC cleaving <span class="xref myst">pair style</span></p></li>
-<li><p>Move duplicate <a class="reference internal" href="fix_move_duplicate.html"><span class="doc std std-doc">fix move_duplicate</span></a></p></li>
-</ol>
+  <div class="tex2jax_ignore mathjax_ignore section" id="fix-move-duplicate">
+<h1>Fix move duplicate<a class="headerlink" href="#fix-move-duplicate" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="syntax">
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fix_style</span> <span class="n">ID</span> <span class="n">group</span><span class="o">-</span><span class="n">ID</span> <span class="n">move</span><span class="o">/</span><span class="n">dupl</span> <span class="n">args</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>args=list of the possible arguments</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">C_ID</span> <span class="o">=</span> <span class="n">ID</span> <span class="n">of</span> <span class="n">the</span> <span class="n">compute</span> <span class="n">displace</span><span class="o">/</span><span class="n">atom</span>
+</pre></div>
+</div>
+<p>This fix allows to translate the duplicate atoms of the same distance crossed by the corresponding real atoms. In step3 of the cleaving methodology the duplicate atoms allow to calculate the cross-cleaving plane interactions but they need to “follow” the real atoms when they move in a new position each time step.</p>
+<p>In the step3 the system (solid+liquid) is duplicated and <code class="docutils literal notranslate"><span class="pre">real</span></code> and <code class="docutils literal notranslate"><span class="pre">duplicate</span></code> atom types are defined (see <span class="xref myst">example LJ-SL</span> for more details).</p>
+<p><img alt="definition" src="_images/dupl1.png" /></p>
+<p>The atoms interacts with one another. The duplicate atoms are used to keep track of the interactions crossing the cleaving planes, which are the ones to be calculated in order to find the total work in step3.</p>
+<p>The equation of motion must be integrated <em>only</em> for the real atoms. The atoms then move by a distance <span class="math notranslate nohighlight">\(\Delta \mathbf{x}\)</span>.
+<img alt="move" src="_images/dupl1.png" /></p>
+<p>This fix allows the duplicated atoms to follow the movement of the real atoms. By specifying this fix we are moving the atoms of the same quantity as the real atoms.</p>
+<p>The equation of motion must be integrated <em>only</em> for the real atoms. The atoms then move by a distance <span class="math notranslate nohighlight">\(\Delta \mathbf{x}\)</span>.
+<img alt="move" src="_images/dupl1.png" /></p>
+</div>
 </div>
 
 
@@ -176,10 +198,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="lammps.html" class="btn btn-neutral float-right" title="LAMMPS commands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="compute_pcleav.html" class="btn btn-neutral float-right" title="Compute cleavpairs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="fix_well.html" class="btn btn-neutral float-left" title="Fix style well" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

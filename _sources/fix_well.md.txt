@@ -15,8 +15,9 @@ fix_style wellPforce args
     < name file > = external file which contains the position of the wells
 ```
 
-On each side of the cleaving plane we place two planes with fixed interaction sites. Each site interacts with surrounding atoms through a wells shaped potential: The main difference is that the two planes are now fixed and the strength of the potential is the quantity which is varied within the simulation. 
-The well potential we use in this work is  defined as \cite{Handel2008}: 
+On each side of the cleaving plane we place two planes with fixed interaction sites. Each site interacts with surrounding atoms through a wells shaped potential. The main difference with the walls (see [walls](../fix_wall.md)) version is that the two planes are now fixed, and the strength of the potential is the quantity which is varied within the simulation.
+ 
+The well potential we use in this work is  defined as {footcite:t}`handel2008direct`: 
 
 $$
 	\psi(r;\lambda) = 
@@ -53,3 +54,9 @@ E.g.:
    12.296160614599994        10.401141241228032        17.277749056431873
    11.724246167409296        11.391726121344988        17.277749056431873
 ``` 
+
+
+
+```{footbibliography}
+
+```

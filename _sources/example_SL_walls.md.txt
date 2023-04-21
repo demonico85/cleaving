@@ -429,7 +429,7 @@ jump SELF here
 
 6. Launch the simulation.
 
-## Calculation of the SFE 
+## Calculation of the SFE [TBD]
 
 The SFE is obtained by summing the work performed in the 4 steps detailed above. The work is calculated by using the results produced in each step. The folder `/utils/` contains some small programs for the post-processing. 
 
