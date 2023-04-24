@@ -38,7 +38,7 @@ Why what we do is needed. Here is an example reference: [@davidchack2003direct]-
 
 # Functionality
 
-The features of the package
+The list of features of the package, ciao ciao.
 
 # Acknowledgements
 
