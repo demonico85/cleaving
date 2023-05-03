@@ -429,7 +429,7 @@ jump SELF here
 
 6. Launch the simulation.
 
-## Calculation of the SFE [TBD]
+## Calculation of the SFE 
 
 The SFE is obtained by summing the work performed in the 4 steps detailed above. The work is calculated by using the results produced in each step. The folder `/utils/` contains some small programs for the post-processing. 
 
@@ -441,7 +441,7 @@ The SFE is obtained by summing the work performed in the 4 steps detailed above.
 
 Before analyzing the calculations, let's create a folder `/results/` at the same level of the folders `./step1/`, `./step3`, `./step4`. Here, we will copy the results for each step.
 
-1. The files `.out` generated in [Step 1](#step-1) contains the quantity `f_f2`, which is the work performed. An average of that quantity for each lambda gives the variation of the energy in [step 1](#step-1), thus the integration of the results quantity over lambda gives the total work done in the step. In order to calculate the work performed in Step 1:
+1. The files `.out` generated in [Step 1](#step-1) contains the quantity `f_f2`, which is the work performed. An average of that quantity for each $z_w$ gives the variation of the energy in [step 1](#step-1), thus the integration of the results quantity over $z_w$ gives the total work done in the step. In order to calculate the work performed in Step 1:
 
     1. Enter in the dir `./step1/out/`
     2. Call the script `../../utils/work.sh F`
@@ -449,18 +449,15 @@ Before analyzing the calculations, let's create a folder `/results/` at the same
 
 The profile of the work obtained as function of $\lambda$ is represented in the next figure.
 
-![Step-1 profile](../figs/ws1.png "Step-1 profile")
+![Step-1 profile](../figs/ws1_SL.png "Step-1 profile")
 
-2. The files `.out` generated in [Step 2](#step-2) contains the quantity `f_f2`, which is the work performed. An average of that quantity for each lambda gives the variation of the energy in Step1. The integration of the results quantity over lambda gives the total work in [Step 2](#step-2). In order to calculate the work performed in Step 2:
+2. [Step 2](#step-2) is analogous to [Step 1](#step-1). Remember to change the name of the file obtained to `step2_work.dat`
 
-    1. Enter in the dir `./step1/out/`
-    2. Call the script `../../utils/work.sh F`
-    3. Copy the file `F-work.dat` in the folder `./results/` by changing its name to `step2_work.dat`
+The profile of the work obtained as function of $z_w$ is represented in the next figure.
 
-The profile of the work obtained as function of $\lambda$ is represented in the next figure.
-![Step-1 profile](../figs/ws1.png "Step-1 profile")
+![Step-2 profile](../figs/ws2_SL.png "Step-2 profile")
 
-3. The files `.dat` generated in [Step 3](#step-3) contains the interactions _switched-off_ during the [Step 3](#step-3). By averaging these values for each value of lambda we obtain the variation of the energy, and the integration of the results over $z_w$ gives the total work done in [Step 3](#step-3).
+3. The files `.dat` generated in [Step 3](#step-3) contains the interactions _switched-off_ during the [Step 3](#step-3). By averaging these values for each value of lambda we obtain the variation of the energy, and the integration of the results over $\lambda$ gives the total work done in [Step 3](#step-3).
 
 In order to calculate the work performed in Step 3:
  
@@ -470,18 +467,18 @@ In order to calculate the work performed in Step 3:
     4. Copy the file `F-work.dat` in the folder `./results/` by changing its name to `step3_work.dat`
 
 
-The profile of the work obtained as function of $z$ is represented in the next figure.
+The profile of the work obtained as function of $\lambda$ is represented in the next figure.
 
-![Step-3 profile](../figs/ws3.png "Step-3 profile")
+![Step-3 profile](../figs/ws3_SL.png "Step-3 profile")
 
 4. [Step 4](#step-4) is analogous to [Step 1](#step-1). Remember to change the name of the file obtained to `step4_work.dat`
 
-The profile of the work obtained as function of $\lambda$ is represented in the next figure.
+The profile of the work obtained as function of $z_w$ is represented in the next figure.
 
-![Step-4 profile](../figs/ws4.png "Step-4 profile")
+![Step-4 profile](../figs/ws4_SL.png "Step-4 profile")
 
 
-4. After the profile of the work in the four steps is obtained, we can calculate the SFE by integrating all the curves. Enter in the dir `/results`, copy the Matlab script  `/utils/calcSFE.m` and run it in Matlab from this folder. The final value of the SFE is $2.095\pm 0.007$ in units of $\epsilon\sigma^{-2}$.
+4. After the profile of the work in the four steps is obtained, we can calculate the SFE by integrating all the curves. Enter in the dir `/results`, copy the Matlab script  `/utils/calcSFE.m` and run it in Matlab from this folder. The final value of the SFE is $0.348\pm 0.07$ in units of $\epsilon\sigma^{-2}$.
 
 ```{footbibliography}
 
