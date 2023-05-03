@@ -85,7 +85,6 @@
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="example.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="example_SV_wells.html">Solid-Vacuum interface of a Lennard-Jones crystal with wells</a></li>
@@ -94,7 +93,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#step-2">Step 2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-3">Step 3</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-4">Step 4</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#calculation-of-the-sfe-tbd">Calculation of the SFE [TBD]</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calculation-of-the-sfe">Calculation of the SFE</a></li>
 </ul>
 </li>
 </ul>
@@ -565,8 +564,8 @@ jump SELF here
 <li><p>Launch the simulation.</p></li>
 </ol>
 </div>
-<div class="section" id="calculation-of-the-sfe-tbd">
-<h2>Calculation of the SFE [TBD]<a class="headerlink" href="#calculation-of-the-sfe-tbd" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="calculation-of-the-sfe">
+<h2>Calculation of the SFE<a class="headerlink" href="#calculation-of-the-sfe" title="Permalink to this headline">¶</a></h2>
 <p>The SFE is obtained by summing the work performed in the 4 steps detailed above. The work is calculated by using the results produced in each step. The folder <code class="docutils literal notranslate"><span class="pre">/utils/</span></code> contains some small programs for the post-processing.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">work.sh</span></code>: bash script to calculate the average of the relevant properties for each step of the thermodynamic integration</p></li>
@@ -575,7 +574,7 @@ jump SELF here
 </ul>
 <p>Before analyzing the calculations, let’s create a folder <code class="docutils literal notranslate"><span class="pre">/results/</span></code> at the same level of the folders <code class="docutils literal notranslate"><span class="pre">./step1/</span></code>, <code class="docutils literal notranslate"><span class="pre">./step3</span></code>, <code class="docutils literal notranslate"><span class="pre">./step4</span></code>. Here, we will copy the results for each step.</p>
 <ol class="arabic simple">
-<li><p>The files <code class="docutils literal notranslate"><span class="pre">.out</span></code> generated in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a> contains the quantity <code class="docutils literal notranslate"><span class="pre">f_f2</span></code>, which is the work performed. An average of that quantity for each lambda gives the variation of the energy in <a class="reference internal" href="#step-1"><span class="std std-doc">step 1</span></a>, thus the integration of the results quantity over lambda gives the total work done in the step. In order to calculate the work performed in Step 1:</p>
+<li><p>The files <code class="docutils literal notranslate"><span class="pre">.out</span></code> generated in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a> contains the quantity <code class="docutils literal notranslate"><span class="pre">f_f2</span></code>, which is the work performed. An average of that quantity for each <span class="math notranslate nohighlight">\(z_w\)</span> gives the variation of the energy in <a class="reference internal" href="#step-1"><span class="std std-doc">step 1</span></a>, thus the integration of the results quantity over <span class="math notranslate nohighlight">\(z_w\)</span> gives the total work done in the step. In order to calculate the work performed in Step 1:</p>
 <ol class="arabic simple">
 <li><p>Enter in the dir <code class="docutils literal notranslate"><span class="pre">./step1/out/</span></code></p></li>
 <li><p>Call the script <code class="docutils literal notranslate"><span class="pre">../../utils/work.sh</span> <span class="pre">F</span></code></p></li>
@@ -584,20 +583,14 @@ jump SELF here
 </li>
 </ol>
 <p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(\lambda\)</span> is represented in the next figure.</p>
-<p><img alt="Step-1 profile" src="_images/ws1.png" /></p>
+<p><img alt="Step-1 profile" src="_images/ws1_SL.png" /></p>
 <ol class="arabic simple" start="2">
-<li><p>The files <code class="docutils literal notranslate"><span class="pre">.out</span></code> generated in <a class="reference internal" href="#step-2"><span class="std std-doc">Step 2</span></a> contains the quantity <code class="docutils literal notranslate"><span class="pre">f_f2</span></code>, which is the work performed. An average of that quantity for each lambda gives the variation of the energy in Step1. The integration of the results quantity over lambda gives the total work in <a class="reference internal" href="#step-2"><span class="std std-doc">Step 2</span></a>. In order to calculate the work performed in Step 2:</p>
-<ol class="arabic simple">
-<li><p>Enter in the dir <code class="docutils literal notranslate"><span class="pre">./step1/out/</span></code></p></li>
-<li><p>Call the script <code class="docutils literal notranslate"><span class="pre">../../utils/work.sh</span> <span class="pre">F</span></code></p></li>
-<li><p>Copy the file <code class="docutils literal notranslate"><span class="pre">F-work.dat</span></code> in the folder <code class="docutils literal notranslate"><span class="pre">./results/</span></code> by changing its name to <code class="docutils literal notranslate"><span class="pre">step2_work.dat</span></code></p></li>
+<li><p><a class="reference internal" href="#step-2"><span class="std std-doc">Step 2</span></a> is analogous to <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>. Remember to change the name of the file obtained to <code class="docutils literal notranslate"><span class="pre">step2_work.dat</span></code></p></li>
 </ol>
-</li>
-</ol>
-<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(\lambda\)</span> is represented in the next figure.
-<img alt="Step-1 profile" src="_images/ws1.png" /></p>
+<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(z_w\)</span> is represented in the next figure.</p>
+<p><img alt="Step-2 profile" src="_images/ws2_SL.png" /></p>
 <ol class="arabic simple" start="3">
-<li><p>The files <code class="docutils literal notranslate"><span class="pre">.dat</span></code> generated in <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a> contains the interactions <em>switched-off</em> during the <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>. By averaging these values for each value of lambda we obtain the variation of the energy, and the integration of the results over <span class="math notranslate nohighlight">\(z_w\)</span> gives the total work done in <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>.</p></li>
+<li><p>The files <code class="docutils literal notranslate"><span class="pre">.dat</span></code> generated in <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a> contains the interactions <em>switched-off</em> during the <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>. By averaging these values for each value of lambda we obtain the variation of the energy, and the integration of the results over <span class="math notranslate nohighlight">\(\lambda\)</span> gives the total work done in <a class="reference internal" href="#step-3"><span class="std std-doc">Step 3</span></a>.</p></li>
 </ol>
 <p>In order to calculate the work performed in Step 3:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>1. Enter in the dir `./step3/out/`
@@ -606,15 +599,15 @@ jump SELF here
 4. Copy the file `F-work.dat` in the folder `./results/` by changing its name to `step3_work.dat`
 </pre></div>
 </div>
-<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(z\)</span> is represented in the next figure.</p>
-<p><img alt="Step-3 profile" src="_images/ws3.png" /></p>
+<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(\lambda\)</span> is represented in the next figure.</p>
+<p><img alt="Step-3 profile" src="_images/ws3_SL.png" /></p>
 <ol class="arabic simple" start="4">
 <li><p><a class="reference internal" href="#step-4"><span class="std std-doc">Step 4</span></a> is analogous to <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>. Remember to change the name of the file obtained to <code class="docutils literal notranslate"><span class="pre">step4_work.dat</span></code></p></li>
 </ol>
-<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(\lambda\)</span> is represented in the next figure.</p>
-<p><img alt="Step-4 profile" src="_images/ws4.png" /></p>
+<p>The profile of the work obtained as function of <span class="math notranslate nohighlight">\(z_w\)</span> is represented in the next figure.</p>
+<p><img alt="Step-4 profile" src="_images/ws4_SL.png" /></p>
 <ol class="arabic simple" start="4">
-<li><p>After the profile of the work in the four steps is obtained, we can calculate the SFE by integrating all the curves. Enter in the dir <code class="docutils literal notranslate"><span class="pre">/results</span></code>, copy the Matlab script  <code class="docutils literal notranslate"><span class="pre">/utils/calcSFE.m</span></code> and run it in Matlab from this folder. The final value of the SFE is <span class="math notranslate nohighlight">\(2.095\pm 0.007\)</span> in units of <span class="math notranslate nohighlight">\(\epsilon\sigma^{-2}\)</span>.</p></li>
+<li><p>After the profile of the work in the four steps is obtained, we can calculate the SFE by integrating all the curves. Enter in the dir <code class="docutils literal notranslate"><span class="pre">/results</span></code>, copy the Matlab script  <code class="docutils literal notranslate"><span class="pre">/utils/calcSFE.m</span></code> and run it in Matlab from this folder. The final value of the SFE is <span class="math notranslate nohighlight">\(0.348\pm 0.07\)</span> in units of <span class="math notranslate nohighlight">\(\epsilon\sigma^{-2}\)</span>.</p></li>
 </ol>
 <div class="docutils container" id="id2">
 <dl class="footnote brackets">
