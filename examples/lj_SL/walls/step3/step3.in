@@ -46,6 +46,8 @@ group t8 type 8
 group real type 1 2 3 4
 group dupl type 5 6 7 8
 
+group realliq type 2 3
+group realcry type 1 4
 
 
 region Rfrz1a prism 0.00000000 12.582117838195341 0.00000000 11.887018561403465 0.00000000 0.70044928607156232 0 0 0
@@ -60,9 +62,10 @@ group lFa region Rfrz2a
 group hFb region Rfrz1b
 group lFb region Rfrz2b
 
-group FF union hFa lFa hFb lFb 
+group FF union hFa lFa hFb lFb
 group Freeze subtract FF liquid
-group Free subtract all Freeze
+group Fr subtract all Freeze
+group Free subtract Fr dupl
 group block union Freeze dupl
 
 # ---------------------------- Define variables --------------------------------
@@ -95,11 +98,12 @@ variable Nrepeat equal 5
 variable Nfreq equal 500
 variable  nloop   equal  2000
 variable Tsyst equal 0.617
+variable  Tdump   equal  0.0748
 variable restartfreq equal 200000 
 
 # ------------------------- Derivate variables ---------------------------------
 #
-variable NrealDoF equal 3*count(real)+3
+
 variable minlam equal 1-${lambda}
 variable  rw    equal  ${sigma}*${crw}
 variable  cutoff1 equal  ${siglj}*${cut1} 
@@ -136,8 +140,8 @@ atom_modify  sort 0 0.0
 
 # ------------------------- fix atoms  -------------------------------
 
-velocity all zero linear
-velocity all zero angular
+velocity real zero linear
+velocity real zero angular
 velocity block set 0.0 0.0 0.0
 fix f1 block setforce 0.0 0.0 0.0 
 
@@ -155,15 +159,31 @@ fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall1} file fcc11
 fix f3 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp
 variable totW   equal "f_f2 + f_f3"  
 
-print "GROUP Real DoF: ${NrealDoF}"
-compute_modify thermo_temp extra/dof ${NrealDoF}
-thermo   ${thermoSteps}
-timestep ${ts}
 
-fix  f4  real nvt temp ${Tsyst} ${Tsyst} $(100*dt) 
+fix  f4  real nvt temp ${Tsyst} ${Tsyst} ${Tdump}
 
 compute cc1 real displace/atom_cleav
 fix Nf1  dupl move/dupl c_cc1[*]
+
+compute Treal real temp
+compute PE real pe/atom
+compute preal real reduce sum c_PE
+variable PER equal c_preal
+
+compute Sl realliq stress/atom NULL
+compute Sc realcry stress/atom NULL
+compute RSl realliq reduce sum c_Sl[1] c_Sl[2] c_Sl[3]
+compute RSc realcry reduce sum c_Sc[1] c_Sc[2] c_Sc[3]
+
+variable volR equal vol/2
+
+variable pressL equal -(c_RSl[1]+c_RSl[2]+c_RSl[3])/(3*${volR})
+variable pressC equal -(c_RSc[1]+c_RSc[2]+c_RSc[3])/(3*${volR})
+variable pressToT equal -(c_RSc[1]+c_RSc[2]+c_RSc[3]+c_RSl[1]+c_RSl[2]+c_RSl[3])/(3*vol)
+
+thermo_style custom step c_Treal v_PER v_pressC v_pressL v_pressToT
+thermo   ${thermoSteps}
+timestep ${ts}
 
 
 # --------------- Dumping trajectories and store restart file ------------------

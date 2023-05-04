@@ -6,21 +6,23 @@
 ###%    24 March 2018                                                         *%
 ###%***************************************************************************%
 
-fix  f2 all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw}  ${clwall} file walls.lmp
 
-#----------------------------- Run Step ----------------------------------------
+variable    zwalls equal ${zw}
+
+fix totW all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+
+print       "Wall Position ${zwalls}"
 
 run   ${eqnts}
 
-variable    cnt equal ${cntt}+1
-variable    cntt equal ${cnt}
+fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwalls f_totW  file  out/ave.F.${cnt}.out
 
-fix   f4 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe f_f2 v_zw file  out/ave.F.${cnt}.out
+run  ${nts}
 
-run         ${nts}
+# --------------------------- Unfix --------------------------------------------
 
-#------------------------------ Unfix ------------------------------------------
 
-unfix f4
-unfix f2
+ unfix f5
+ unfix totW
 
+# #%*****************************************************************************%

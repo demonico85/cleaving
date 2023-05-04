@@ -21,12 +21,12 @@
 from pylab import *
 from numpy import loadtxt
 from scipy.stats import t
-from matplotlib import rc
-from matplotlib import ticker
+#from matplotlib import rc
+#from matplotlib import ticker
 from matplotlib.pyplot import *
 from array import array
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import sys, getopt, os, re
 
 def help ():
@@ -88,33 +88,33 @@ def blockAverage(datastream, isplot=True, maxBlockSize=0,outp="out.pdf"):
 
 	print ("<x> = {0:f} +/- {1:f}\n".format(blockMean[-1], np.sqrt(blockVar[-1])))
   
-	if isplot:
-
-		plt.subplot(2,1,1)
-		plt.plot(v, np.sqrt(blockVar),'ro-',lw=2)
-		plt.xlabel('block size')
-		plt.ylabel('std')
-
-		plt.subplot(2,1,2)
-		plt.errorbar(v, blockMean, np.sqrt(blockVar))
-		plt.ylabel('<x>')
-		plt.xlabel('block size')
-
-		plt.tight_layout()
-		plt.show()
-
-	else:
-		plt.subplot(2,1,1)
-		plt.plot(v, np.sqrt(blockVar),'ro-',lw=2)
-		plt.xlabel('block size')
-		plt.ylabel('std')
-
-		plt.subplot(2,1,2)
-		plt.errorbar(v, blockMean, np.sqrt(blockVar))
-		plt.ylabel('<x>')
-		plt.xlabel('block size')
-
-		savefig(output,bbox_inches='tight',pad_inches=0.2)
+#	if isplot:
+#
+#		plt.subplot(2,1,1)
+#		plt.plot(v, np.sqrt(blockVar),'ro-',lw=2)
+#		plt.xlabel('block size')
+#		plt.ylabel('std')
+#
+#		plt.subplot(2,1,2)
+#		plt.errorbar(v, blockMean, np.sqrt(blockVar))
+#		plt.ylabel('<x>')
+#		plt.xlabel('block size')
+#
+#		plt.tight_layout()
+#		plt.show()
+#
+#	else:
+#		plt.subplot(2,1,1)
+#		plt.plot(v, np.sqrt(blockVar),'ro-',lw=2)
+#		plt.xlabel('block size')
+#		plt.ylabel('std')
+#
+#		plt.subplot(2,1,2)
+#		plt.errorbar(v, blockMean, np.sqrt(blockVar))
+#		plt.ylabel('<x>')
+#		plt.xlabel('block size')
+#
+#		savefig(output,bbox_inches='tight',pad_inches=0.2)
 
 	#return v, blockVar, blockMean
 #	print Nobs, maxBlockSize,Nobs/maxBlockSize-1
@@ -144,7 +144,6 @@ output='out.pdf'
 nsizeblock = 0
 plotp = False
 
-
 if (len(opts) == 0):
     error()
 
@@ -172,6 +171,7 @@ if nsizeblock == 0 :
     print ("Input Error, you must insert block size")
     sys.exit()
 
+print("A",filename)
 x = np.loadtxt(filename)
 
 

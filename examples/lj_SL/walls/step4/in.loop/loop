@@ -1,0 +1,36 @@
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+
+print       "Wall Position ${zwalls}"
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file walls.lmp
+variable totW   equal "f_totWA + f_totWB" 
+
+run   ${eqnts}
+
+variable    cnt equal ${cntt}+1
+variable    cntt equal ${cnt}
+
+
+# Density
+fix fd all ave/chunk ${nts} 1 ${nts} binchunk density/number file data/dens.${cnt}.out
+#
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+
+run ${nts}
+
+unfix totWA
+unfix totWB
+unfix f6
+unfix fd
+ 
+#%*****************************************************************************%

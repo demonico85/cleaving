@@ -37,6 +37,8 @@ group FF union lFa hFb
 group Freeze subtract FF liquid
 group Free subtract all Freeze
 
+group FreeL subtract Free crys
+group FreeC subtract Free liquid
 
 
 
@@ -50,9 +52,7 @@ variable  epslj   equal  1.0
 variable  sigma   equal  1.0
 variable  eps     equal  1.0
 variable  delta   equal  0.25
-variable  zwf     equal  0.60
-variable  zwi     equal  1.13
-variable  dew     equal  0.005
+variable  zw file zwalls_back.dat
 variable  crw     equal  2.0^(1.0/6.0)   
 variable  nloop   equal  2000
 variable  eqnts   equal  25000
@@ -67,14 +67,13 @@ variable Nrepeat equal 5
 variable Nfreq equal 1000
 variable dumpfreq equal 20000
 variable restartfreq equal 200000 
+variable thermoSteps equal 5000
 
 # ----- Derivate variables ------
 
-variable  hilimit equal  ${zwi}-1.5*${dew}
 variable  cutoff1  equal  ${siglj}*${cut1} 
 variable  cutoff2  equal  ${siglj}*${cut2} 
 variable  rw       equal  ${sigma}*${crw}
-variable  zzw      equal  ${zwf}
 variable  cntt     equal ${cnt}
 
 # ----------------------------- Interactions -----------------------------------
@@ -97,7 +96,7 @@ fix f1 Freeze setforce 0.0 0.0 0.0
 
 fix  f4  all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
 
-thermo    1000
+thermo    ${thermoSteps}
 timestep  ${ts}
 
 # --------------- Dumping trajectories and store restart file ------------------
@@ -110,68 +109,20 @@ timestep  ${ts}
 
 fix    f5  Free momentum 1000 linear 1 1 1
 
-# ---------- ----------------- Equilibrium at zwf -------------------------------
+# ---------- ----------------- Density Calcultion -------------------------------
 
 compute binchunk all chunk/atom bin/1d z lower 0.3 
 
-variable  cnt   equal  1
-variable  zw    equal  ${zwf}
-variable  zzw   equal  ${zw}
+# -------------------------- moving walls forward for liquid ------------------------------
 
-fix  f2 all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file walls.lmp
-fix  f3 all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file walls.lmp
-variable totW   equal "f_f2 + f_f3" 
-
-run  ${eqnts}
-fix  f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zw  f_f2 f_f3 file  out/ave.F.${cnt}.out
+# ----------------------- Moving Walls  ------------------------
 
 
-fix fd all ave/chunk ${nts} 1 ${nts} binchunk density/number file data/dens.${cnt}.out
-
-run  ${nts}
-
-write_data data/Fstep4.${zw}.data nocoeff
-
-unfix f2
-unfix f3
-unfix f6
-unfix fd
-
-# -------------------------- moving walls forward ------------------------------
-
-
-include		in.loop/loop
-
-# -------------------------- Equilibrium at zwi ---------------------------------
-
-
-variable zzw equal ${zw}+${dew} 
-variable zw equal ${zzw} 
-
-fix  f2 all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file walls.lmp
-fix  f3 all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file walls.lmp
-variable totW   equal "f_f2 + f_f3" 
-
-run   ${eqnts}
-
-variable    cnt equal ${cntt}+1
-variable    cntt equal ${cnt}
-
-fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zw f_f2 f_f3 file  out/ave.F.${cnt}.out
-
-run      ${nts}
-
-write_data data/Fstep4.${zw}.data nocoeff
-
-
-
-
-
-
-
-
-
-
-
-
+label here
+include    in.loop/loop
+write_data data/Fstep1.${cnt}.data nocoeff
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+next zw
+jump SELF here
 

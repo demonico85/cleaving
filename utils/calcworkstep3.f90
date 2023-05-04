@@ -66,8 +66,8 @@ do jj=1,500
     write(serout,*)"ave.F.",jj,".out"
     call StripSpaces(serout)
     open(unit=20,file=serout,status="replace")
-    write(20,*)
-    write(20,*)
+    write(20,*)'# Time-averaged data for fix'
+    write(20,*)'# TimeStep c_thermo_temp c_thermo_pe f_totW v_lambda'
 
     read(10,*)
     read(10,*)

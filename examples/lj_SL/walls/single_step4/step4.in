@@ -52,9 +52,7 @@ variable  epslj   equal  1.0
 variable  sigma   equal  1.0
 variable  eps     equal  1.0
 variable  delta   equal  0.25
-variable  zwf     equal  0.60
-variable  zwi     equal  1.13
-variable  dew     equal  0.005
+variable  zw file zwalls_back.dat
 variable  crw     equal  2.0^(1.0/6.0)   
 variable  nloop   equal  2000
 variable  eqnts   equal  25000
@@ -73,7 +71,6 @@ variable thermoSteps equal 5000
 
 # ----- Derivate variables ------
 
-variable  hilimit equal  ${zwi}-1.5*${dew}
 variable  cutoff1  equal  ${siglj}*${cut1} 
 variable  cutoff2  equal  ${siglj}*${cut2} 
 variable  rw       equal  ${sigma}*${crw}
@@ -118,35 +115,45 @@ compute binchunk all chunk/atom bin/1d z lower 0.3
 
 # -------------------------- moving walls forward for liquid ------------------------------
 
-variable    zwl equal ${zwf}
-variable    zwc equal ${zwf}
-variable    zzw equal ${zwf}
+# ----------------------- Moving Walls  ------------------------
+#
+# label here
+# include    in.loop/loop
+# write_data data/Fstep1.${cnt}.data nocoeff
+# variable    cntt equal ${cnt}+1
+# variable    cnt  equal ${cntt}
+# next zw
+# jump SELF here
+#
+
+variable zwc equal ${zw}
+variable syst string "liq"
+
 label hereL
-include    in.loop/loop.liq
-write_data  data/Fstep4-liq.${cnt}.data  nocoeff
+variable zwl equal ${zw}
+include    in.loop/loop.sing_phase
+write_data  data/Fstep4-${syst}.${cnt}.data  nocoeff
 variable    cntt equal ${cnt}+1
 variable    cnt  equal ${cntt}
-if "${zwl} >= ${zwi}" then "jump SELF breakL" else " jump SELF hereL "
-label breakL
-#next lam
-#jump SELF here
+next zw
+jump SELF hereL
 
-# -------------------------- moving walls forward for liquid ------------------------------
+# -------------------------- moving walls forward for Solid ------------------------------
 #
 
-variable cnt equal 1
-variable    zwc equal ${zwf}
-variable    zzw equal ${zwf}
+variable   cnt equal 1
+variable   zw file zwalls_back.dat
+variable syst string "sol"
+
 label hereC
-include    in.loop/loop.sol
-write_data  data/Fstep4-sol.${cnt}.data  nocoeff
-variable    cntt equal ${cnt}+1
-variable    cnt  equal ${cntt}
-if "${zwc} >= ${zwi}" then "jump SELF breakC" else " jump SELF hereC "
-label breakC
-#next lam
-##jump SELF here
-#
+variable zwc equal ${zw}
+include    in.loop/loop.sing_phase
+write_data data/Fstep4-${syst}.${cnt}.data  nocoeff
+variable   cntt equal ${cnt}+1
+variable   cnt  equal ${cntt}
+next zw
+jump SELF hereC
+
 
 
 

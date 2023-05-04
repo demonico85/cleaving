@@ -1,9 +1,14 @@
 #! /bin/bash
 
+
+
+
 #awk '{i+=1; if(i > 11 &&  i < 4764){print $1,1,$3,$4,$5}else{print $0;}}' InputCW.lmp > dataYang.dump
 
 #awk '{i+=1; if(i > 2){work += $4; cnt += 1}}END{print work/cnt}' 
 
+
+scriptdir="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils"
 minimumsize=5
 maxblock=5
 cnt=1
@@ -14,8 +19,16 @@ if [ ! "$1" == "B" ] && [ ! "$1" == "b" ] && [ ! "$1" == "F" ] && [ ! "$1" == "f
    exit 
 fi 
 
+syst=$2
+
 side=${1^}
-wfile=$(echo $side-work.dat)
+
+if [ -z  $syst ];
+  then
+    wfile=$(echo $side-work.dat)
+else
+    wfile=$(echo $syst"."$side"-work.dat")
+fi
 
 echo $wfile
 
@@ -35,19 +48,25 @@ while [ $cnt -le $nfiles ];
   do
     ex1=0
     ex2=0
-    file=$( echo "ave."$side"."$cnt".out" ) 
+    if [ -z  $syst ];
+      then
+        file=$( echo "ave."$side"."$cnt".out" ) 
+    else
+        file=$( echo "ave."$side"."$syst"."$cnt".out" )
+    fi
+#    echo $file
     forw="${file%*F*}"
     if [[ "$file" == *"$side"* ]];
       then
         if [ -e $file ];
           then
-            awk '{i+=1; if(i > 3){print $4}}' $file > 1.tmp # Queste dipendono dall'output di Lammps
-            awk '{i+=1; if(i == 5){print $5}}' $file > 2.tmp
+            awk '{i+=1; if(i > 3){print $5}}' $file > 1.tmp # Queste dipendono dall'output di Lammps
+            awk '{i+=1; if(i == 5){print $4}}' $file > 2.tmp
             awk '{i+=1; if(i > 3){print $6}}' $file > a.tmp
             awk '{i+=1; if(i > 3){print $7}}' $file > b.tmp
             fn="$(echo ${file%.*}.pdf)"
             echo  $fn
-            python ~/interface/simulations/inputs_8Jul2020/analysis.py -f 1.tmp -n $maxblock -o $fn  |  awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 3.tmp 
+            python $scriptdir/analysis.py -f 1.tmp -n $maxblock -o $fn  |  awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 3.tmp 
             
             grep . a.tmp > 4.tmp
             grep . b.tmp > 5.tmp
@@ -57,7 +76,7 @@ while [ $cnt -le $nfiles ];
             if [ $actualsize -ge $minimumsize ];
               then
                 fn="$(echo ${file%.*}.f2.pdf)"
-                python /home/nico/lammps/inputs_8Jul2020/analysis.py -f 4.tmp -n $maxblock -o $fn  | awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 6.tmp 
+                python $scriptdir/analysis.py -f 4.tmp -n $maxblock -o $fn  | awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 6.tmp 
                 ex1=1
             fi 
 
@@ -66,7 +85,7 @@ while [ $cnt -le $nfiles ];
             if [ $actualsize -ge $minimumsize ];
               then
                 fn="$(echo ${file%.*}.f3.pdf)"
-                python /home/nico/lammps/inputs_8Jul2020/analysis.py -f 5.tmp -n $maxblock -o $fn  | awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 7.tmp
+                python $scriptdir/analysis.py -f 5.tmp -n $maxblock -o $fn  | awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 7.tmp
                 ex2=1
             fi 
     

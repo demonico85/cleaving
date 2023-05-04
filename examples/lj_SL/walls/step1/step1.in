@@ -37,15 +37,12 @@ group Free subtract all Freeze
 
 # ---------------------------- Define variables --------------------------------
 
-variable backloop equal 0
 variable  clwall equal  0.0
 variable  sigma  equal  1.0
 variable  cnt    equal  1
 variable  eps    equal  1.0
 variable  delta  equal  0.25
-variable  zwi    equal  1.13
-variable  zwf    equal  0.5
-variable  dew    equal  0.02
+variable  zw file zwalls.dat
 variable  crw    equal  2.0^(1.0/6.0)   
 variable  nloop  equal  1000
 variable  eqnts  equal  3000 
@@ -103,57 +100,16 @@ timestep  ${ts}
 
 fix    Fix2  Free momentum 1 linear 1 1 1
 
-# --------------------------- (Forward) Equilibrium at zw --------------------------
+# -------------------------- Set Up Calculation ------------------------------ 
 
+fix  fnvt  all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
 
-variable zw equal ${zwi}
-variable zzw equal ${zwi}
+# ----------------------- Moving Walls  ------------------------
 
-label           Lab0
-variable        j  loop ${nloop}
-print       "Wall distance ${zw}"
-
-print "Equilibrium at Wall distance ${zw}"
-
-include         in.loop/loop
-
+label here 
+include    in.loop/loop 
 write_data data/Fstep1.${cnt}.data nocoeff
-next            j   
-
-variable    zw equal ${zzw}-${dew}
-variable    zzw equal ${zw}
 variable    cntt equal ${cnt}+1
 variable    cnt  equal ${cntt}
-
-print "Check ${cnt}: ${zw} <= ${lowlimit}"
-if "${zw} >= ${zwf}" then "jump SELF break" else " jump SELF Lab0 "
-label           break
-variable        j delete
-
-
-# ------------------------ moving walls backward -------------------------------
-
-if " ${backloop} == 0 " then "quit"
-
-include		in.loop/loop.back
-
-# ------------------------ Equilibrium at zwi -------------------------------
-
-variable zzw equal ${zw}-${dew} 
-variable zw equal ${zzw}
-
-fix  f2 all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall} file walls.lmp
-
-run  ${eqnts}
-
-fix    f4 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe f_f2 v_zw file  out/ave.B.${cnt}.out
-
-run    ${nts}
-
-write_data data/Bstep1.${zw}.data nocoeff
-
-unfix f2
-unfix f4
-
-
-
+next zw 
+jump SELF here

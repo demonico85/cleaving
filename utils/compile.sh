@@ -17,7 +17,7 @@ gfortran -g step3IN.f90 -o ./$dir/s3inp
 gfortran step4IN.f90 -o ./$dir/s4inp
 gfortran dump2data.f90 -o ./$dir/dump2data
 gfortran calcinterstep3.f90 -o ./$dir/s3int
-
+gfortran -g c3cryst_wells.f90 -o ./$dir/s3CrySv
 
 
 #cp *.sh ../.

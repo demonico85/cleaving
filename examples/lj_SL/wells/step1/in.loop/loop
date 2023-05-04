@@ -1,0 +1,26 @@
+###%    Created by:                                                           *%
+####%    Nicodemo Di Pasquale                                                  *%
+####%    Department of Mathematics                                             *%
+####%    University of Leicester                                               *%
+####%    24 March 2018                                                         *%
+####%***************************************************************************%
+#
+
+variable    lambda equal ${lam}
+
+fix totW all wellPforce ${dw} ${rw} ${expp} ${lambda} file wells.lmp
+
+print       "Well depth ${lambda}"
+run   ${eqnts}
+
+fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_lambda f_totW file  out/ave.F.${cnt}.out
+
+run  ${nts}
+
+# --------------------------- Unfix --------------------------------------------
+
+
+unfix f5
+unfix totW
+
+#%*****************************************************************************%

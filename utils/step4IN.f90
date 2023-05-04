@@ -2,15 +2,27 @@ program createbox
 
 implicit none
 
-integer :: ios,natoms1,b,totatoms,indx,i,a
+integer :: ios,natoms1,b,totatoms,indx,i,a,nargs
 integer, pointer :: id1(:)
 real(kind=8) :: xlo,xhi,ylo,yhi,zlo1,zhi1
 real(kind=8) :: x1,y1,z1,vx1,vy1,vz1
-character(len=50) :: file1,output
+character(len=50) :: file1,output,arg
 
 
-file1="Fstep3.1.data"
 output="inputStep4.lmp"
+
+    nargs = iargc()
+    if(nargs .eq. 0) then
+        stop "two input files"
+    end if
+
+
+call getarg( 1, arg )
+read(arg,*) file1
+if (nargs .gt. 1) then
+    call getarg( 2, arg )
+    read(arg,*) output
+end if
 
 open(unit=10,file=file1, status="old",iostat=ios)
 if(ios .ne. 0)stop "File1 not found"

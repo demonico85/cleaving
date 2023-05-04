@@ -1,0 +1,27 @@
+###%********************************************************************%
+###%    Copyright The Production of y.yang.1983.comput.cmp@gmail.com    %
+###%********************************************************************%
+
+
+
+variable    lambda equal ${lam}
+
+fix totWA all wellPforce ${dw} ${rw} ${expp} ${lambda} file lwells.lmp
+fix totWB all wellPforce ${dw} ${rw} ${expp} ${lambda} file hwells.lmp
+variable totW   equal "f_totWA + f_totWB" 
+
+print       "Well depth ${lambda}"
+
+run   ${eqnts}
+
+fix  f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_lambda f_totWA f_totWB  file out/ave.F.${cnt}.out
+
+run  ${nts}
+
+unfix totWA 
+unfix totWB
+unfix f6
+
+###%********************************************************************%
+###%    Copyright The Production of y.yang.1983.comput.cmp@gmail.com    %
+###%********************************************************************%

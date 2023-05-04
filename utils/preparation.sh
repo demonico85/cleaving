@@ -2,6 +2,8 @@
 
 function changeinwe12 {
 
+
+    randomseed
 #    echo $1 $2 $3 $4 $5
     cp ./$1/$5 ./$1/$(echo $5"-back") 
 #    echo ./$1/$(echo $5"-back") 
@@ -11,25 +13,29 @@ function changeinwe12 {
         else if($2 == "fact" ){ print $1, $2, $3, fact;}
         else if($2 == "dw" ){ print $1, $2, $3, dw;}
         else if($1 == "read_data"){print $1,S;}
-        else if($1 == "fix" && $2 == "f2"){print $1, $2,$3,$4,$5,$6,$7,$8,$9,W;}
+        else if($1 == "fix" && $2 == "totW"){print $1, $2,$3,$4,$5,$6,$7,$8,$9,W;}
         else if($1 == "variable" &&  $2 == "backloop"){print $1,$2,$3,bloop}
+        else if($1 == "velocity" &&  $3 == "create"){print $1,$2,$3,$4,'$seed'}
         else{print $0;}
 }' ./$1/$(echo $5"-back")  > ./$1/$5
 }
 
 function changeinwa12 {
 
+
+    randomseed
 #    echo $1 $2 $3 $4 $5
     cp ./$1/$5 ./$1/$(echo $5"-back") 
 #    echo ./$1/$(echo $5"-back") 
     awk -v T=$2 -v S=$3 -v W=$4 -v zwi=$6 -v zwf=$7 -v dew=$8 -v bloop=$9 '{
         if($2 == "Tsyst"){print $1, $2, $3, T;}
         else if($1 == "read_data"){print $1,S;}
-        else if($1 == "fix" && $2 == "f2"){print $1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,W;}
+        else if($1 == "fix" && $2 == "totW"){print $1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,W;}
         else if($1 == "variable" &&  $2 == "zwi"){print $1,$2,$3,zwi}
         else if($1 == "variable" &&  $2 == "zwf"){print $1,$2,$3,zwf}
         else if($1 == "variable" &&  $2 == "dew"){print $1,$2,$3,dew}
         else if($1 == "variable" &&  $2 == "backloop"){print $1,$2,$3,bloop}
+        else if($1 == "velocity" &&  $3 == "create"){print $1,$2,$3,$4,'$seed'}
         else{print $0;}
 }' ./$1/$(echo $5"-back")  > ./$1/$5
 
@@ -68,9 +74,38 @@ function changeinwa34 {
     }' ./$1/$(echo $4"-back")  > ./$1/$4
 }
 
+function randomseed()
+{
+#    echo $RANDOM
+#    echo 'mod' $RANDOM $(awk 'BEGIN{print '$RANDOM' % 10+1}')
+
+    rndsleep=$(awk 'BEGIN{print '$RANDOM' % 10+1}')
+
+    sleep $rndsleep
+
+    awkranda=$(echo "t" |  awk 'BEGIN {
+   # seed
+      srand('$(date +%s%N)')
+      print int(1 + rand() * 100)
+   }')
+
+
+
+   awkrandb=$(echo "t" |  awk 'BEGIN {
+     # seed
+     srand('$(date +%s%N)')
+     print int(1 + rand() * 100)
+      }')
+
+
+#echo $awkranda $awkrandb
+
+   seed=$(echo "t" |  awk '{print '$RANDOM' * '$awkranda' * '$awkrandb'}')
+}
+
 ################################################################################
 
-dirscripts=/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils
+dirscripts="/home/mmm1133/Scratch/LJ_sol_liq/utils"
 
 if [ ! -d $dirscripts ];
   then
@@ -106,12 +141,12 @@ fi
 
 temp=$3
 
-re='^[0-9]+([.][0-9]+)?$'
+#re='^[0-9]+([.][0-9]+)?$'
 #echo $3
-if ! [[ "$4" =~ $re ]] ; then
-    echo "error: Not a number"
-    echo "3usage: preparation.sh <system=111,100,110> <temp> <cleaving pos> " >&2; exit 1
-fi
+#if ! [[ "$4" =~ $re ]] ; then
+#    echo "error: Not a number"
+#    echo "3usage: preparation.sh <system=111,100,110> <temp> <cleaving pos> " >&2; exit 1
+#fi
 
 cleav=$4
 TT=$5
@@ -127,6 +162,9 @@ c=${14}
 backloop=${15}
 dew4=${16}
 #pbcpressure=${16}
+
+
+echo "AAAAA" $cleav $TT 
 
 dir="../systems"
 
@@ -166,34 +204,62 @@ done
 
 
 # file in step 3/4
+    if [ "$type" == "WE" ];
+      then
 
 for step in step3 step4
   do
-    if [ "$type" == "WE" ];
-      then
-        namew=$(echo "fcc"$syst"-"$TT"-hwells.lmp")
-        cp $dir/$namew ./$step/.
-        changeinwe34 "$step" $temp $namew "$step.in" "f3" $rho  $fact $dw $backloop
-        changeinwe34 "$step/in.loop" $temp $namew "loop" "f3" -100 -100 -100 -100
-
         namew=$(echo "fcc"$syst"-"$TT"-wells.lmp")
         cp $dir/$namew ./$step/.
-        changeinwe34 "$step" $temp $namew "$step.in" "f2" $rho  $fact $dw $backloop
-        changeinwe34 "$step/in.loop" $temp $namew "loop" "f2" -100 -100 -100 -100
-    else
+        changeinwe34 "$step" $temp $namew "$step.in" "totWA" $rho  $fact $dw $backloop
+        changeinwe34 "$step/in.loop" $temp $namew "loop" "totWA" -100 -100 -100 -100
 
-        namew=$(echo "fcc"$syst"-"$TT"-walls.lmp")
+        namew=$(echo "fcc"$syst"-"$TT"-hwells.lmp")
         cp $dir/$namew ./$step/.
-        changeinwa34 "$step" $temp $namew "$step.in" "f3"  $zwi $zwf $dew4 $backloop 
-        changeinwa34 "$step/in.loop" $temp $namew "loop" "f3" -100 -100 -100 -100
+        changeinwe34 "$step" $temp $namew "$step.in" "totWB" $rho  $fact $dw $backloop
+        changeinwe34 "$step/in.loop" $temp $namew "loop" "totWB" -100 -100 -100 -100
+done
+
+#############################  WALLS Step 3/4 #############################
+else
+step="step3"
 
         namew=$(echo "fcc"$syst"-"$TT"-walls.lmp")
         cp $dir/$namew ./$step/.
         changeinwa34 "$step" $temp $namew "$step.in" "f2" $zwi $zwf $dew4 $backloop
+        changeinwa34 "$step" $temp $namew "$step.in" "f3" $zwi $zwf $dew4 $backloop
         changeinwa34 "$step/in.loop" $temp $namew "loop" "f2" -100 -100 -100 -100
-    fi 
+        changeinwa34 "$step/in.loop" $temp $namew "loop" "f3" -100 -100 -100 -10
 
-done
+step="step4"
+
+        namew=$(echo "fcc"$syst"-"$TT"-walls.lmp")
+        cp $dir/$namew ./$step/.
+        changeinwa34 "$step" $temp $namew "$step.in" "totWA"  $zwi $zwf $dew4 $backloop 
+        changeinwa34 "$step" $temp $namew "$step.in" "totWB" $zwi $zwf $dew4 $backloop
+
+        changeinwa34 "$step/in.loop" $temp $namew "loop" "totWA" -100 -100 -100 -100
+        changeinwa34 "$step/in.loop" $temp $namew "loop" "totWB" -100 -100 -100 -100
+
+
+        changeinwa34 "$step/in.loop" $temp $namew "loop.sing_phase" "LW_l" -100 -100 -100 -100
+        changeinwa34 "$step/in.loop" $temp $namew "loop.sing_phase" "RW_l" -100 -100 -100 -100
+        changeinwa34 "$step/in.loop" $temp $namew "loop.sing_phase" "LW_c" -100 -100 -100 -100
+        changeinwa34 "$step/in.loop" $temp $namew "loop.sing_phase" "RW_c" -100 -100 -100 -100
+
+#        changeinwa34 "$step/in.loop" $temp $namew "loop.liq" "fc3" -100 -100 -100 -100
+#        changeinwa34 "$step/in.loop" $temp $namew "loop.liq" "fl3" -100 -100 -100 -100
+#        changeinwa34 "$step/in.loop" $temp $namew "loop.liq" "fc2" -100 -100 -100 -100
+#        changeinwa34 "$step/in.loop" $temp $namew "loop.liq" "fl2" -100 -100 -100 -100
+
+
+#        namew=$(echo "fcc"$syst"-"$TT"-walls.lmp")
+#        cp $dir/$namew ./$step/.
+#        changeinwa34 "$step" $temp $namew "$step.in" "f2" $zwi $zwf $dew4 $backloop
+#        changeinwa34 "$step/in.loop" $temp $namew "loop" "fc2" -100 -100 -100 -100
+#        changeinwa34 "$step/in.loop" $temp $namew "loop" "fl2" -100 -100 -100 -100
+
+fi
 
 
 if [[ -z $a ]];

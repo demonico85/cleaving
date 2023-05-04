@@ -2,7 +2,7 @@
 
 
 currdir=$(pwd)
-inpdir=/home/nico/lammps/inputs_8Jul2020
+inpdir=/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils
 nbins=5
 replace=0
 in=1
@@ -20,16 +20,21 @@ fi
 
 for i in `seq $in $fin`
 do
-for or in 111 #111 #110 #100  
+for or in 111 110 100  
 do
-   for T in T1 # T2 T3
+   for T in T1 T2 T3
    do
-     for ty in walls # wells
+     for ty in walls #wells
        do
          cd $currdir
          fold=$(echo "fcc"$or"_"$T"_"$ty"_"$i)
+         echo "Trying dir: $fold"
+         if [ ! -d $fold ];
+           then
+             echo "dir not found. Skipping..."
+             continue
+         fi
          cd $fold
-	 echo "Trying dir: $fold"
          for st in step1 step2 step4 
            do
 	     echo $st
@@ -48,14 +53,14 @@ do
 	   st=step3
 	   echo $st
              cd $st/dat
-	     $inpdir/s3work
-	     echo $inpdir/s3work
-	     if [ ! -x $inpdir/s3work ];
+	     echo $inpdir/compiled/s3work
+	     if [ ! -x $inpdir/compiled/s3work ];
                then
                 echo "ERROR: s3work not found or not executable"
 		echo "Exiting..."
 		exit -1
              fi
+             $inpdir/compiled/s3work
              $inpdir/work.sh F $nbins > work.log
              if [ ! -f F-work.dat ];
                then

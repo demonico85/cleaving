@@ -2,10 +2,11 @@ program calcw
 
 implicit none
 
-integer :: Zzero,ios,ntypes,a,iexit,i,j,rows,matrixdim,jj,b,nargs,kk,filen
+integer :: Zzero,ios,ntypes,a,iexit,i,j,ncolumns,matrixdim,jj,b,nargs,kk,filen
+integer :: zdirfile
 integer, pointer :: indx(:)
-real*8,pointer :: intermatrix(:,:)
-real*8 :: AA,AB,totinteraction,N,lambda,delta,CC,DD,expn,lam,minlam
+real*8,pointer :: intermatrix(:,:), zvec(:)
+real*8 :: AA,AB,totinteraction,N,lambda,delta,CC,DD,expn,lam,minlam,c
 character(len=30) :: namefile,outfile,arg,serout,namelam
 character(len=8) :: namebit
 
@@ -29,7 +30,7 @@ character(len=8) :: namebit
 
 ntypes=2
 matrixdim=ntypes+1 ! ntypes+zero col
-rows=ntypes+2 ! ntypes+zero col + index
+ncolumns=ntypes+2 ! ntypes+zero col + index
 lambda=0.0
 
 
@@ -85,7 +86,27 @@ outfile="work.dat"
 !    stop
 !end if
 
-do jj=1,500
+zdirfile=1
+open(unit=40,file="zdir.dat",status="old",iostat=ios)
+write(*,*)"BB1",b,ios
+write(*,*)"IOS",ios
+  if(ios .ne. 0) then
+     zdirfile=0
+  else
+      ios = -10
+      i=0
+      allocate(zvec(500))
+      do while ( 1 .gt. 0)
+        read(40,*,iostat=ios)c
+write(*,*)"BB",b,ios
+        if(ios .ne. 0) exit
+        i=i+1
+        zvec(i)=c
+write(*,*)"A",i,c
+      end do
+  end if
+
+do jj=1,100
     write(namefile,*)namebit,jj,".dat"
     call StripSpaces(namefile)
 !write(*,*)jj,namefile
@@ -96,10 +117,19 @@ do jj=1,500
         write(*,*)"Last read file: ",namefile
         exit
     end if
-    write(namelam,*)"shiftz.",jj,".dat"
-    call StripSpaces(namelam)
+    if (zdirfile .eq. 0) then
+        write(namelam,*)"shiftz.",jj,".dat"
+        call StripSpaces(namelam)
 !write(*,*)jj,namefile
-    open(unit=30,file=namelam,status="old",iostat=ios)
+        open(unit=30,file=namelam,status="old",iostat=ios)
+            read(30,*)
+            read(30,*)
+            read(30,*)a,lambda
+    else
+       lambda = zvec(jj)
+       ios = 0
+    end if
+write(*,*)lambda
     if(ios .eq. 0 )then 
             write(serout,*)"ave.F.",jj,".out"
             call StripSpaces(serout)
@@ -111,44 +141,43 @@ do jj=1,500
             read(10,*)
             read(10,*)
 
-            read(30,*)
-            read(30,*)
-            read(30,*)a,lambda
-
             iexit=1
             kk=0
         do 
             read(10,*,iostat=ios)b
+
             if(ios .ne. 0)then
                 iexit = 0
-            exit
-    end if
-    do i=1,matrixdim
-        read(10,*,iostat=ios)a,(intermatrix(i,j),j=1,matrixdim)
-        if(ios .ne. 0)then
-            iexit = 0
-            exit
-        end if
-    end do
+                 exit
+            end if
+        
+            do i=1,matrixdim
+                read(10,*,iostat=ios)a,(intermatrix(i,j),j=1,matrixdim)
+
+                if(ios .ne. 0)then
+                   iexit = 0
+                   exit
+                end if
+            end do
 
 
-    if(iexit .eq. 0)exit
+            if(iexit .eq. 0)exit
 
-    DD = intermatrix(2,2) + intermatrix(2,3) + intermatrix(3,3) 
+            DD = intermatrix(2,2) + intermatrix(2,3) + intermatrix(3,3) 
+!    write(*,*)intermatrix(2,2),intermatrix(2,3),intermatrix(3,3)
 
+             kk=kk+1
+             write(200,*)kk,kk,kk,DD,lambda
 
-    kk=kk+1
-   write(200,*)kk,kk,kk,DD,lambda
-
-end do
+        end do
 
 rewind(200)
 
         do 
            read(200,*,iostat=ios)kk,kk,kk,DD,lambda
            if(ios .ne. 0)exit
-           if(kk .eq. 1) Zzero=DD
-           write(20,*) kk,kk,kk,DD-Zzero,lambda
+!           if(kk .eq. 1) Zzero=DD
+           write(20,*) kk,kk,kk,DD,lambda
         end do
 
         close(200,status="delete")

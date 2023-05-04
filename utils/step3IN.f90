@@ -83,10 +83,10 @@ read(11,*)
 read(11,*)
 
 allocate(x1(natoms1),y1(natoms1),z1(natoms1))
-allocate(x2(natoms1),y2(natoms2),z2(natoms2))
+allocate(x2(natoms2),y2(natoms2),z2(natoms2))
 
 allocate(vx1(natoms1),vy1(natoms1),vz1(natoms1))
-allocate(vx2(natoms1),vy2(natoms2),vz2(natoms2))
+allocate(vx2(natoms2),vy2(natoms2),vz2(natoms2))
 
 allocate(id1(natoms1))
 allocate(id2(natoms2))

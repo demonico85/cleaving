@@ -1,0 +1,41 @@
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable zwalls equal ${zw}
+
+print       "Wall distance for solid ${zwc} and liquid ${zwl}"
+
+fix LW_l FreeL wallforce ${eps} ${sigma} ${zwl} ${delta} ${rw} ${clwall1} file fcc111-T1-walls.lmp
+fix RW_l FreeL wallforce ${eps} ${sigma} ${zwl} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp
+fix LW_c FreeC wallforce ${eps} ${sigma} ${zwc} ${delta} ${rw} ${clwall1} file fcc111-T1-walls.lmp
+fix RW_c FreeC wallforce ${eps} ${sigma} ${zwc} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp
+
+variable totWc   equal "f_LW_c + f_RW_c"
+variable totWl   equal "f_LW_l + f_RW_l"
+
+variable totW equal "f_LW_c + f_RW_c + f_LW_l + f_RW_l"
+
+
+run   ${eqnts}
+
+# Density
+fix fd all ave/chunk ${nts} 1 ${nts} binchunk density/number file data/dens-${syst}.${cnt}.out
+#
+fix  f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls  v_totWc v_totWl f_LW_c  f_RW_c  f_LW_l  f_RW_l file  out/ave.F.${syst}.${cnt}.out 
+
+run ${nts}
+
+unfix LW_l 
+unfix RW_l
+unfix LW_c
+unfix RW_c 
+unfix f6
+unfix fd
+ 
+#%*****************************************************************************%

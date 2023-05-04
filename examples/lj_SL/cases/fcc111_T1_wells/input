@@ -6,7 +6,7 @@ wells
 
 rhoc: 0.945
 fact: 1.0
-dw: 6 
-backloop: 0
+dw: 24
+backloop: 1
 
 Temperature: 0.617
