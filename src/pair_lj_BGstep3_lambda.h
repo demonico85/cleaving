@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class PairLJBGStep3 : public Pair {
  public:
   PairLJBGStep3(class LAMMPS *);
-  virtual ~PairLJStep3();
+  virtual ~PairLJBGStep3();
   virtual void compute(int, int);
 
   void settings(int, char **);
