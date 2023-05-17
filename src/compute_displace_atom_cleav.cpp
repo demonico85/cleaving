@@ -28,7 +28,7 @@ This compute calculates the distance (Delta x, Delta y, Delta z) crossed by atom
 #include "atom.h"
 #include "domain.h"
 #include "error.h"
-#include "fix_store_peratom.h"
+#include "fix_store_atom.h"
 #include "group.h"
 #include "input.h"
 #include "memory.h"
@@ -85,8 +85,8 @@ ComputeDisplaceAtomCleav::ComputeDisplaceAtomCleav(LAMMPS *lmp, int narg, char *
   // id = compute-ID + COMPUTE_STORE, fix group = compute group
 
   id_fix = utils::strdup(std::string(id) + "_COMPUTE_STORE");
-  fix = dynamic_cast<FixStorePeratom *>(
-    modify->add_fix(fmt::format("{} {} STORE/PERATOM 1 3", id_fix, group->names[igroup])));
+  fix = dynamic_cast<FixStoreAtom *>(
+    modify->add_fix(fmt::format("{} {} STORE/ATOM 3 0 0 1", id_fix, group->names[igroup])));
 
   // calculate xu,yu,zu for fix store array
   // skip if reset from restart file
@@ -131,7 +131,7 @@ void ComputeDisplaceAtomCleav::init()
 {
   // set fix which stores original atom coords
 
-  fix = dynamic_cast<FixStorePeratom *>(modify->get_fix_by_id(id_fix));
+  fix = dynamic_cast<FixStoreAtom *>(modify->get_fix_by_id(id_fix));
   if (!fix) error->all(FLERR,"Could not find compute displace/atom fix with ID {}", id_fix);
 
   if (refreshflag) {

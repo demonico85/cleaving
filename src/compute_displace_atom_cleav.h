@@ -50,7 +50,7 @@ class ComputeDisplaceAtomCleav : public Compute {
   int nmax;
   double **displace;
   char *id_fix;
-  class FixStorePeratom *fix;
+  class FixStoreAtom *fix;
 
   int refreshflag, ivar, nvmax;    // refresh option is enabled
   char *rvar;                      // for incremental dumps
