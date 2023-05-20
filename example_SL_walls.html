@@ -235,7 +235,7 @@ run  ${nts}
 
 
 unfix f5
-unfix totW
+unfix f2
 
 write_data data/Fstep1.${i}.data nocoeff
 variable    cntt equal ${i}+1
@@ -343,7 +343,7 @@ jump SELF here
 <ol class="arabic simple" start="5">
 <li><p>The switching off is implemented directly in the definition of the pair interactions. We therefore need to change the pair interaction in the LAMMPS script file (section <em>Interactions</em>) to the new defined type</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pair_style lj/Nlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pair_style lj/BGNlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
 </pre></div>
 </div>
 <p>All the parameters (<code class="docutils literal notranslate"><span class="pre">cutoff1</span></code>, <code class="docutils literal notranslate"><span class="pre">cutoff2</span></code>, <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma</span></code>) are identical to those used in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a>. Note the three additional parameters. They allow to specify a global switch if needed. However, in this case we need to change the interactions specifically for each pair, so that we set these three numbers to 1.0 and modify the switching for each pair interaction.</p>
@@ -389,7 +389,7 @@ pair_coeff   2 3  ${epslj} ${siglj}   1.0 1.0
 </pre></div>
 </div>
 <ol class="arabic simple" start="9">
-<li><p>The work needed to switch off the interactions (described in the next point) is calculated by adding the line <code class="docutils literal notranslate"><span class="pre">compute</span> <span class="pre">1</span> <span class="pre">all</span> <span class="pre">cleavpairs</span> <span class="pre">lj/Nlcleavs3</span> <span class="pre">norm</span> <span class="pre">4</span> <span class="pre">z</span></code> to end of the LAMMPS script file. The meaning of the parameters is reported in the <a class="reference internal" href="compute_pcleav.html"><span class="doc std std-doc">description</span></a> of this compute style.</p></li>
+<li><p>The work needed to switch off the interactions (described in the next point) is calculated by adding the line <code class="docutils literal notranslate"><span class="pre">compute</span> <span class="pre">1</span> <span class="pre">all</span> <span class="pre">cleavpairs</span> <span class="pre">lj/BGNlcleavs3</span> <span class="pre">norm</span> <span class="pre">4</span> <span class="pre">z</span></code> to end of the LAMMPS script file. The meaning of the parameters is reported in the <a class="reference internal" href="compute_pcleav.html"><span class="doc std std-doc">description</span></a> of this compute style.</p></li>
 <li><p>Prepare a walls file. Here we will use the <code class="docutils literal notranslate"><span class="pre">/examples/lj_systems/fcc111-T1-walls.lmp</span></code> file, which should be copied to the current folder.</p></li>
 <li><p>Add the command for the walls, together with the definition of the variables that sets the parameters specifying the walls characteristics:</p></li>
 </ol>

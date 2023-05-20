@@ -2,7 +2,7 @@
 
 
 ## Syntax
-k
+
 
 ```
 pair_style lj/BGNlcleavs3args
@@ -78,7 +78,7 @@ where $r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|$ for each couple of atoms $l,n$ in the
 The constants are hardcorded within the pair style and they not need to be defined.
 
 ````{note}
-* $f(\lambda)$ is a continuous function $lambda$ which is equal to 0 or 1 when $lambda$ is equal to 0 or 1
+* $N$ must be an integer > 1
 * There is no internal check that $\lambda$ is changing consistently (i.e., always decreasing or increasing)
 ````
    
@@ -93,11 +93,17 @@ $$
 		\end{cases}
 $$
 
-In this case the the expression of the potential is multiplied by the derivatibe of $\lambda$ with respect itself which is equal to 1 (i.e., $\partial \lambda / \partial \lambda=1$), and therefore the value of Dfrac must be set equal to 1.
-   
-   
+In this case the expression of the potential is multiplied by the derivative of $\lambda$ with respect itself which is equal to 1 (i.e., $\partial \lambda / \partial \lambda=1$), and therefore the value of Dfrac must be set equal to 1.
 
-Dfrac needs to be used when we are passing to the pair_style an expression like $(1-\lambda)$. In this case we need to set Dfrac=-1.
+With this style we can implement the simultaneous switch between two different state of the system, e.g., $a$ and $b$. 
+Let us assume the total Hamiltonian of the system, $H^{T}(\lambda)$, is defined as 
+
+$$
+	$H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
+$$  
+
+for $\lambda \in [0,1]$, where we dropped the dependence on $\mathbf{p}$ and $\mathbf{q}$ for simplicity.
+In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like $(1-\lambda)$. Here, we need to set Dfrac=-1.
 
 ```
 variable lambda file lambda.dat
@@ -105,8 +111,17 @@ variable minl   equal 1-lambda
 
 pair_style lj/BGNlcleavs3  cutoff1  cutoff2 lambda 1.0
 pair_coeff 1 2 minl -1.0
-
 ```
+
+
+````{note}
+The "complement" switching obtained with this pair style is $(1-\lambda)^N \neq (1-\lambda^N)$. In terms of Thermodynamic Integration they are both equivalent as long as, given a function of $\lambda$, f(\lambda), we have $f(\lambda)=0$ for $\lambda=0$ and $f(\lambda)=1$ for $\lambda=1$.
+````
+
+
+The work performed in this step can be collected and printed out by using the compute [paircleav](./compute_pcleav.md). The work obtained is already the correct one as all the numerical coefficients (i.e., N and/or -1 coming from the derivation with respect to $\lambda$) are already included in the calculation.
+
+
 
 
 

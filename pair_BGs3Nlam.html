@@ -173,7 +173,6 @@
 <h1>pair_style lj/BGNlcleavs3<a class="headerlink" href="#pair-style-lj-bgnlcleavs3" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="syntax">
 <h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
-<p>k</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">lj</span><span class="o">/</span><span class="n">BGNlcleavs3args</span>
 </pre></div>
 </div>
@@ -237,7 +236,7 @@ The constants are hardcorded within the pair style and they not need to be defin
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(f(\lambda)\)</span> is a continuous function <span class="math notranslate nohighlight">\(lambda\)</span> which is equal to 0 or 1 when <span class="math notranslate nohighlight">\(lambda\)</span> is equal to 0 or 1</p></li>
+<li><p><span class="math notranslate nohighlight">\(N\)</span> must be an integer &gt; 1</p></li>
 <li><p>There is no internal check that <span class="math notranslate nohighlight">\(\lambda\)</span> is changing consistently (i.e., always decreasing or increasing)</p></li>
 </ul>
 </div>
@@ -251,16 +250,27 @@ The constants are hardcorded within the pair style and they not need to be defin
 				0, 		\; r_{ln} \geq 2.5\sigma		
 		\end{cases}
 \end{split}\]</div>
-<p>In this case the the expression of the potential is multiplied by the derivatibe of <span class="math notranslate nohighlight">\(\lambda\)</span> with respect itself which is equal to 1 (i.e., <span class="math notranslate nohighlight">\(\partial \lambda / \partial \lambda=1\)</span>), and therefore the value of Dfrac must be set equal to 1.</p>
-<p>Dfrac needs to be used when we are passing to the pair_style an expression like <span class="math notranslate nohighlight">\((1-\lambda)\)</span>. In this case we need to set Dfrac=-1.</p>
+<p>In this case the expression of the potential is multiplied by the derivative of <span class="math notranslate nohighlight">\(\lambda\)</span> with respect itself which is equal to 1 (i.e., <span class="math notranslate nohighlight">\(\partial \lambda / \partial \lambda=1\)</span>), and therefore the value of Dfrac must be set equal to 1.</p>
+<p>With this style we can implement the simultaneous switch between two different state of the system, e.g., <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>.
+Let us assume the total Hamiltonian of the system, <span class="math notranslate nohighlight">\(H^{T}(\lambda)\)</span>, is defined as</p>
+<div class="math notranslate nohighlight">
+\[
+	$H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
+\]</div>
+<p>for <span class="math notranslate nohighlight">\(\lambda \in [0,1]\)</span>, where we dropped the dependence on <span class="math notranslate nohighlight">\(\mathbf{p}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> for simplicity.
+In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like <span class="math notranslate nohighlight">\((1-\lambda)\)</span>. Here, we need to set Dfrac=-1.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">variable</span> <span class="k">lambda</span> <span class="n">file</span> <span class="k">lambda</span><span class="o">.</span><span class="n">dat</span>
 <span class="n">variable</span> <span class="n">minl</span>   <span class="n">equal</span> <span class="mi">1</span><span class="o">-</span><span class="k">lambda</span>
 
 <span class="n">pair_style</span> <span class="n">lj</span><span class="o">/</span><span class="n">BGNlcleavs3</span>  <span class="n">cutoff1</span>  <span class="n">cutoff2</span> <span class="k">lambda</span> <span class="mf">1.0</span>
 <span class="n">pair_coeff</span> <span class="mi">1</span> <span class="mi">2</span> <span class="n">minl</span> <span class="o">-</span><span class="mf">1.0</span>
-
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The “complement” switching obtained with this pair style is <span class="math notranslate nohighlight">\((1-\lambda)^N \neq (1-\lambda^N)\)</span>. In terms of Thermodynamic Integration they are both equivalent as long as, given a function of <span class="math notranslate nohighlight">\(\lambda\)</span>, f(\lambda), we have <span class="math notranslate nohighlight">\(f(\lambda)=0\)</span> for <span class="math notranslate nohighlight">\(\lambda=0\)</span> and <span class="math notranslate nohighlight">\(f(\lambda)=1\)</span> for <span class="math notranslate nohighlight">\(\lambda=1\)</span>.</p>
+</div>
+<p>The work performed in this step can be collected and printed out by using the compute <a class="reference internal" href="compute_pcleav.html"><span class="doc std std-doc">paircleav</span></a>. The work obtained is already the correct one as all the numerical coefficients (i.e., N and/or -1 coming from the derivation with respect to <span class="math notranslate nohighlight">\(\lambda\)</span>) are already included in the calculation.</p>
 <div class="docutils container" id="id3">
 <dl class="footnote brackets">
 <dt class="label" id="footcite-broughton1983"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>

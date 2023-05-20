@@ -79,7 +79,7 @@ run  ${nts}
 
 
 unfix f5
-unfix totW
+unfix f2
 
 write_data data/Fstep1.${i}.data nocoeff
 variable    cntt equal ${i}+1
@@ -195,7 +195,7 @@ group dupl type 5 6 7 8
 5. The switching off is implemented directly in the definition of the pair interactions. We therefore need to change the pair interaction in the LAMMPS script file (section *Interactions*) to the new defined type
 
 ```
-pair_style lj/Nlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
+pair_style lj/BGNlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
 ```
 
 All the parameters (`cutoff1`, `cutoff2`, `epsilon`, `sigma`) are identical to those used in [Step 1](#step-1). Note the three additional parameters. They allow to specify a global switch if needed. However, in this case we need to change the interactions specifically for each pair, so that we set these three numbers to 1.0 and modify the switching for each pair interaction.
@@ -246,7 +246,7 @@ velocity real zero linear
 velocity real zero angular
 ```
 
-9. The work needed to switch off the interactions (described in the next point) is calculated by adding the line `compute 1 all cleavpairs lj/Nlcleavs3 norm 4 z` to end of the LAMMPS script file. The meaning of the parameters is reported in the [description](compute_pcleav.md) of this compute style.
+9. The work needed to switch off the interactions (described in the next point) is calculated by adding the line `compute 1 all cleavpairs lj/BGNlcleavs3 norm 4 z` to end of the LAMMPS script file. The meaning of the parameters is reported in the [description](compute_pcleav.md) of this compute style.
 
 
 10. Prepare a walls file. Here we will use the `/examples/lj_systems/fcc111-T1-walls.lmp` file, which should be copied to the current folder. 
