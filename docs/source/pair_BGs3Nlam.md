@@ -95,34 +95,71 @@ $$
 
 In this case the expression of the potential is multiplied by the derivative of $\lambda$ with respect itself which is equal to 1 (i.e., $\partial \lambda / \partial \lambda=1$), and therefore the value of Dfrac must be set equal to 1.
 
-With this style we can implement the simultaneous switch between two different state of the system, e.g., $a$ and $b$. 
+Using this style we can represent different switches between different states of the system:
+
+* We want to describe the switching between two different states of the system, e.g., $a$ and $a+b$. 
 Let us assume the total Hamiltonian of the system, $H^{T}(\lambda)$, is defined as 
 
 $$
-	$H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
+	H^{T}(\lambda)= \lambda^N H_{a} + H_{b} 
+$$  
+
+for $\lambda \in [0,1]$, where we dropped the dependence on $\mathbf{p}$ and $\mathbf{q}$ for simplicity.
+
+Let's consider this example:
+
+```
+variable lambda file lambda.dat
+
+pair_style lj/BGNlcleavs3  2.3 2.5 1.0 1.0
+pair_coeff 1 1 1.0 1.0
+pair_coeff 2 2 1.0 1.0
+
+pair_coeff 1 2 ${lambda} 1.0
+```
+
+The "self" interactions between atoms of the same type remains, but the mixed interactions between atoms of different types are `switched-on` (if $\lambda$ goes from 0 to 1) or `switched-off` (if $\lambda$ goes from 1 to 0).
+
+
+* We want to describe the simultaneous switch between two different states of the system, e.g., $a$ and $b$. 
+Let us assume the total Hamiltonian of the system, $H^{T}(\lambda)$, is defined as 
+
+$$
+	H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
 $$  
 
 for $\lambda \in [0,1]$, where we dropped the dependence on $\mathbf{p}$ and $\mathbf{q}$ for simplicity.
 In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like $(1-\lambda)$. Here, we need to set Dfrac=-1.
 
 ```
+variable N equal 4
 variable lambda file lambda.dat
 variable minl   equal 1-lambda
 
-pair_style lj/BGNlcleavs3  cutoff1  cutoff2 lambda 1.0
-pair_coeff 1 2 minl -1.0
+pair_style lj/BGNlcleavs3  2.3 2.5 1.0 $N 1.0
+pair_coeff 1 1 1.0 1.0
+pair_coeff 2 2 1.0 1.0
+pair_coeff 3 3 1.0 1.0
+
+pair_coeff 1 2 ${lambda} 1.0
+pair_coeff 1 3 ${minl} 1.0
+pair_coeff 2 3 1.0 1.0
 ```
+
+The "self" interactions are not modified during the run, as well as the interactions between atoms of type 2 and 3. However, interactions between atoms of type 1 and 2 are `switched-on` (`switched-off`) and interactions between atoms of type 1 and 3 are  `switched-off` (`switched-on`) if $\lambda$ goes from 0 to 1 (from 1 to 0).
 
 
 ````{note}
-The "complement" switching obtained with this pair style is $(1-\lambda)^N \neq (1-\lambda^N)$. In terms of Thermodynamic Integration they are both equivalent as long as, given a function of $\lambda$, f(\lambda), we have $f(\lambda)=0$ for $\lambda=0$ and $f(\lambda)=1$ for $\lambda=1$.
+The "complement" switching obtained with this pair style is $(1-\lambda)^N \neq (1-\lambda^N)$. In terms of Thermodynamic Integration they are both equivalent as long as, given a function of $\lambda$, i.e. $f(\lambda)$, we have $f(\lambda)=0$ for $\lambda=0$ and $f(\lambda)=1$ for $\lambda=1$.
 ````
 
 
 The work performed in this step can be collected and printed out by using the compute [paircleav](./compute_pcleav.md). The work obtained is already the correct one as all the numerical coefficients (i.e., N and/or -1 coming from the derivation with respect to $\lambda$) are already included in the calculation.
 
 
-
+````{note}
+When $N=1& this pair style is equivalent to [pair_style lj/BGcleavs3](./pair_BGs3lam.md).
+````
 
 
 ```{footbibliography}
