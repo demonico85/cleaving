@@ -153,38 +153,60 @@
             
   <div class="tex2jax_ignore mathjax_ignore section" id="pair-style-coul">
 <h1>pair_style coul<a class="headerlink" href="#pair-style-coul" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfcubl</span> <span class="n">args</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfsql</span>  <span class="n">args</span>
+<span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfcubl</span> <span class="n">args</span>
 <span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfNl</span>   <span class="n">args</span>
-<span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfsql</span>  <span class="n">arg</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>args=list of the possible arguments</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">name</span> <span class="n">pair</span> <span class="n">style</span><span class="o">&gt;</span> <span class="n">args</span> <span class="o">=</span> <span class="n">alpha</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span> <span class="k">lambda</span> 
-    <span class="n">cutoff1</span> <span class="o">=</span> <span class="k">global</span> <span class="n">internal</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span>
-    <span class="n">cutoff2</span> <span class="o">=</span> <span class="k">global</span> <span class="n">external</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;name pair style&gt; args = alpha cut-off lambda i_IDflag orientation N
+    alpha       = damping parameter (inverse distance units)
+    cutoff      = global internal cut-off
+    lambda      = global scaling of the potential
+    i_IDflag    = new (integer) property to be added to the atoms
+    orientation = direction perpendicular to the cleaving plane
+    N           = for &lt;coul/dsfNl&gt; only, power of the polynomial for $\lambda$
 </pre></div>
 </div>
-<p>The Broughton and Gilmer modification to Lennard-Jones potential Broughton and Gilmer<a class="footnote-reference brackets" href="#footcite-broughton1983" id="id1">1</a> is given by:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-	U(r_{ln}) =
-		\begin{cases}
-			4\epsilon\left(\left(\frac{\sigma}{r_{ln}}\right)^{12} -\left(\frac{\sigma}{r_{ln}}\right)^{6}  \right)+C_1,\;\mbox{if}\; r_{ln} \leq 2.3\sigma \\
-							C_2\left(\frac{\sigma}{r_{ln}}\right)^{12} + C_3\left(\frac{\sigma}{r_{ln}}\right)^{6} + C_4\left(\frac{r_{ln}}{\sigma}\right)^2 + C_5,\;\mbox{if}\; r_{ln} \leq 2.5\sigma \\
-				0, 		\; r_{ln} \geq 2.5\sigma		
-		\end{cases}
-\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|\)</span> for each couple of atoms <span class="math notranslate nohighlight">\(l,n\)</span> in the system, and <span class="math notranslate nohighlight">\(C_1, C_2, C_3, C_4, C_5\)</span> are constants we used the values reported in Davidchack and Laird<a class="footnote-reference brackets" href="#footcite-davidchack2003direct" id="id2">2</a></p>
-<p>The constants are hardcorded within the pair style and they not need to be defined.</p>
-<div class="docutils container" id="id3">
+<p><code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> accepts only the following arguments</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_coeff</span> <span class="n">a</span> <span class="n">b</span> <span class="k">lambda</span> 
+</pre></div>
+</div>
+<p>where</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">a</span>       <span class="o">=</span> <span class="n">atom</span> <span class="n">of</span> <span class="nb">type</span> <span class="n">a</span> <span class="p">[</span><span class="n">mandatory</span><span class="p">]</span>
+    <span class="n">b</span>       <span class="o">=</span> <span class="n">atom</span> <span class="n">of</span> <span class="nb">type</span> <span class="n">b</span> <span class="p">[</span><span class="n">mandatory</span><span class="p">]</span>
+    <span class="k">lambda</span>  <span class="o">=</span> <span class="k">global</span> <span class="n">scaling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">potential</span>
+</pre></div>
+</div>
+<p>This pair style is derived from the <code class="docutils literal notranslate"><span class="pre">coul/dsf</span></code> in LAMMPS and we refer to the <a class="reference external" href="https://docs.lammps.org/pair_coul.html">LAMMPS documentation</a> for the
+description of its main features. Here, only the modifications needed for the cleaving calculations
+will be considered.</p>
+<p>The cleaving of a molecular system (e.g., the mannitol) requires some modifications with respect an
+atomistic system due to the fact that molecules have a finite extension which can cross the cleaving
+plane. In the calculation of the SFE, the internal bonds of a molecule cannot be broken and
+therefore we cannot use the implicit rule that any atoms on one side of the cleaving plane are
+“different” from the atoms on the other side. This property must be added to the atoms as an additional property
+using the LAMMPS command <a class="reference external" href="https://docs.lammps.org/fix_property_atom.html">fix property/atom</a></p>
+<p>The cleaving plane are chosen to be the boundary of the box in one of the three orthogonal directions.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>At the moment, the cleaving plane can not be placed arbitrarily within the box, but must always coincide with one of the periodic boundary (either on the <span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(y\)</span>, or <span class="math notranslate nohighlight">\(z\)</span> direction)</p>
+</div>
+<p>Each atom receives a molecule type based on the position, with respect the center of the box, of the Center of Mass (COM) of the molecule to which belongs. This is shown in the next figure</p>
+<p><img alt="Example Cleaving molecular crystal" src="_images/cmol.png" /></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In this procedure, it is assumed that the molecules near the cleaving  plane (e.g., molecules A and C in the previous figure) interacts with molecules on the other side  of it (e.g., molecule B) only
+through the cleaving plane. That is to say that the cut-off of the pair interactions is smaller than the separation between (e.g.,) A and B measured within the box.</p>
+</div>
+<p>The pair_style is able to tell, based on the atom position and i_flag if an interaction between a couple of atoms needs to be rescaled by <span class="math notranslate nohighlight">\(\lambda\)</span>.
+An application of this procedure can be found in Di Pasquale and Davidchack<a class="footnote-reference brackets" href="#footcite-dipasquale2022" id="id1">1</a>.</p>
+<div class="docutils container" id="id2">
 <dl class="footnote brackets">
-<dt class="label" id="footcite-broughton1983"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>J. Q. Broughton and G. H. Gilmer. Molecular dynamics investigation of the crystal–fluid interface. i. bulk properties. <em>Journal of Chemical Physics</em>, 79(10):5095–5104, 1983.</p>
-</dd>
-<dt class="label" id="footcite-davidchack2003direct"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
-<dd><p>Ruslan L Davidchack and Brian B Laird. Direct calculation of the crystal–melt interfacial free energies for continuous potentials: application to the lennard-jones system. <em>The Journal of chemical physics</em>, 118(16):7651–7657, 2003.</p>
+<dt class="label" id="footcite-dipasquale2022"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Nicodemo Di Pasquale and Ruslan L Davidchack. Cleaving method for molecular crystals and its application to calculation of the surface free energy of crystalline β-d-mannitol at room temperature. <em>The Journal of Physical Chemistry A</em>, 126(13):2134–2141, 2022.</p>
 </dd>
 </dl>
 </div>
