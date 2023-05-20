@@ -251,26 +251,61 @@ The constants are hardcorded within the pair style and they not need to be defin
 		\end{cases}
 \end{split}\]</div>
 <p>In this case the expression of the potential is multiplied by the derivative of <span class="math notranslate nohighlight">\(\lambda\)</span> with respect itself which is equal to 1 (i.e., <span class="math notranslate nohighlight">\(\partial \lambda / \partial \lambda=1\)</span>), and therefore the value of Dfrac must be set equal to 1.</p>
-<p>With this style we can implement the simultaneous switch between two different state of the system, e.g., <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>.
-Let us assume the total Hamiltonian of the system, <span class="math notranslate nohighlight">\(H^{T}(\lambda)\)</span>, is defined as</p>
+<p>Using this style we can represent different switches between different states of the system:</p>
+<ul class="simple">
+<li><p>We want to describe the switching between two different states of the system, e.g., <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(a+b\)</span>.
+Let us assume the total Hamiltonian of the system, <span class="math notranslate nohighlight">\(H^{T}(\lambda)\)</span>, is defined as</p></li>
+</ul>
 <div class="math notranslate nohighlight">
 \[
-	$H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
+	H^{T}(\lambda)= \lambda^N H_{a} + H_{b} 
+\]</div>
+<p>for <span class="math notranslate nohighlight">\(\lambda \in [0,1]\)</span>, where we dropped the dependence on <span class="math notranslate nohighlight">\(\mathbf{p}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> for simplicity.</p>
+<p>Let’s consider this example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable lambda file lambda.dat
+
+pair_style lj/BGNlcleavs3  2.3 2.5 1.0 1.0
+pair_coeff 1 1 1.0 1.0
+pair_coeff 2 2 1.0 1.0
+
+pair_coeff 1 2 ${lambda} 1.0
+</pre></div>
+</div>
+<p>The “self” interactions between atoms of the same type remains, but the mixed interactions between atoms of different types are <code class="docutils literal notranslate"><span class="pre">switched-on</span></code> (if <span class="math notranslate nohighlight">\(\lambda\)</span> goes from 0 to 1) or <code class="docutils literal notranslate"><span class="pre">switched-off</span></code> (if <span class="math notranslate nohighlight">\(\lambda\)</span> goes from 1 to 0).</p>
+<ul class="simple">
+<li><p>We want to describe the simultaneous switch between two different states of the system, e.g., <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>.
+Let us assume the total Hamiltonian of the system, <span class="math notranslate nohighlight">\(H^{T}(\lambda)\)</span>, is defined as</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[
+	H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
 \]</div>
 <p>for <span class="math notranslate nohighlight">\(\lambda \in [0,1]\)</span>, where we dropped the dependence on <span class="math notranslate nohighlight">\(\mathbf{p}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> for simplicity.
 In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like <span class="math notranslate nohighlight">\((1-\lambda)\)</span>. Here, we need to set Dfrac=-1.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">variable</span> <span class="k">lambda</span> <span class="n">file</span> <span class="k">lambda</span><span class="o">.</span><span class="n">dat</span>
-<span class="n">variable</span> <span class="n">minl</span>   <span class="n">equal</span> <span class="mi">1</span><span class="o">-</span><span class="k">lambda</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable N equal 4
+variable lambda file lambda.dat
+variable minl   equal 1-lambda
 
-<span class="n">pair_style</span> <span class="n">lj</span><span class="o">/</span><span class="n">BGNlcleavs3</span>  <span class="n">cutoff1</span>  <span class="n">cutoff2</span> <span class="k">lambda</span> <span class="mf">1.0</span>
-<span class="n">pair_coeff</span> <span class="mi">1</span> <span class="mi">2</span> <span class="n">minl</span> <span class="o">-</span><span class="mf">1.0</span>
+pair_style lj/BGNlcleavs3  2.3 2.5 1.0 $N 1.0
+pair_coeff 1 1 1.0 1.0
+pair_coeff 2 2 1.0 1.0
+pair_coeff 3 3 1.0 1.0
+
+pair_coeff 1 2 ${lambda} 1.0
+pair_coeff 1 3 ${minl} 1.0
+pair_coeff 2 3 1.0 1.0
 </pre></div>
 </div>
+<p>The “self” interactions are not modified during the run, as well as the interactions between atoms of type 2 and 3. However, interactions between atoms of type 1 and 2 are <code class="docutils literal notranslate"><span class="pre">switched-on</span></code> (<code class="docutils literal notranslate"><span class="pre">switched-off</span></code>) and interactions between atoms of type 1 and 3 are  <code class="docutils literal notranslate"><span class="pre">switched-off</span></code> (<code class="docutils literal notranslate"><span class="pre">switched-on</span></code>) if <span class="math notranslate nohighlight">\(\lambda\)</span> goes from 0 to 1 (from 1 to 0).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The “complement” switching obtained with this pair style is <span class="math notranslate nohighlight">\((1-\lambda)^N \neq (1-\lambda^N)\)</span>. In terms of Thermodynamic Integration they are both equivalent as long as, given a function of <span class="math notranslate nohighlight">\(\lambda\)</span>, f(\lambda), we have <span class="math notranslate nohighlight">\(f(\lambda)=0\)</span> for <span class="math notranslate nohighlight">\(\lambda=0\)</span> and <span class="math notranslate nohighlight">\(f(\lambda)=1\)</span> for <span class="math notranslate nohighlight">\(\lambda=1\)</span>.</p>
+<p>The “complement” switching obtained with this pair style is <span class="math notranslate nohighlight">\((1-\lambda)^N \neq (1-\lambda^N)\)</span>. In terms of Thermodynamic Integration they are both equivalent as long as, given a function of <span class="math notranslate nohighlight">\(\lambda\)</span>, i.e. <span class="math notranslate nohighlight">\(f(\lambda)\)</span>, we have <span class="math notranslate nohighlight">\(f(\lambda)=0\)</span> for <span class="math notranslate nohighlight">\(\lambda=0\)</span> and <span class="math notranslate nohighlight">\(f(\lambda)=1\)</span> for <span class="math notranslate nohighlight">\(\lambda=1\)</span>.</p>
 </div>
 <p>The work performed in this step can be collected and printed out by using the compute <a class="reference internal" href="compute_pcleav.html"><span class="doc std std-doc">paircleav</span></a>. The work obtained is already the correct one as all the numerical coefficients (i.e., N and/or -1 coming from the derivation with respect to <span class="math notranslate nohighlight">\(\lambda\)</span>) are already included in the calculation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When $N=1&amp; this pair style is equivalent to <a class="reference internal" href="pair_BGs3lam.html"><span class="doc std std-doc">pair_style lj/BGcleavs3</span></a>.</p>
+</div>
 <div class="docutils container" id="id3">
 <dl class="footnote brackets">
 <dt class="label" id="footcite-broughton1983"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>

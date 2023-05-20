@@ -91,16 +91,82 @@ $$
 
 In this case the the expression of the potential is multiplied by the derivatibe of $\lambda$ with respect itself which is equal to 1 (i.e., $\partial \lambda / \partial \lambda=1$), and therefore the value of Dfrac must be set equal to 1.
 
-When there is a contemporary switching (i.e., some interactions are multiplied by $\lambda$ and others by $1-lambda$) then the derivative  $\partial (1-\lambda) / \partial \lambda=-1$). In this case we need to set Dfrac=-1.
+Using this style we can represent different switches between different states of the system:
+
+* We want to describe the switching between two different states of the system, e.g., $a$ and $a+b$. 
+Let us assume the total Hamiltonian of the system, $H^{T}(\lambda)$, is defined as 
+
+$$
+	H^{T}(\lambda)= \lambda H_{a} + H_{b} 
+$$  
+
+for $\lambda \in [0,1]$, where we dropped the dependence on $\mathbf{p}$ and $\mathbf{q}$ for simplicity.
+
+Let's consider this example:
+
+```
+variable lambda file lambda.dat
+
+pair_style lj/BGNlcleavs3  2.3 2.5 1.0 1.0
+pair_coeff 1 1 1.0 1.0
+pair_coeff 2 2 1.0 1.0
+
+pair_coeff 1 2 ${lambda} 1.0
+```
+
+The "self" interactions between atoms of the same type remains, but the mixed interactions between atoms of different types are `switched-on` (if $\lambda$ goes from 0 to 1) or `switched-off` (if $\lambda$ goes from 1 to 0).
+
+````{note}
+If the switching required is from state $a$ to state $a+b$, then we can use this pair style with a polynomial function of $\lambda$. In this case we need to pass $\lambda^N$ as an argument to the pair style, e.g., with $N=3$:
+
+```
+variable lam file lambda.dat
+variable lambda equal ${lam}*${lam}*${lam}
+
+pair_style lj/BGlcleavs3  2.3 2.5 1.0 1.0
+pair_coeff 1 1 1.0 1.0
+pair_coeff 2 2 1.0 1.0
+
+pair_coeff 1 2 ${lambda} 1.0
+```
+However, the work calculated  by using the compute [paircleav](./compute_pcleav.md) needs to be adjusted by the correct derivative with respect to $\lambda$. E.g., in the case just showed we need to multiply the work by $N \lambda^{N-1}$. Therefore, Even if it possible in principle, for $N>1$ we suggest to use the pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md) 
+````
+
+* We want to describe the simultaneous switch between two different states of the system, e.g., $a$ and $b$. 
+Let us assume the total Hamiltonian of the system, $H^{T}(\lambda)$, is defined as 
+
+$$
+	H^{T}(\lambda)= \lambda H_{a} + (1-\lambda) H_{b} 
+$$  
+
+for $\lambda \in [0,1]$, where we dropped the dependence on $\mathbf{p}$ and $\mathbf{q}$ for simplicity.
+In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like $(1-\lambda)$. Here, we need to set Dfrac=-1.
 
 ```
 variable lambda file lambda.dat
 variable minl   equal 1-lambda
 
-pair_style lj/BGNlcleavs3  cutoff1  cutoff2 lambda 1.0
-pair_coeff 1 2 minl -1.0
+pair_style lj/BGlcleavs3  2.3 2.5 1.0 1.0
+pair_coeff 1 1 1.0 1.0
+pair_coeff 2 2 1.0 1.0
+pair_coeff 3 3 1.0 1.0
 
+pair_coeff 1 2 ${lambda} 1.0
+pair_coeff 1 3 ${minl} 1.0
+pair_coeff 2 3 1.0 1.0
 ```
+
+The "self" interactions are not modified during the run, as well as the interactions between atoms of type 2 and 3. However, interactions between atoms of type 1 and 2 are `switched-on` (`switched-off`) and interactions between atoms of type 1 and 3 are  `switched-off` (`switched-on`) if $\lambda$ goes from 0 to 1 (from 1 to 0).
+
+
+
+````{warning}
+This pair style should not be used to simulate a polynomial switching from state $a$ to state $b$, e.g.:
+
+$$
+	H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
+$$  
+````
 
 
 
