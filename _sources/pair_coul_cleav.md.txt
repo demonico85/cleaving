@@ -62,6 +62,9 @@ The pair_style is able to tell, based on the atom position and i_flag if an inte
 An application of this procedure can be found in {footcite:t}`DiPasquale2022`.
 
 
+The DFS potential is multiplied by a polynomial function of $\lambda$: $\lambda^N$ where the value $N$ must be specified in the inputs. 
+
+
 ```{footbibliography}
 
 ```
