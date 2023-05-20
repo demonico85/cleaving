@@ -16,7 +16,7 @@ lj/BGNlcleavs3 args = cutoff1 cutoff2 lambda Dfac
     Dfac    = multiplicative factor for the derivative of the interaction with respect to lambda 
 ```
 
-`pair_coeff` accept the same arguments of the pair_style. However, keep in mind that the order is not the same
+`pair_coeff` accept the same arguments of the pair_style. However, keep in mind that parameters in pair coeff have a specific order
 
 ```
 pair_coeff a b lambda Dfac cutoff1 cutoff2
