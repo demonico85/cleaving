@@ -1,4 +1,4 @@
-# pair_style coul
+# pair_style coul/dsf[cleav]
 
 ```
 pair_style coul/dsfsql  args

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pair_style coul &mdash; SurFEC  documentation</title>
+  <title>pair_style coul/dsf[cleav] &mdash; SurFEC  documentation</title>
   
 
   
@@ -36,7 +36,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Fix style wall" href="fix_wall.html" />
+    <link rel="prev" title="pair_style lj/BGcleavs3" href="pair_BGs3lam.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,9 +84,19 @@
             
             
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="lammps.html">LAMMPS commands</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html">pair_style lj/BGNlcleavs3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html">pair_style lj/BGcleavs3</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pair_style coul/dsf[cleav]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_wall.html">Fix style wall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_well.html">Fix style well</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">Fix move duplicate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">Compute cleavpairs</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a></li>
 </ul>
 
@@ -132,7 +144,9 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>pair_style coul</li>
+          <li><a href="lammps.html">LAMMPS commands</a> &raquo;</li>
+        
+      <li>pair_style coul/dsf[cleav]</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -151,8 +165,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="pair-style-coul">
-<h1>pair_style coul<a class="headerlink" href="#pair-style-coul" title="Permalink to this headline">¶</a></h1>
+  <div class="tex2jax_ignore mathjax_ignore section" id="pair-style-coul-dsf-cleav">
+<h1>pair_style coul/dsf[cleav]<a class="headerlink" href="#pair-style-coul-dsf-cleav" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfsql</span>  <span class="n">args</span>
 <span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfcubl</span> <span class="n">args</span>
 <span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfNl</span>   <span class="n">args</span>
@@ -218,6 +232,15 @@ An application of this procedure can be found in Di Pasquale and Davidchack<a c
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="fix_wall.html" class="btn btn-neutral float-right" title="Fix style wall" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pair_BGs3lam.html" class="btn btn-neutral float-left" title="pair_style lj/BGcleavs3" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
