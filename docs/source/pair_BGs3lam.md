@@ -129,7 +129,7 @@ pair_coeff 2 2 1.0 1.0
 
 pair_coeff 1 2 ${lambda} 1.0
 ```
-However, the work calculated  by using the compute [paircleav](./compute_pcleav.md) needs to be adjusted by the correct derivative with respect to $\lambda$. E.g., in the case just showed we need to multiply the work by $N \lambda^{N-1}$. Therefore, Even if it possible in principle, for $N>1$ we suggest to use the pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md) 
+However, the work calculated  by using the compute [paircleav](./compute_pcleav.md) needs to be adjusted by the correct derivative with respect to $\lambda$. E.g., in the case just showed we need to multiply the work by $N \lambda^{N-1}$. For this reason, even if it possible in principle to use this pair style with a polynomial function of $\lambda$ with $N>1$, we suggest for $N>1$ to use the pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md). 
 ````
 
 * We want to describe the simultaneous switch between two different states of the system, e.g., $a$ and $b$. 
@@ -152,7 +152,7 @@ pair_coeff 2 2 1.0 1.0
 pair_coeff 3 3 1.0 1.0
 
 pair_coeff 1 2 ${lambda} 1.0
-pair_coeff 1 3 ${minl} 1.0
+pair_coeff 1 3 ${minl} -1.0
 pair_coeff 2 3 1.0 1.0
 ```
 
@@ -161,11 +161,27 @@ The "self" interactions are not modified during the run, as well as the interact
 
 
 ````{warning}
-This pair style should not be used to simulate a polynomial switching from state $a$ to state $b$, e.g.:
+If this pair style is used to simulate a polynomial switching from state $a$ to state $b$, e.g.:
 
 $$
-	H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
+	H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda^N) H_{b} 
 $$  
+
+```
+variable lambda file lambda.dat
+variable minl   equal 1-lambda
+
+pair_style lj/BGlcleavs3  2.3 2.5 1.0 1.0
+pair_coeff 1 1 1.0 1.0
+pair_coeff 2 2 1.0 1.0
+pair_coeff 3 3 1.0 1.0
+
+pair_coeff 1 2 ${lambda} 1.0
+pair_coeff 1 3 ${minl} -1.0
+pair_coeff 2 3 1.0 1.0
+```
+
+then the compute [paircleav](./compute_pcleav.md) must be used with the vector option. That means that each specific interactions is written in the output file. This is needed to be able to obtain the correct work due to the switching.  Otherwise the work will be accumulated as the sum of all the interactions and it is not possible to know what is the contribution coming from $H_{a}$ (which should be multiplied by $N\lambda^{N-1}$) and which is the contribution coming from $H_{a}$ (which should be multiplied by $-N\lambda^{N-1}$). For this reason, even if it possible in principle to use this pair style with a polynomial function of $\lambda$ with $N>1$, we suggest for $N>1$ to use the pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md).  
 ````
 
 
