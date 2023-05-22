@@ -31,7 +31,7 @@ where
 ```
     a       = atom of type a [mandatory]
     b       = atom of type b [mandatory]
-    lambda  = global scaling of the potential
+    lambda  = scaling of the potential
     Dfac    = multiplicative factor for the derivative of the interaction with respect to lambda     
     cutoff1 = global internal cut-off
     cutoff2 = global external cut-off

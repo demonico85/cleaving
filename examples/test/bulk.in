@@ -1,0 +1,82 @@
+###%***************************************************************************%
+###%                                                                          *%
+###%    Script for bulk LJ crystal with Broughton-Gilmer potential            *%
+###%                                                                          *%
+###%***************************************************************************%
+###%                                                                          *%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    March 2018                                                            *%
+###%                                                                          *%
+###%***************************************************************************%
+
+units		lj
+#atom_style  molecular	
+atom_style atomic
+
+boundary p p p
+fix fp1 all property/atom i_flag ghost yes
+
+read_data fcc111-T1_attype.lmp  fix fp1 NULL Molecules
+
+mass * 1.0
+
+# ---------------------------- Define variables --------------------------------
+
+variable  eqnts        equal  200000     # equilibration number of time-steps
+variable  nts          equal  300000     # production number of time-steps
+variable  ts           equal  0.005      # length of the ts (in lj units)
+variable  siglj        equal  1.0        # sigma coefficient for BG pair-style
+variable  epslj        equal  1.0        # epsilon coefficient for BG pair-style 
+variable  cut          equal  2.5        # external cut-off for BG pair-style
+variable  Tsyst        equal 0.617       # (reduced) temperature of the system
+variable  NtsTdamp     equal 100         # Number of ts to damp temperature
+variable  thermoSteps  equal 1        # Number of ts to write properties on screen
+variable  restartSteps equal 30000       # Number of ts before write restart file
+variable  dumpSteps    equal 10000       # Number of ts before write dump file
+
+# --------------------- Derivate variables -------------------------------------
+
+
+variable  cutoff  equal  ${siglj}*${cut} 
+variable Tdamp equal ${NtsTdamp}*${ts}
+
+# ----------------------------- Interactions -----------------------------------
+
+pair_style lj/cleavcutsqlmod ${cutoff} 1.0  flag z 0.1
+pair_coeff   * *  ${epslj} ${siglj}
+neighbor     0.3 bin
+neigh_modify every 1 delay 0 check yes 
+atom_modify  sort 0 0.0
+
+# ------------------------- initialize velocity -------------------------------
+
+velocity all create ${Tsyst} 93874090 
+velocity all zero linear
+velocity all zero angular
+
+# ------------- Output thermo information and averaged variables ---------------
+
+thermo    ${thermoSteps}
+timestep  ${ts}
+
+# --------------- Dumping trajectories and restart file ------------------------
+
+#dump      Dp1 all xyz ${dumpSteps} dump/dump.*.xyz
+#restart   ${restartSteps} restart/X.restart
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix    Fix2  all  momentum 1 linear 1 1 1
+
+#--------------------------- Running simulation --------------------------------
+
+#fix  f3  all nvt temp ${Tsyst} ${Tsyst} ${Tdamp}
+
+fix f3 all nve
+
+run  ${nts}
+
+write_data bulk_fin.data nocoeff
