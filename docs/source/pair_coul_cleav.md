@@ -14,7 +14,7 @@ pair_style coul/dsfNl   args
     lambda      = global scaling of the potential
     i_IDflag    = new (integer) property to be added to the atoms
     orientation = direction perpendicular to the cleaving plane
-    N           = for <coul/dsfNl> only, power of the polynomial for $\lambda$
+    N           = only for <coul/dsfNl> only, power of the polynomial for $\lambda$
 ```
 
 `pair_coeff` accepts only the following arguments
