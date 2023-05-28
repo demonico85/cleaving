@@ -31,11 +31,12 @@ cleaving calculations
 
 ------------------------------------------------------------------------- */
 
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pair_lj_cleavcut_sqlambda-int.h"
+#include "pair_lj_cleavcut_Nlambda-interp.h"
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
@@ -54,9 +55,10 @@ using namespace LAMMPS_NS;
 using namespace MathConst;
 
 
+
 /* ---------------------------------------------------------------------- */
 
-PairLJCleavCutSqLInt::PairLJCleavCutSqLInt(LAMMPS *lmp) : Pair(lmp) , idflag(NULL)
+PairLJCleavCutNLInt::PairLJCleavCutNLInt(LAMMPS *lmp) : Pair(lmp) , idflag(NULL)
 {
 
   writedata = 1;
@@ -81,7 +83,7 @@ PairLJCleavCutSqLInt::PairLJCleavCutSqLInt(LAMMPS *lmp) : Pair(lmp) , idflag(NUL
 
 /* ---------------------------------------------------------------------- */
 
-PairLJCleavCutSqLInt::~PairLJCleavCutSqLInt()
+PairLJCleavCutNLInt::~PairLJCleavCutNLInt()
 {
 
     delete [] pvector;
@@ -93,6 +95,8 @@ PairLJCleavCutSqLInt::~PairLJCleavCutSqLInt()
     memory->destroy(setflag);
     memory->destroy(cutsq);
     memory->destroy(lam);
+    memory->destroy(powlambda);
+    memory->destroy(powDlambda);
     memory->destroy(cut);
     memory->destroy(epsilon);
     memory->destroy(sigma);
@@ -105,17 +109,17 @@ PairLJCleavCutSqLInt::~PairLJCleavCutSqLInt()
     memory->destroy(lju1);    
     memory->destroy(lju2); 
     memory->destroy(lju3);    
-    memory->destroy(lju4);         
+    memory->destroy(lju4);     
   }
 
 }
 
 /* ---------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
+void PairLJCleavCutNLInt::compute(int eflag, int vflag)
 {
   int i,j,ii,jj,inum,jnum,itype,jtype,m,k1,k2;
-  double xtmp,ytmp,ztmp,delx,dely,delz,evdwl,fpair,flam;
+  double xtmp,ytmp,ztmp,delx,dely,delz,evdwl,fpair,flam,fDlam;
   double rsq,r2inv,r6inv,forcelj,factor_lj,rfourth;
   int *ilist,*jlist,*numneigh,**firstneigh;
   int scaling;
@@ -170,9 +174,10 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
       jtype = type[j];
 
       if (rsq < radm[itype][jtype]){
+    
           rfourth=rsq*rsq;
           
-          forcelj = lju3[itype][jtype] + lju4[itype][jtype]*rsq;
+          forcelj = -(lju3[itype][jtype]*sqrt(rsq) + lju4[itype][jtype]*rsq);
           
           k1=molecule[i];
           k2=molecule[j];
@@ -183,12 +188,14 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
                scaling = find_scaling(ivector[i],ivector[j],i,j,x[j]);
 
           flam = 1.0;
+          fDlam = 1.0;
 
-          if(scaling)
-              flam = lam[itype][jtype];
+          if(scaling){
+              flam = powlambda[itype][jtype];
+              fDlam =  powDlambda[itype][jtype];
+            }
 
-
-          fpair = flam * flam * factor_lj * forcelj;
+          fpair = flam * factor_lj * forcelj;
  
           f[i][0] += delx*fpair;
           f[i][1] += dely*fpair;
@@ -204,8 +211,8 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
             evdwl = lju0[itype][jtype]+lju1[itype][jtype]*rsq+lju2[itype][jtype]*rfourth;
             evdwl *= factor_lj;
             if(scaling){
-              pvector[m] += 2.0 * flam * evdwl;
-              evdwl *= flam*flam;
+              pvector[m] += fDlam * evdwl;
+              evdwl *= flam;
               }
           }
 
@@ -225,15 +232,17 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
          if(k1 != k2)
              scaling = find_scaling(ivector[i],ivector[j],i,j,x[j]);
 
-        flam = 1.0;
+          flam = 1.0;
+          fDlam = 1.0;
 
-        if(scaling)
-            flam = lam[itype][jtype];
+          if(scaling){
+              flam = powlambda[itype][jtype];
+              fDlam =  powDlambda[itype][jtype];
+            }
 
 
 
-
-        fpair = flam * flam * factor_lj * forcelj * r2inv;
+        fpair =  flam * factor_lj * forcelj * r2inv;
  
         f[i][0] += delx*fpair;
         f[i][1] += dely*fpair;
@@ -250,14 +259,15 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
           offset[itype][jtype];
           evdwl *= factor_lj;
           if(scaling){
-            pvector[m] += 2.0 * flam * evdwl;
-            evdwl *= flam*flam;
+            pvector[m] += fDlam * evdwl;
+            evdwl *= flam;
             }
         }
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
                              evdwl,0.0,fpair,delx,dely,delz);
       }
+//      else if (rsq < )
     }
   }
 
@@ -268,7 +278,7 @@ void PairLJCleavCutSqLInt::compute(int eflag, int vflag)
  *  *   Global Boundary
  *   * ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::global_boundary(){
+void PairLJCleavCutNLInt::global_boundary(){
 
 int i,k;
 int ibox[3];
@@ -330,7 +340,7 @@ tagint *tag = atom->tag;
   find scaling
 ------------------------------------------------------------------------- */
 
-int PairLJCleavCutSqLInt::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
+int PairLJCleavCutNLInt::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
 
 
 tagint *tag = atom->tag;
@@ -396,7 +406,7 @@ else
    allocate all arrays
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::allocate()
+void PairLJCleavCutNLInt::allocate()
 {
   allocated = 1;
   int n = atom->ntypes;
@@ -413,6 +423,8 @@ void PairLJCleavCutSqLInt::allocate()
   memory->create(cutsq,n+1,n+1,"pair:cutsq");
   memory->create(gbox,natoms,"pair:gbox");
   memory->create(lam,n+1,n+1,"pair:lambda");
+  memory->create(powlambda,n+1,n+1,"pair:powlambda");
+  memory->create(powDlambda,n+1,n+1,"pair:powDlambda");
   memory->create(cut,n+1,n+1,"pair:cut");
   memory->create(epsilon,n+1,n+1,"pair:epsilon");
   memory->create(sigma,n+1,n+1,"pair:sigma");
@@ -428,17 +440,15 @@ void PairLJCleavCutSqLInt::allocate()
   memory->create(lj4,n+1,n+1,"pair:lj4");
   memory->create(offset,n+1,n+1,"pair:offset"); 
 
-
-
 }
 
 /* ----------------------------------------------------------------------
    global settings
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::settings(int narg, char **arg)
+void PairLJCleavCutNLInt::settings(int narg, char **arg)
 {
-  if (narg != 5) error->all(FLERR,"Illegal pair_style command");
+  if (narg != 6) error->all(FLERR,"Illegal pair_style command");
 
   cut_global = utils::numeric(FLERR,arg[0],false,lmp);
   lambda = utils::numeric(FLERR,arg[1],false,lmp);
@@ -471,9 +481,12 @@ void PairLJCleavCutSqLInt::settings(int narg, char **arg)
         ind_dir=2;
     }
     
-    rspace = utils::numeric(FLERR,arg[4],false,lmp);
 
-    calculate_int_coefficients();
+    npow =  utils::numeric(FLERR,arg[4],false,lmp);
+
+    rspace = utils::numeric(FLERR,arg[5],false,lmp);
+
+
   // reset cutoffs that have been explicitly set
 
   if (allocated) {
@@ -499,7 +512,7 @@ void PairLJCleavCutSqLInt::settings(int narg, char **arg)
       cut-off since it is not read  
 */
 
-void PairLJCleavCutSqLInt::coeff(int narg, char **arg)
+void PairLJCleavCutNLInt::coeff(int narg, char **arg)
 {
   if (narg < 4 || narg > 6)
     error->all(FLERR,"Incorrect args for pair coefficients A");
@@ -526,7 +539,9 @@ void PairLJCleavCutSqLInt::coeff(int narg, char **arg)
       cut[i][j] = cut_one;
       setflag[i][j] = 1;
       lam[i][j] = l;
-      radm[i][j] = sigma[i][j]*rspace*sigma[i][j]*rspace;
+      radm[i][j] = sigma[i][j]*rspace;
+      powlambda[i][j] = pow(l,npow);
+      powDlambda[i][j] = npow*pow(l,npow-1.0);
       count++;
     }
   }
@@ -538,7 +553,7 @@ void PairLJCleavCutSqLInt::coeff(int narg, char **arg)
    init specific to this pair style
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::init_style()
+void PairLJCleavCutNLInt::init_style()
 {
   // request regular or rRESPA neighbor lists
 
@@ -557,30 +572,32 @@ void PairLJCleavCutSqLInt::init_style()
    Coefficients of the interpolation
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::calculate_int_coefficients()
+void PairLJCleavCutNLInt::calculate_int_coefficients(int i, int j)
 {
 
-    double rsq,r2inv,r6inv,philj2,dphilj2,ddphilj2;
+    double r2inv,r6inv,philj,dphilj,ddphilj;
+
+ 
+  
+  r2inv = 1.0/radm[i][j]/radm[i][j];
+  r6inv = r2inv*r2inv*r2inv;
+  
+  philj = r6inv*4*epsilon[i][j]*( pow(sigma[i][j],12.0)*r6inv-pow(sigma[i][j],6.0));
+  dphilj = -24.0*epsilon[i][j]*r6inv*(2.0*pow(sigma[i][j],12.0)*r6inv-pow(sigma[i][j],6.0))/radm[i][j];
+  ddphilj = 24.0*epsilon[i][j]*r6inv*r2inv*(26.0*pow(sigma[i][j],12.0)*r6inv-7*pow(sigma[i][j],6.0));
 
   
+//a3=rc*cljp-1/3*rc^2*cljpp;
+//a4=rc^2/4*cljpp-1/2*rc*cljp;
+//a0 = clj-a3 -a4;
 
-//printf("%d %d \n %f %f %f \n",i,j,rlo,rhi,sigma[i][j]);
-
-  rsq = rspace*rspace;
-  r2inv = 1.0/rsq;
-  r6inv = r2inv*r2inv*r2inv;
-  philj2 = r6inv*4*( r6inv-1.0);
-
-  dphilj2 = -24.0*r6inv*(2.0*r6inv-1.0)/rspace;
-  ddphilj2 = 24.0*r6inv*r2inv*(26.0*r6inv-7.0);
-
-
-
-
-    u2 = r2inv*(ddphilj2 - dphilj2/rspace)/8.0;
-    u1 = (dphilj2 - 4.0*pow(rspace,3.0)*u2)/2.0/rspace;
-    u0 = philj2 - rsq*u1 - rsq*rsq*u2;
-
+  
+    lju1[i][j] = radm[i][j]*dphilj - 1.0/3.0*radm[i][j]*radm[i][j]*ddphilj;
+    lju2[i][j] = 0.25*radm[i][j]*radm[i][j]*ddphilj - 0.5*radm[i][j]*dphilj;  
+    lju0[i][j] = philj - lju1[i][j] - lju2[i][j];
+    lju3[i][j] = 3.0*lju1[i][j]/pow(radm[i][j],3.0);
+    lju4[i][j] = 4.0*lju2[i][j]/pow(radm[i][j],4.0);
+    
 
 }
 
@@ -588,31 +605,32 @@ void PairLJCleavCutSqLInt::calculate_int_coefficients()
    init for one type pair i,j and corresponding j,i
 ------------------------------------------------------------------------- */
 
-double PairLJCleavCutSqLInt::init_one(int i, int j)
+double PairLJCleavCutNLInt::init_one(int i, int j)
 {
+
+
+
   if (setflag[i][j] == 0) {
     epsilon[i][j] = mix_energy(epsilon[i][i],epsilon[j][j],
                                sigma[i][i],sigma[j][j]);
-    sigma[i][j] = mix_distance(sigma[i][i],sigma[j][j]);
-    cut[i][j] = mix_distance(cut[i][i],cut[j][j]);
-    radm[i][j] = sigma[i][j]*rspace*sigma[i][j]*rspace;
+    sigma[i][j]   = mix_distance(sigma[i][i],sigma[j][j]);
+    cut[i][j]     = mix_distance(cut[i][i],cut[j][j]); 
+    radm[i][j]    = mix_distance(radm[i][i],radm[j][j]); 
   }
+
 
   lj1[i][j] = 48.0 * epsilon[i][j] * pow(sigma[i][j],12.0);
   lj2[i][j] = 24.0 * epsilon[i][j] * pow(sigma[i][j],6.0);
   lj3[i][j] = 4.0 * epsilon[i][j] * pow(sigma[i][j],12.0);
   lj4[i][j] = 4.0 * epsilon[i][j] * pow(sigma[i][j],6.0);
   
-  lju0[i][j] = u0 * epsilon[i][j];
-  lju1[i][j] = u1 * epsilon[i][j]/pow(sigma[i][j],2.0);
-  lju2[i][j] = u2 * epsilon[i][j]/pow(sigma[i][j],4.0);
-  lju3[i][j] = -2.0* u1 * epsilon[i][j]/pow(sigma[i][j],2.0);
-  lju4[i][j] = -4.0* u2 * epsilon[i][j]/pow(sigma[i][j],4.0);
-    
+  
+  calculate_int_coefficients(i, j);
+ 
     
   if (offset_flag) {
     double ratio = sigma[i][j] / cut[i][j];
-    offset[i][j] = lam[i][j] * lam[i][j] * 4.0 * epsilon[i][j] * (pow(ratio,12.0) - pow(ratio,6.0));
+    offset[i][j] = powlambda[i][j] * 4.0 * epsilon[i][j] * (pow(ratio,12.0) - pow(ratio,6.0));
   } else offset[i][j] = 0.0;
 
   lju0[j][i] = lju0[i][j];
@@ -620,6 +638,7 @@ double PairLJCleavCutSqLInt::init_one(int i, int j)
   lju2[j][i] = lju2[i][j];
   lju3[j][i] = lju3[i][j];
   lju4[j][i] = lju4[i][j];
+  
   
   radm[j][i] = radm[i][j];
   lj1[j][i] = lj1[i][j];
@@ -630,6 +649,9 @@ double PairLJCleavCutSqLInt::init_one(int i, int j)
   offset[j][i] = offset[i][j];
   cutsq[i][j] = cut[i][j]*cut[i][j];
   cutsq[j][i] =  cutsq[i][j];
+
+  powlambda[j][i] = powlambda[i][j];
+  powDlambda[j][i] = powDlambda[i][j];
 
   // compute I,J contribution to long-range tail correction
   // count total # of atoms of type I and J via Allreduce
@@ -664,7 +686,7 @@ double PairLJCleavCutSqLInt::init_one(int i, int j)
    proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::write_restart(FILE *fp)
+void PairLJCleavCutNLInt::write_restart(FILE *fp)
 {
   write_restart_settings(fp);
 
@@ -677,6 +699,8 @@ void PairLJCleavCutSqLInt::write_restart(FILE *fp)
         fwrite(&sigma[i][j],sizeof(double),1,fp);
         fwrite(&cut[i][j],sizeof(double),1,fp);
         fwrite(&lam[i][j],sizeof(double),1,fp);
+        fwrite(&powlambda[i][j],sizeof(double),1,fp);
+        fwrite(&powDlambda[i][j],sizeof(double),1,fp);
       }
     }
 }
@@ -685,7 +709,7 @@ void PairLJCleavCutSqLInt::write_restart(FILE *fp)
    proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::read_restart(FILE *fp)
+void PairLJCleavCutNLInt::read_restart(FILE *fp)
 {
   read_restart_settings(fp);
   allocate();
@@ -702,11 +726,15 @@ void PairLJCleavCutSqLInt::read_restart(FILE *fp)
           fread(&sigma[i][j],sizeof(double),1,fp);
           fread(&cut[i][j],sizeof(double),1,fp);
           fread(&lam[i][j],sizeof(double),1,fp);
+          fread(&powlambda[i][j],sizeof(double),1,fp);
+          fread(&powDlambda[i][j],sizeof(double),1,fp);
               }
         MPI_Bcast(&epsilon[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&sigma[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&cut[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&lam[i][j],1,MPI_DOUBLE,0,world);
+        MPI_Bcast(&powlambda[i][j],1,MPI_DOUBLE,0,world);
+        MPI_Bcast(&powlambda[i][j],1,MPI_DOUBLE,0,world);
       }
     }
 }
@@ -715,7 +743,7 @@ void PairLJCleavCutSqLInt::read_restart(FILE *fp)
    proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::write_restart_settings(FILE *fp)
+void PairLJCleavCutNLInt::write_restart_settings(FILE *fp)
 {
   fwrite(&cut_global,sizeof(double),1,fp);
   fwrite(&rspace,sizeof(double),1,fp);  
@@ -723,13 +751,14 @@ void PairLJCleavCutSqLInt::write_restart_settings(FILE *fp)
   fwrite(&mix_flag,sizeof(int),1,fp);
   fwrite(&tail_flag,sizeof(int),1,fp);
   fwrite(&ind_dir,sizeof(int),1,fp);
+  fwrite(&npow,sizeof(double),1,fp);
 }
 
 /* ----------------------------------------------------------------------
    proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::read_restart_settings(FILE *fp)
+void PairLJCleavCutNLInt::read_restart_settings(FILE *fp)
 {
   int me = comm->me;
   if (me == 0) {
@@ -738,7 +767,8 @@ void PairLJCleavCutSqLInt::read_restart_settings(FILE *fp)
     fread(&offset_flag,sizeof(int),1,fp);
     fread(&mix_flag,sizeof(int),1,fp);
     fread(&tail_flag,sizeof(int),1,fp);
-    fread(&ind_dir,sizeof(int),1,fp);   
+    fread(&ind_dir,sizeof(int),1,fp); 
+    fread(&npow,sizeof(double),1,fp);   
   }
   MPI_Bcast(&cut_global,1,MPI_DOUBLE,0,world);
   MPI_Bcast(&rspace,1,MPI_DOUBLE,0,world);
@@ -746,13 +776,14 @@ void PairLJCleavCutSqLInt::read_restart_settings(FILE *fp)
   MPI_Bcast(&mix_flag,1,MPI_INT,0,world);
   MPI_Bcast(&tail_flag,1,MPI_INT,0,world);
   MPI_Bcast(&ind_dir,1,MPI_INT,0,world);
+  MPI_Bcast(&npow,1,MPI_DOUBLE,0,world);
 }
 
 /* ----------------------------------------------------------------------
    proc 0 writes to data file
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::write_data(FILE *fp)
+void PairLJCleavCutNLInt::write_data(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     fprintf(fp,"%d %g %g %g\n",i,epsilon[i][i],sigma[i][i],lam[i][i]);
@@ -762,7 +793,7 @@ void PairLJCleavCutSqLInt::write_data(FILE *fp)
    proc 0 writes all pairs to data file
 ------------------------------------------------------------------------- */
 
-void PairLJCleavCutSqLInt::write_data_all(FILE *fp)
+void PairLJCleavCutNLInt::write_data_all(FILE *fp)
 {
   for (int i = 1; i <= atom->ntypes; i++)
     for (int j = i; j <= atom->ntypes; j++)
@@ -776,7 +807,7 @@ void PairLJCleavCutSqLInt::write_data_all(FILE *fp)
     
 */
 
-double PairLJCleavCutSqLInt::single(int i, int j, int itype, int jtype, double rsq,
+double PairLJCleavCutNLInt::single(int i, int j, int itype, int jtype, double rsq,
                          double factor_coul, double factor_lj,
                          double &fforce)
 {
@@ -786,19 +817,19 @@ double PairLJCleavCutSqLInt::single(int i, int j, int itype, int jtype, double r
   if (rsq < radm[itype][jtype]){
       rfourth=rsq*rsq;
       forcelj = lju3[itype][jtype] + lju4[itype][jtype]*rsq;
-      fforce = lam[itype][jtype]*lam[itype][jtype] * factor_lj * forcelj;
+      fforce = npow*pow(lam[itype][jtype],npow-1.0) * factor_lj * forcelj;
       philj =  lju0[itype][jtype]+lju1[itype][jtype]*rsq+lju2[itype][jtype]*rfourth;
-      philj = lam[itype][jtype]*lam[itype][jtype]*philj;
+      philj = pow(lam[itype][jtype],npow)*philj;
   }
   else {
   r2inv = 1.0/rsq;
   r6inv = r2inv*r2inv*r2inv;
   forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
-  fforce = lam[itype][jtype]*lam[itype][jtype]*factor_lj*forcelj*r2inv;
+  fforce = npow*pow(lam[itype][jtype],npow-1.0)*factor_lj*forcelj*r2inv;
 
   philj = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) -
     offset[itype][jtype];
-  philj = lam[itype][jtype]*lam[itype][jtype]*philj;
+  philj = pow(lam[itype][jtype],npow)*philj;
     }
   return factor_lj*philj;
 }
@@ -806,7 +837,7 @@ double PairLJCleavCutSqLInt::single(int i, int j, int itype, int jtype, double r
 
 /* ---------------------------------------------------------------------- */
 
-void *PairLJCleavCutSqLInt::extract(const char *str, int &dim)
+void *PairLJCleavCutNLInt::extract(const char *str, int &dim)
 {
   dim = 2;
   if (strcmp(str,"epsilon") == 0) return (void *) epsilon;

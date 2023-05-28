@@ -31,23 +31,24 @@ cleaving calculations
 
 ------------------------------------------------------------------------- */
 
+
 #ifdef PAIR_CLASS
 
-PairStyle(lj/cleavcutsqlintflat,PairLJCleavCutSqLIntFlat)
+PairStyle(lj/cleavcutNlint,PairLJCleavCutNLInt)
 
 #else
 
-#ifndef LMP_PAIR_LJ_CLVCUTSQL_INT_FLAT_H
-#define LMP_PAIR_LJ_CLVCUTSQL_INT_FLAT_H
+#ifndef LMP_PAIR_LJ_CLVCUT_NL_INT_H
+#define LMP_PAIR_LJ_CLVCUT_NL_INT_H
 
 #include "pair.h"
 
 namespace LAMMPS_NS {
 
-class PairLJCleavCutSqLIntFlat : public Pair {
+class PairLJCleavCutNLInt : public Pair {
  public:
-  PairLJCleavCutSqLIntFlat(class LAMMPS *);
-  virtual ~PairLJCleavCutSqLIntFlat();
+  PairLJCleavCutNLInt(class LAMMPS *);
+  virtual ~PairLJCleavCutNLInt();
   virtual void compute(int, int);
   void settings(int, char **);
   void coeff(int, char **);
@@ -63,21 +64,23 @@ class PairLJCleavCutSqLIntFlat : public Pair {
   void *extract(const char *, int &);
 
  protected:
-  int natoms,pallocation,index,ind_dir;
+  int natoms,pallocation,index,ind_dir,npow;
   int *gbox;
-  double rlo,rhi;
+  double rspace;
+//  double u0,u1,u2;
+  double cut_global,lambda,cleavwall;
   double xprd,yprd,zprd,xy,yz,xz;
-  double cut_global,lambda;
   double **cut;
   double **epsilon,**sigma, **lam;
-  double **lj1,**lj2,**lj3,**lj4,**offset,**radmlo,**radmhi;
-  double **a0, **a3, **a4, **xu, **fa3, **fa4;  
+  double **lj1,**lj2,**lj3,**lj4,**offset,**radm;
+  double **powlambda, **powDlambda;
+  double **lju0, **lju1, **lju2, **lju3, **lju4;  
   char *idflag;
 
 
   virtual void allocate();
   void global_boundary();
-  void calculate_coefficients(int, int);
+  void calculate_int_coefficients(int, int);
   int find_scaling(int,int,int ,int,double *);
 
 };
