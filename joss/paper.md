@@ -45,7 +45,17 @@ To date, the cleaving method has been used to calculate the solid-liquid IFE in 
 
 # Functionality
 
-This package includes several new additional functions written in the LAMMPS language needed to calculate the SFE through the cleaving.
+Here, we are presenting a package designed to be integrated in LAMMPS for calculation of surface properties using Thermodynamic Integration. Therefore, this package includes several new additional functions written in the style suited to be directly patched into LAMMPS. The package includes both a version of the interactions between atoms needed to run the MD simulation with the cleaving model and some auxiliary functionalities (in LAMMPS terms, new "fix" and "compute") needed to perform the operations required in the different step of the calculation. 
+
+The version of the code we present here is hosted on GitHub, where a detailed instruction manual completed by few step-by-step examples reproducing some of the published results on the topic. 
+The packages includes new definitions of pair potentials not already included in LAMMPS, as the Broughton-Gilmer modified Lennard-Jones potential [@Broughton1983] and modifications of some of the already existing pair_styles in LAMMPS. In particular, we included a modified version of the lj/cut and coul/dsf potentials. These modifications allow to run the step of the cleaving method (which we usually refers as step3) where the interactions between the phases are switched-on and off. In this case, the work performed during this particular step depend on the interactions between atoms involved in the switching and we need to be able to keep track of them. These new pair_style includes several version to use different scaling (i.e., different power of the coupling parameter $\lambda$, see e.g., [@DiPasquale2022cleaving])
+
+The processing of the interactions to generate the work in step3 is then left to the new compute 'cleavpairs' to generate the output file needed for the calculation of the IFE. The cleaving method owes its name to the fact that the each bulk phase is "cleaved", i.e., cut at a certain position to create the new interface. The cut is modelled with an external potential (where we define "external potential" a potential depending on the absolute position of atoms within the simulation box). In the cleaving package there are two external potentials available the "walls" and the "wells". These two external potential are two additional fix styles: "wallforce" and "wellPforce". We refer to the documentation for a detailed explanation of their use.
+A new fix style "move/dupl" used in the step3 to switch the interactions among the different phases in contact is also included.
+
+The new functionalities presented here are extremely general and can be applied to a variety of problem, a fact that makes the package presented extremely flexibile. This package answer to one of the problem in the community, the presence of a very few systematic and well maintained codes for these kind of calculations which usually relies on in-house codes and extensions. 
+
+
 
 
 
