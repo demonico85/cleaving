@@ -5,7 +5,7 @@ tags:
   - LAMMPS
   - Molecular Simulations
   - Phase Transitions
-authors:
+authors: 
   - name: Nicodemo Di Pasquale^[Corresponding author]
     orcid: 0000-0001-5676-8527
     affiliation: 1
