@@ -14,4 +14,5 @@
    fix_well.md
    fix_move_duplicate.md 
    compute_pcleav.md
+   compute_displace.md
 ```
