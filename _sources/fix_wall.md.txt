@@ -1,8 +1,8 @@
-# Fix style wall
+# fix wallforce
 
 
 ```
-fix_style wallforce args
+fix wallforce args
 ```
 
 - args=list of the possible arguments
@@ -21,7 +21,7 @@ On each side of the cleaving plane we place two planes with fixed interaction si
 
 $$
 \begin{equation}
-	\phi(r) = 4\epsilon \cip{ \frac{\sigma^{12}}{r^{12}} - \frac{\sigma^{6}}{r^{6}}} + \epsilon
+	\phi(r) = 4\epsilon \left( \frac{\sigma^{12}}{r^{12}} - \frac{\sigma^{6}}{r^{6}} \right) + \epsilon
 \end{equation}
 $$
 
@@ -35,8 +35,8 @@ where $m$ is a modified minimum function defined in {footcite:p}`davidchack2003d
 
 $$
 \begin{align}
-	\Phi_1(\mathbf{r};z_w) & = \sum_{j} \phi\cip{\abs{\mathbf{r} - \cip{\mathbf{r}_j^{(1)} - z_w\bfn} }} = \sum_{j} \phi\cip{\abs{\mathbf{r} - \mathbf{r}_j^{(1)} + z_w\bfn }} \\
-	\Phi_2(\mathbf{r};z_w)  & = \sum_{j} \phi\cip{\abs{\mathbf{r} - \cip{\mathbf{r}_j^{(2)} + z_w\bfn} }}  =  \sum_{j} \phi\cip{\abs{\mathbf{r} - \mathbf{r}_j^{(2)} - z_w\bfn }} \.
+	\Phi_1(\mathbf{r};z_w) & = \sum_{j} \phi \left( \left|\mathbf{r} - \left(\mathbf{r}_j^{(1)} - z_w\mathbf{n}\right) \right| \right) = \sum_{j} \phi    \left( \left|\mathbf{r} - \mathbf{r}_j^{(1)} + z_w\mathbf{n} \right| \right) \\
+	\Phi_2(\mathbf{r};z_w)  & = \sum_{j} \phi \left(\left|\mathbf{r} - \left(\mathbf{r}_j^{(2)} + z_w\mathbf{n} \right) \right| \right)  =  \sum_{j} \phi \left( \left|\mathbf{r} - \mathbf{r}_j^{(2)} - z_w\mathbf{n} \right| \right) \.
 \end{align}
 $$
 

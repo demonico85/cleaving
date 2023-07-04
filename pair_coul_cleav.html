@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Fix style wall" href="fix_wall.html" />
+    <link rel="next" title="fix wallforce" href="fix_wall.html" />
     <link rel="prev" title="pair_style lj/BG" href="pairBG.html" /> 
 </head>
 
@@ -89,10 +89,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="lammps.html">LAMMPS commands</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">pair_style coul/dsf[cleav]</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fix_wall.html">Fix style wall</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fix_well.html">Fix style well</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">Fix move duplicate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">Compute cleavpairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_well.html">fix wellPforce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">compute cleavpairs</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a></li>
@@ -179,7 +179,7 @@
     lambda      = global scaling of the potential
     i_IDflag    = new (integer) property to be added to the atoms
     orientation = direction perpendicular to the cleaving plane
-    N           = for &lt;coul/dsfNl&gt; only, power of the polynomial for $\lambda$
+    N           = only for &lt;coul/dsfNl&gt; only, power of the polynomial for $\lambda$
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> accepts only the following arguments</p>
@@ -234,7 +234,7 @@ An application of this procedure can be found in Di Pasquale and Davidchack<a c
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="fix_wall.html" class="btn btn-neutral float-right" title="Fix style wall" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="fix_wall.html" class="btn btn-neutral float-right" title="fix wallforce" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="pairBG.html" class="btn btn-neutral float-left" title="pair_style lj/BG" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

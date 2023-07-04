@@ -1,7 +1,7 @@
-# Compute cleavpairs
+# compute cleavpairs
 
 ```
-compute_style cleavpairs args
+compute cleavpairs args
 ```
 
 - args=list of the possible arguments
