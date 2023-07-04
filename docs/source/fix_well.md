@@ -3,7 +3,7 @@
 ## Syntax
 
 ```
-fix wellPforce dw rw P lambda file <filename>
+fix ID group_ID wellPforce dw rw P lambda file <filename>
 ```
 
 * `wellPforce` args = dw rw P lambda file <name file> 

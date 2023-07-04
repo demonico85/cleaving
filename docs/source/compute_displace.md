@@ -1,5 +1,8 @@
 # compute displace/atom_cleav
 
+
+## Syntax
+
 ```
 compute ID group_ID displace/atom_cleav 
 ```

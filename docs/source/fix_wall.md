@@ -3,7 +3,7 @@
 ## Syntax
 
 ```
-fix wallforce eps sigma zw delta rw file <filename> 
+fix ID group_ID wallforce eps sigma zw delta rw file <filename> 
 ```
 
 * `eps`   = (energy units)
