@@ -1,32 +1,31 @@
 # pair_style lj/cleavcutsqlmod
 
+## Syntax
 
+```text
+pair_style lj/cleavcutsqlmod cut-off lambda i_IDflag orientation alpha
+```
 
-- args=list of the possible arguments
-```
-<name pair style> args =  cut-off lambda i_IDflag orientation alpha
-    cutoff        = global internal cut-off
-    lambda        = global scaling of the potential
-    i_IDflag      = new (integer) property to be added to the atoms
-    orientation   = direction perpendicular to the cleaving plane
-    alphaLJ       = damping parameter (inverse distance units)
-```
+* `cutoff`        = global internal cut-off
+* `lambda`        = global scaling of the potential
+* `i_IDflag`      = new (integer) property to be added to the atoms
+* `orientation`   = direction perpendicular to the cleaving plane
+* `alphaLJ`       = damping parameter (inverse distance units)
 
 `pair_coeff` accepts only the following arguments
 
-```
+```text
 pair_coeff a b lambda 
 ```
 
 where
 
-```
-    a       = atom of type a [mandatory]
-    b       = atom of type b [mandatory]
-    epsilon = energy constant (energy units)
-    sigma   = VdW radius (distance units)
-    lambda  = scaling of the potential
-    
+```text
+a       = atom of type a [mandatory]
+b       = atom of type b [mandatory]
+epsilon = energy constant (energy units)
+sigma   = VdW radius (distance units)
+lambda  = scaling of the potential
 ```
 
 
@@ -38,8 +37,8 @@ will be considered.
 This pair style modifies the Lennard-Jones potential as proposed by {footcite:p}`Beutler1994` in order to avoid the "Lennard-Jones catastrophe". The potential is modified as:
 
 $$
-	U(r_{ln}) =
-			\lambda 4\epsilon\left(\frac{1}{\left(\alpha_{LJ}(1-\lambda)^2+\left(\frac{r_{ln}}{\sigma}\right)^{6}\right)^2} -\frac{1}{\left(\alpha_{LJ}(1-\lambda)^2+\frac{r_{ln}}{\sigma}\right)^{6}\right)^2}  \right),\;\mbox{if}\; r_{ln} \leq r_c \\
+U(r_{ln}) =
+		4 \lambda\epsilon\left(\frac{1}{\left(\alpha_{LJ}(1-\lambda)^2+\left(\frac{r_{ln}}{\sigma}\right)^{6}\right)^2} -\frac{1}{\left(\alpha_{LJ}(1-\lambda)^2+\frac{r_{ln}}{\sigma}^{6}\right)^2}  \right),\;\mbox{if}\; r_{ln} \leq r_c
 $$
 
 where $r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|$ for each couple of atoms $l,n$ in the system and $r_c$ is the cut-off for the potential.
