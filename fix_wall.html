@@ -197,10 +197,11 @@
 \[\begin{split}
 \begin{align}
 	\Phi_1(\mathbf{r};z_w) &amp; = \sum_{j} \phi \left( \left|\mathbf{r} - \left(\mathbf{r}_j^{(1)} - z_w\mathbf{n}\right) \right| \right) = \sum_{j} \phi    \left( \left|\mathbf{r} - \mathbf{r}_j^{(1)} + z_w\mathbf{n} \right| \right) \\
-	\Phi_2(\mathbf{r};z_w)  &amp; = \sum_{j} \phi \left(\left|\mathbf{r} - \left(\mathbf{r}_j^{(2)} + z_w\mathbf{n} \right) \right| \right)  =  \sum_{j} \phi \left( \left|\mathbf{r} - \mathbf{r}_j^{(2)} - z_w\mathbf{n} \right| \right) \.
+	\Phi_2(\mathbf{r};z_w)  &amp; = \sum_{j} \phi \left(\left|\mathbf{r} - \left(\mathbf{r}_j^{(2)} + z_w\mathbf{n} \right) \right| \right)  =  \sum_{j} \phi \left( \left|\mathbf{r} - \mathbf{r}_j^{(2)} - z_w\mathbf{n} \right| \right) 
 \end{align}
 \end{split}\]</div>
-<p>In the cleaving procedure, the strength of the interactions sites is varied during the simulation using the parameter <span class="math notranslate nohighlight">\(z_w\)</span> which varies from an initial value <span class="math notranslate nohighlight">\(z_{w,i}\)</span> to a final value <span class="math notranslate nohighlight">\(z_{w,f}\)</span>. There is no <em>a priori</em> prescription for these two values except that the initial value  <span class="math notranslate nohighlight">\(z_{w,i}\)</span> must be such that the walls do not interact with the atoms in the system.</p>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{n}\)</span> is the (unit) normal to the cleaving plane.
+In the cleaving procedure, the strength of the interactions sites is varied during the simulation using the parameter <span class="math notranslate nohighlight">\(z_w\)</span> which varies from an initial value <span class="math notranslate nohighlight">\(z_{w,i}\)</span> to a final value <span class="math notranslate nohighlight">\(z_{w,f}\)</span>. There is no <em>a priori</em> prescription for these two values except that the initial value  <span class="math notranslate nohighlight">\(z_{w,i}\)</span> must be such that the walls do not interact with the atoms in the system.</p>
 <p>Note that the way the wall potential is defined the atoms interacts with only one of the two walls (the one that gives the lowest interactions).</p>
 <p>The format of the file is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">N1</span>
@@ -233,11 +234,15 @@
    <span class="mf">11.724246167409296</span>        <span class="mf">11.391726121344988</span>        <span class="mf">17.277749056431873</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-
-```{footbibliography}
-
-</pre></div>
+<div class="docutils container" id="id3">
+<dl class="footnote brackets">
+<dt class="label" id="footcite-hansen2013theory"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Jean-Pierre Hansen and Ian Ranald McDonald. <em>Theory of simple liquids: with applications to soft matter</em>. Academic press, 2013.</p>
+</dd>
+<dt class="label" id="footcite-davidchack2003direct"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Ruslan L Davidchack and Brian B Laird. Direct calculation of the crystal–melt interfacial free energies for continuous potentials: application to the lennard-jones system. <em>The Journal of chemical physics</em>, 118(16):7651–7657, 2003.</p>
+</dd>
+</dl>
 </div>
 <hr class="footnotes docutils" />
 </div>
