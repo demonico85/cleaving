@@ -100,7 +100,7 @@ the step3 to switch the interactions between two phases in contact is also inclu
 
 The new functionalities presented here are extremely general and can be applied to a variety of problem, a fact that makes the package presented extremely
 flexibile. This package answer to one of the problem in the community, the presence of a very few systematic and well maintained codes for these kind of
-calculations which usually relies on in-house codes and extensions. ======= The calculation of the properties of the interface between different materials or
+calculations which usually relies on in-house codes and extensions. The calculation of the properties of the interface between different materials or
 different phases of the same material has always been an important problem due to the insight they can bring into understanding the mechanisms underlying
 various interfacial phenomena, but also because of the challenges of measuring such properties experimentally.
 
@@ -137,7 +137,7 @@ merge the systems while maintaining the cleaving potentials, 4 - remove the clea
 ![The thermodynamic path used to compute the interfacial free energy between phases $\alpha$ and $\beta$ with the cleaving
 method\label{fig:cleaving}](Fig/joss.png){ width=30% }
 
-A sketch of the cleaving path to obtain the IFE between two generic phases $\alpha$ and $\beta$ is shown in Fig.\autoref{fig:example}. The reversible work in
+A sketch of the cleaving path to obtain the IFE between two generic phases $\alpha$ and $\beta$ is shown in Fig.\autoref{fig:cleaving}. The reversible work in
 each step can be determined by different free energy computation methods, but those based on Thermodynamic Integration are the most straightfoward and provide
 accurate and direct results. With TI methods the free energy difference between two thermodynamic states connected by a transformation path is calculated by
 integrating the ensemble average of some configuration dependent function (*e.g.*, the potential energy) with respect to a parameter defining the path from the
