@@ -1,40 +1,39 @@
 # pair_style coul/dsf[cleav]
 
+## Syntax
+
 ```
-pair_style coul/dsfsql  args
-pair_style coul/dsfcubl args
-pair_style coul/dsfNl   args
+pair_style coul/dsfsql  alpha cut-off lambda i_IDflag orientation
+pair_style coul/dsfcubl alpha cut-off lambda i_IDflag orientation
+pair_style coul/dsfNl   alpha cut-off lambda i_IDflag orientation N
 ```
 
-- args=list of the possible arguments
-```
-<name pair style> args = alpha cut-off lambda i_IDflag orientation N
-    alpha       = damping parameter (inverse distance units)
-    cutoff      = global internal cut-off
-    lambda      = global scaling of the potential
-    i_IDflag    = new (integer) property to be added to the atoms
-    orientation = direction perpendicular to the cleaving plane
-    N           = only for <coul/dsfNl> only, power of the polynomial for $\lambda$
-```
+* `alpha`       = damping parameter (inverse distance units)
+* `cutoff`      = global internal cut-off
+* `lambda`      = global scaling of the potential
+* `i_IDflag`    = new (integer) property to be added to the atoms
+* `orientation` = direction perpendicular to the cleaving plane
+* `N`           = only for <coul/dsfNl>, power of the polynomial for $\lambda$
 
 `pair_coeff` accepts only the following arguments
 
-```
+```text
 pair_coeff a b lambda 
 ```
 
 where
 
+```text
+a       = atom of type a [mandatory]
+b       = atom of type b [mandatory]
+lambda  = global scaling of the potential
 ```
-    a       = atom of type a [mandatory]
-    b       = atom of type b [mandatory]
-    lambda  = global scaling of the potential
-```
+
+## Description
 
 This pair style is derived from the `coul/dsf` in LAMMPS and we refer to the [LAMMPS documentation](https://docs.lammps.org/pair_coul.html) for the
 description of its main features. Here, only the modifications needed for the cleaving calculations
 will be considered. 
-
 
 The cleaving of a molecular system (e.g., the mannitol) requires some modifications with respect an
 atomistic system due to the fact that molecules have a finite extension which can cross the cleaving

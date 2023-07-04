@@ -1,21 +1,19 @@
 # fix wallforce
 
+## Syntax
 
 ```
-fix wallforce args
+fix ID group_ID wallforce eps sigma zw delta rw file <filename> 
 ```
 
-- args=list of the possible arguments
+* `eps`   = (energy units)
+* `sigma` = (distance units)
+* `zw`    = position of the walls respect to the cleaving plane
+* `delta` = width of the interpolation region in the m function
+* `rw`    = cut-off of the LJ potential
+* `<filename>` = external file which contains the position of the walls
 
-```
-    wallforce args = eps sigma zw delta rw file <name file> 
-    eps   = (energy units)
-    sigma = (distance units)
-    zw    = position of the walls respect to the cleaving plane
-    delta = width of the interpolation region in the m function
-    rw    = cut-off of the LJ potential
-    < name file > = external file which contains the position of the walls
-```
+## Description
 
 On each side of the cleaving plane we place two planes with fixed interaction sites. Each site interacts with surrounding atoms through a wall shaped potential which is constructed from the repulsive core of the LJ potential, defined using a standard Weeks–Chandler–Anderson splitting {footcite:t}`hansen2013theory`:
 
@@ -60,9 +58,7 @@ x2 y2 z2
 xN1 yN1 zN1
 ```
 
-where $N_1$ is the total number of walls on one side of the cleaving plane, whereas  $N_2$ is the total number of walls on opposite side of the cleaving plane. 
-
-E.g.:
+where $N_1$ is the total number of walls on one side of the cleaving plane, whereas  $N_2$ is the total number of walls on opposite side of the cleaving plane. Here is an example:
 
 ```
 132
@@ -79,8 +75,7 @@ E.g.:
 ...
    12.296160614599994        10.401141241228032        17.277749056431873
    11.724246167409296        11.391726121344988        17.277749056431873
-```    
-
+```
 
 
 ```{footbibliography}

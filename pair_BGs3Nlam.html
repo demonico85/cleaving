@@ -36,7 +36,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pair_style coul/dsf[cleav]" href="pair_coul_cleav.html" />
+    <link rel="prev" title="pair_style lj/BGcleavs3" href="pair_BGs3lam.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,9 +84,26 @@
             
             
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="lammps.html">LAMMPS commands</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html">pair_style lj/BGcleavs3</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pair_style lj/BGNlcleavs3</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#syntax">Syntax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pair_coul_cleav.html">pair_style coul/dsf[cleav]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html">pair_style lj/cleavcutNlint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html">pair_style lj/cleavcutsqlmod</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_well.html">fix wellPforce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">compute cleavpairs</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a></li>
 </ul>
 
@@ -132,6 +151,8 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="lammps.html">LAMMPS commands</a> &raquo;</li>
+        
       <li>pair_style lj/BGNlcleavs3</li>
     
     
@@ -155,31 +176,27 @@
 <h1>pair_style lj/BGNlcleavs3<a class="headerlink" href="#pair-style-lj-bgnlcleavs3" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="syntax">
 <h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">lj</span><span class="o">/</span><span class="n">BGNlcleavs3args</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pair_style lj/BGNlcleavs3 cutoff1 cutoff2 lambda Dfac
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>args=list of the possible arguments</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cutoff1</span></code> = global internal cut-off</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cutoff2</span></code> = global external cut-off</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda</span></code>  = global scaling of the potential</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code>       = exponent of the function lambda^N</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dfac</span></code>    = multiplicative factor to multiply the derivative of the interaction with respect to lambda</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lj</span><span class="o">/</span><span class="n">BGNlcleavs3</span> <span class="n">args</span> <span class="o">=</span> <span class="n">cutoff1</span> <span class="n">cutoff2</span> <span class="k">lambda</span> <span class="n">Dfac</span> 
-    <span class="n">cutoff1</span> <span class="o">=</span> <span class="k">global</span> <span class="n">internal</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span>
-    <span class="n">cutoff2</span> <span class="o">=</span> <span class="k">global</span> <span class="n">external</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span>
-    <span class="k">lambda</span>  <span class="o">=</span> <span class="k">global</span> <span class="n">scaling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">potential</span>
-    <span class="n">N</span>       <span class="o">=</span> <span class="n">exponent</span> <span class="n">of</span> <span class="n">the</span> <span class="n">function</span> <span class="k">lambda</span><span class="o">^</span><span class="n">N</span>
-    <span class="n">Dfac</span>    <span class="o">=</span> <span class="n">multiplicative</span> <span class="n">factor</span> <span class="n">to</span> <span class="n">multiply</span> <span class="n">the</span> <span class="n">derivative</span> <span class="n">of</span> <span class="n">the</span> <span class="n">interaction</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="k">lambda</span> 
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> accept the same arguments of the pair_style. However, keep in mind that parameters in pair coeff have a specific order</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_coeff</span> <span class="n">a</span> <span class="n">b</span> <span class="k">lambda</span> <span class="n">Dfac</span> <span class="n">cutoff1</span> <span class="n">cutoff2</span>
+<p><code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> accept the same arguments as the <code class="docutils literal notranslate"><span class="pre">pair_style</span></code>. However, keep in mind that parameters in pair coeff have a specific order</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pair_coeff a b lambda Dfac cutoff1 cutoff2
 </pre></div>
 </div>
 <p>where</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">a</span>       <span class="o">=</span> <span class="n">atom</span> <span class="n">of</span> <span class="nb">type</span> <span class="n">a</span> <span class="p">[</span><span class="n">mandatory</span><span class="p">]</span>
-    <span class="n">b</span>       <span class="o">=</span> <span class="n">atom</span> <span class="n">of</span> <span class="nb">type</span> <span class="n">b</span> <span class="p">[</span><span class="n">mandatory</span><span class="p">]</span>
-    <span class="k">lambda</span>  <span class="o">=</span> <span class="n">scaling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">potential</span>
-    <span class="n">Dfac</span>    <span class="o">=</span> <span class="n">multiplicative</span> <span class="n">factor</span> <span class="k">for</span> <span class="n">the</span> <span class="n">derivative</span> <span class="n">of</span> <span class="n">the</span> <span class="n">interaction</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="k">lambda</span>     
-    <span class="n">cutoff1</span> <span class="o">=</span> <span class="k">global</span> <span class="n">internal</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span>
-    <span class="n">cutoff2</span> <span class="o">=</span> <span class="k">global</span> <span class="n">external</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>a       = atom of type a [mandatory]
+b       = atom of type b [mandatory]
+lambda  = scaling of the potential
+Dfac    = multiplicative factor for the derivative of the interaction with respect to lambda     
+cutoff1 = global internal cut-off
+cutoff2 = global external cut-off
 </pre></div>
 </div>
 <p>the arguments in the <code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> are all optional except for the atom types. Note that the order is important. If we want to specify a new lambda for a different pair of types we can just write</p>
@@ -240,7 +257,7 @@ Let us assume the total Hamiltonian of the system, <span class="math notranslate
 </ul>
 <div class="math notranslate nohighlight">
 \[
-	H^{T}(\lambda)= \lambda^N H_{a} + H_{b} 
+H^{T}(\lambda)= \lambda^N H_{a} + H_{b} 
 \]</div>
 <p>for <span class="math notranslate nohighlight">\(\lambda \in [0,1]\)</span>, where we dropped the dependence on <span class="math notranslate nohighlight">\(\mathbf{p}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> for simplicity.</p>
 <p>Let’s consider this example:</p>
@@ -307,6 +324,15 @@ pair_coeff 2 3 1.0 1.0
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pair_coul_cleav.html" class="btn btn-neutral float-right" title="pair_style coul/dsf[cleav]" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pair_BGs3lam.html" class="btn btn-neutral float-left" title="pair_style lj/BGcleavs3" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

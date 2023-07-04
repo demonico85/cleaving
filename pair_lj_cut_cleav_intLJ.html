@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>fix move/dupl &mdash; SurFEC  documentation</title>
+  <title>pair_style lj/cleavcutNlint &mdash; SurFEC  documentation</title>
   
 
   
@@ -37,8 +37,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="compute cleavpairs" href="compute_pcleav.html" />
-    <link rel="prev" title="fix wellPforce" href="fix_well.html" /> 
+    <link rel="next" title="pair_style lj/cleavcutsqlmod" href="pair_lj_cut_cleav_modLJ.html" />
+    <link rel="prev" title="pair_style coul/dsf[cleav]" href="pair_coul_cleav.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -91,15 +91,15 @@
 <li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html">pair_style lj/BGcleavs3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html">pair_style lj/BGNlcleavs3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pair_coul_cleav.html">pair_style coul/dsf[cleav]</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html">pair_style lj/cleavcutNlint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html">pair_style lj/cleavcutsqlmod</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fix_well.html">fix wellPforce</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">fix move/dupl</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pair_style lj/cleavcutNlint</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#syntax">Syntax</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html">pair_style lj/cleavcutsqlmod</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_well.html">fix wellPforce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a></li>
 <li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">compute cleavpairs</a></li>
 </ul>
 </li>
@@ -152,13 +152,13 @@
         
           <li><a href="lammps.html">LAMMPS commands</a> &raquo;</li>
         
-      <li>fix move/dupl</li>
+      <li>pair_style lj/cleavcutNlint</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/fix_move_duplicate.md.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/pair_lj_cut_cleav_intLJ.md.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -171,28 +171,51 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="fix-move-dupl">
-<h1>fix move/dupl<a class="headerlink" href="#fix-move-dupl" title="Permalink to this headline">¶</a></h1>
+  <div class="tex2jax_ignore mathjax_ignore section" id="pair-style-lj-cleavcutnlint">
+<h1>pair_style lj/cleavcutNlint<a class="headerlink" href="#pair-style-lj-cleavcutnlint" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="syntax">
 <h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fix</span> <span class="n">ID</span> <span class="n">group</span><span class="o">-</span><span class="n">ID</span> <span class="n">move</span><span class="o">/</span><span class="n">dupl</span> <span class="n">C_ID</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pair_style lj/cleavcutNlint cutoff lambda i_IDflag orientation alpha
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">C_ID</span></code> = ID of the compute displace/atom</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cutoff</span></code>        = global internal cut-off</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda</span></code>        = global scaling of the potential</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i_IDflag</span></code>      = new (integer) property to be added to the atoms</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">orientation</span></code>   = direction perpendicular to the cleaving plane</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code>             = power of the polynomial for <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rs</span></code>            = short range switching (distance units)</p></li>
 </ul>
+<p><code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> accepts only the following arguments</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pair_coeff a b lambda 
+</pre></div>
+</div>
+<p>where</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>a        = atom of type a [mandatory]
+b        = atom of type b [mandatory]
+epsilon  = energy constant (energy units)
+sigma    = VdW radius (distance units)
+lambda   = scaling of the potential
+cut-off  = cut-off for LJ potential (distance units)
+</pre></div>
+</div>
 </div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>This fix allows to translate the duplicate atoms of the same distance crossed by the corresponding real atoms. In step3 of the cleaving methodology the duplicate atoms allow to calculate the cross-cleaving plane interactions but they need to “follow” the real atoms when they move in a new position each time step.</p>
-<p>In the step3 the system (solid+liquid) is duplicated and <code class="docutils literal notranslate"><span class="pre">real</span></code> and <code class="docutils literal notranslate"><span class="pre">duplicate</span></code> atom types are defined (see <a class="reference internal" href="example_SL_walls.html"><span class="doc std std-doc">example LJ-SL</span></a> for more details).</p>
-<p><img alt="definition" src="_images/dupl1.png" /></p>
-<p>The atoms interacts with one another. The duplicate atoms are used to keep track of the interactions crossing the cleaving planes, which are the ones to be calculated in order to find the total work in step3.</p>
-<p>The equation of motion must be integrated <em>only</em> for the real atoms. The atoms then move by a distance <span class="math notranslate nohighlight">\(\Delta \mathbf{x}\)</span>.</p>
-<p><img alt="move" src="_images/dupl1.png" /></p>
-<p>This fix allows the duplicated atoms to follow the movement of the real atoms. By specifying this fix we are moving the atoms of the same quantity as the real atoms.</p>
-<p>The equation of motion must be integrated <em>only</em> for the real atoms. The atoms then move by a distance <span class="math notranslate nohighlight">\(\Delta \mathbf{x}\)</span>.</p>
-<p><img alt="move" src="_images/dupl1.png" /></p>
+<p>This pair style is derived from the <code class="docutils literal notranslate"><span class="pre">pair/ljcut</span></code> in LAMMPS and we refer to the <a class="reference external" href="https://docs.lammps.org/pair_lj.html">LAMMPS documentation</a> for the
+description of its main features. Here, only the modifications needed for the cleaving calculations
+will be considered.</p>
+<p>This pair style modifies the short range portion of the Lennard-Jones potential in order to avoid the “Lennard-Jones catastrophe”. The potential is modified by smoothly interpolating it to zero for distances smaller than <span class="math notranslate nohighlight">\(r_s\)</span> as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+U(r_{ln}) =
+	\begin{cases}
+		A_0 + A_1 \left( \frac{r}{r_s}^3 + A_2 \frac{r}{r_s}^4 \right)\; r_{ln} \leq r_{s} \\
+		4\epsilon\left(\left(\frac{\sigma}{r_{ln}}\right)^{12} -\left(\frac{\sigma}{r_{ln}}\right)^{6}  \right)+C_1,\;\mbox{if}\; r_{ln} \leq r_{cut}	
+	\end{cases}
+\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|\)</span> for each couple of atoms <span class="math notranslate nohighlight">\(l,n\)</span> in the system, <span class="math notranslate nohighlight">\(r_{cut}\)</span> is the cut-off for the potential and <span class="math notranslate nohighlight">\(A_0\)</span>, <span class="math notranslate nohighlight">\(A_1\)</span>, <span class="math notranslate nohighlight">\(A_2\)</span> are three constant which ensure that the potential has continuous first and second derivative in <span class="math notranslate nohighlight">\(r_s\)</span>. These contants depends on <span class="math notranslate nohighlight">\(r_c\)</span> and are calculated internally so they do not need to be specified.</p>
+<p>The description of the cleaving methodology using this pair style is analogous to the one described for the pair style <a class="reference internal" href="pair_coul_cleav.html"><span class="doc std std-doc">coul/dsf[cleav]</span></a> to which we refer.</p>
 </div>
 </div>
 
@@ -204,10 +227,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="compute_pcleav.html" class="btn btn-neutral float-right" title="compute cleavpairs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pair_lj_cut_cleav_modLJ.html" class="btn btn-neutral float-right" title="pair_style lj/cleavcutsqlmod" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="fix_well.html" class="btn btn-neutral float-left" title="fix wellPforce" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pair_coul_cleav.html" class="btn btn-neutral float-left" title="pair_style coul/dsf[cleav]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

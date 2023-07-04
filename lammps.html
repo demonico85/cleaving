@@ -88,7 +88,11 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">LAMMPS commands</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html">pair_style lj/BGcleavs3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html">pair_style lj/BGNlcleavs3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pair_coul_cleav.html">pair_style coul/dsf[cleav]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html">pair_style lj/cleavcutNlint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html">pair_style lj/cleavcutsqlmod</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fix_well.html">fix wellPforce</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a></li>
@@ -165,15 +169,56 @@
 <h1>LAMMPS commands<a class="headerlink" href="#lammps-commands" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pair_coul_cleav.html">pair_style coul/dsf[cleav]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fix_well.html">fix wellPforce</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html#syntax">Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pairBG.html#syntax">Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pairBG.html#description">Description</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="compute_pcleav.html">compute cleavpairs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair_BGs3lam.html">pair_style lj/BGcleavs3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html#syntax">Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html#description">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pair_BGs3Nlam.html">pair_style lj/BGNlcleavs3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html#syntax">Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html#description">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pair_coul_cleav.html">pair_style coul/dsf[cleav]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pair_coul_cleav.html#syntax">Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_coul_cleav.html#description">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html">pair_style lj/cleavcutNlint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html#syntax">Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html#description">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html">pair_style lj/cleavcutsqlmod</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html#syntax">Syntax</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fix_wall.html">fix wallforce</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fix_wall.html#syntax">Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_wall.html#description">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fix_well.html">fix wellPforce</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fix_well.html#syntax">Syntax</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html#syntax">Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html#description">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compute_pcleav.html">compute cleavpairs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html#syntax">Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html#description">Description</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>

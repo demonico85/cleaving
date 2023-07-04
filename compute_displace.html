@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Cleaving &mdash; SurFEC  documentation</title>
+  <title>compute displace/atom_cleav &mdash; SurFEC  documentation</title>
   
 
   
@@ -36,8 +36,7 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="install.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,7 +50,7 @@
           
 
           
-            <a href="#" class="icon icon-home" alt="Documentation Home"> SurFEC
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SurFEC
           
 
           
@@ -102,7 +101,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">SurFEC</a>
+          <a href="index.html">SurFEC</a>
         
       </nav>
 
@@ -131,15 +130,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Cleaving</li>
+      <li>compute displace/atom_cleav</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.md.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/compute_displace.md.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -152,38 +151,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="cleaving">
-<h1>Cleaving<a class="headerlink" href="#cleaving" title="Permalink to this headline">¶</a></h1>
-<p>Lammps Package for cleaving calculations USER-CLEAVING</p>
-<p>The package contains all the modified potentials and additional computes/fixes needed by the cleaving model to calculate the Surface Free Energy in a system using Thermodynamic Integration.</p>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#compilation">Compilation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#testing">Testing</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html">pair_style lj/BGcleavs3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html">pair_style lj/BGNlcleavs3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pair_coul_cleav.html">pair_style coul/dsf[cleav]</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html">pair_style lj/cleavcutNlint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html">pair_style lj/cleavcutsqlmod</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fix_well.html">fix wellPforce</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">compute cleavpairs</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="example_SV_wells.html">Solid-Vacuum interface of a Lennard-Jones crystal with wells</a></li>
-<li class="toctree-l2"><a class="reference internal" href="example_SL_walls.html">Solid-Liquid interface of a Lennard-Jones crystal in contact with a Lennard-Jones liquid with walls</a></li>
-</ul>
-</li>
-</ul>
+  <div class="tex2jax_ignore mathjax_ignore section" id="compute-displace-atom-cleav">
+<h1>compute displace/atom_cleav<a class="headerlink" href="#compute-displace-atom-cleav" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="syntax">
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compute</span> <span class="n">ID</span> <span class="n">group_ID</span> <span class="n">displace</span><span class="o">/</span><span class="n">atom_cleav</span> 
+</pre></div>
+</div>
+<p>This compute does not need any arguments. It calculates the <span class="math notranslate nohighlight">\(\Delta x\)</span>, <span class="math notranslate nohighlight">\(\Delta y\)</span>, <span class="math notranslate nohighlight">\(\Delta z\)</span> of all the atoms where <span class="math notranslate nohighlight">\(\Delta\)</span> is the difference in the position of the atom between the current time-step (after the integration of the equation of motion), and the previous time-step.
+The compute is needed in the step3 of the cleaving model to determine the evolution of the duplicate atoms (see [fix move/dupl]{fix_move_duplicate.md})</p>
 </div>
 </div>
 
@@ -192,13 +168,6 @@
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>

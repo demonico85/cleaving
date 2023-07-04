@@ -88,9 +88,16 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="lammps.html">LAMMPS commands</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html">pair_style lj/BGcleavs3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html">pair_style lj/BGNlcleavs3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pair_coul_cleav.html">pair_style coul/dsf[cleav]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html">pair_style lj/cleavcutNlint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html">pair_style lj/cleavcutsqlmod</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">fix wellPforce</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">fix wellPforce</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#syntax">Syntax</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a></li>
 <li class="toctree-l2"><a class="reference internal" href="compute_pcleav.html">compute cleavpairs</a></li>
 </ul>
@@ -165,60 +172,67 @@
             
   <div class="tex2jax_ignore mathjax_ignore section" id="fix-wellpforce">
 <h1>fix wellPforce<a class="headerlink" href="#fix-wellpforce" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fix</span> <span class="n">wellPforce</span> <span class="n">args</span>
+<div class="section" id="syntax">
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fix</span> <span class="n">ID</span> <span class="n">group_ID</span> <span class="n">wellPforce</span> <span class="n">dw</span> <span class="n">rw</span> <span class="n">P</span> <span class="k">lambda</span> <span class="n">file</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>args=list of the possible arguments</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wellPforce</span></code> args = dw rw P lambda file <name file></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dw</span></code> = depth of the well</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rw</span></code> = interaction range</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">P</span></code> = power law of the wells</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda</span></code> = strength of the interactions between wells and atoms</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> = external file which contains the position of the wells</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">wellPforce</span> <span class="n">args</span> <span class="o">=</span> <span class="n">dw</span> <span class="n">rw</span> <span class="n">P</span> <span class="k">lambda</span> <span class="n">file</span> <span class="o">&lt;</span><span class="n">name</span> <span class="n">file</span><span class="o">&gt;</span> 
-    <span class="n">dw</span> <span class="o">=</span> <span class="n">depth</span> <span class="n">of</span> <span class="n">the</span> <span class="n">well</span> 
-    <span class="n">rw</span> <span class="o">=</span> <span class="n">interaction</span> <span class="nb">range</span>
-    <span class="n">P</span> <span class="o">=</span> <span class="n">power</span> <span class="n">law</span> <span class="n">of</span> <span class="n">the</span> <span class="n">wells</span>
-    <span class="k">lambda</span> <span class="o">=</span> <span class="n">strength</span> <span class="n">of</span> <span class="n">the</span> <span class="n">interactions</span> <span class="n">between</span> <span class="n">wells</span> <span class="ow">and</span> <span class="n">atoms</span>
-    <span class="o">&lt;</span> <span class="n">name</span> <span class="n">file</span> <span class="o">&gt;</span> <span class="o">=</span> <span class="n">external</span> <span class="n">file</span> <span class="n">which</span> <span class="n">contains</span> <span class="n">the</span> <span class="n">position</span> <span class="n">of</span> <span class="n">the</span> <span class="n">wells</span>
-</pre></div>
-</div>
-<p>On each side of the cleaving plane we place two planes with fixed interaction sites. Each site interacts with surrounding atoms through a wells shaped potential. The main difference with the walls (see <a class="reference internal" href="fix_wall.html"><span class="doc std std-doc">walls</span></a>) version is that the two planes are now fixed, and the strength of the potential is the quantity which is varied within the simulation.</p>
-<p>The well potential we use in this work is  defined as Handel <em>et al.</em><a class="footnote-reference brackets" href="#footcite-handel2008direct" id="id1">1</a>:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+## Description
+
+On each side of the cleaving plane we place two planes with fixed interaction sites. Each site interacts with surrounding atoms through a wells shaped potential. The main difference with the walls (see [walls](../fix_wall.md)) version is that the two planes are now fixed, and the strength of the potential is the quantity which is varied within the simulation.
+ 
+The well potential we use in this work is  defined as {footcite:t}`handel2008direct`: 
+
+$$
 	\psi(r;\lambda) = 
 		\begin{cases}
 			\lambda dw\left[\left(\frac{r}{rw}\right)^2-1\right]^{P} \:\:\: r &lt; rw \\
 			0  \:\:\: r \geq rw
 		\end{cases} 
-\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(r=|\mathbf{r}_{atoms}-\mathbf{r}_{wells}|\)</span> for each couple atom-well.</p>
-<p>In the cleaving procedure, the strength of the interactions sites is varied during the simulation using the parameter <span class="math notranslate nohighlight">\(\lambda\)</span> from 0 (no interactions among the wells and the atoms) and 1 (full interactions between the wells and the atoms).</p>
-<p>In the wells version each atom interacts with wells on <em>both</em> side of the cleaving plane, therefore the external fine containing the position of the wells include a single list of positions (the interaction points).
-The format of the file is</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">N</span>
-<span class="n">x1</span> <span class="n">y1</span> <span class="n">z1</span> 
-<span class="n">x2</span> <span class="n">y2</span> <span class="n">z2</span>
-<span class="o">...</span>
-<span class="n">xN</span> <span class="n">yN</span> <span class="n">zN</span>
+$$
+where $r=|\mathbf{r}_{atoms}-\mathbf{r}_{wells}|$ for each couple atom-well.
+
+In the cleaving procedure, the strength of the interactions sites is varied during the simulation using the parameter $\lambda$ from 0 (no interactions among the wells and the atoms) and 1 (full interactions between the wells and the atoms).
+
+In the wells version each atom interacts with wells on _both_ side of the cleaving plane, therefore the external fine containing the position of the wells include a single list of positions (the interaction points). 
+The format of the file is
+
 </pre></div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(N\)</span> is the total number of wells.</p>
-<p>E.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">264</span>
-  <span class="mf">0.28595722359534864</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">16.343816675003122</span>
-  <span class="mf">0.85787167078604587</span>        <span class="mf">1.1556823601364479</span>        <span class="mf">16.343816675003122</span>
-   <span class="mf">1.4297861179767433</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">16.3438166750031</span>
-<span class="o">...</span>
-   <span class="mf">12.296160614599994</span>        <span class="mf">10.401141241228032</span>        <span class="mf">17.277749056431873</span>
-   <span class="mf">11.724246167409296</span>        <span class="mf">11.391726121344988</span>        <span class="mf">17.277749056431873</span>
+<p>N
+x1 y1 z1
+x2 y2 z2
+…
+xN yN zN</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+where $N$ is the total number of wells. Here is an example:
+
 </pre></div>
 </div>
-<div class="docutils container" id="id2">
-<dl class="footnote brackets">
-<dt class="label" id="footcite-handel2008direct"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>Richard Handel, Ruslan L Davidchack, Jamshed Anwar, and Andrey Brukhno. Direct calculation of solid-liquid interfacial free energy for molecular systems: tip4p ice-water interface. <em>Physical review letters</em>, 100(3):036104, 2008.</p>
-</dd>
-</dl>
+<p>264
+0.28595722359534864       0.16509748001949254        16.343816675003122
+0.85787167078604587        1.1556823601364479        16.343816675003122
+1.4297861179767433       0.16509748001949254        16.3438166750031
+…
+12.296160614599994        10.401141241228032        17.277749056431873
+11.724246167409296        11.391726121344988        17.277749056431873</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+
+
+```{footbibliography}
+
+</pre></div>
 </div>
-<hr class="footnotes docutils" />
+</div>
 </div>
 
 

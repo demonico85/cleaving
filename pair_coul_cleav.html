@@ -37,8 +37,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="fix wallforce" href="fix_wall.html" />
-    <link rel="prev" title="pair_style lj/BG" href="pairBG.html" /> 
+    <link rel="next" title="pair_style lj/cleavcutNlint" href="pair_lj_cut_cleav_intLJ.html" />
+    <link rel="prev" title="pair_style lj/BGNlcleavs3" href="pair_BGs3Nlam.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -88,7 +88,15 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="lammps.html">LAMMPS commands</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pairBG.html">pair_style lj/BG</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">pair_style coul/dsf[cleav]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3lam.html">pair_style lj/BGcleavs3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_BGs3Nlam.html">pair_style lj/BGNlcleavs3</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pair_style coul/dsf[cleav]</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#syntax">Syntax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_intLJ.html">pair_style lj/cleavcutNlint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pair_lj_cut_cleav_modLJ.html">pair_style lj/cleavcutsqlmod</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fix_wall.html">fix wallforce</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fix_well.html">fix wellPforce</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fix_move_duplicate.html">fix move/dupl</a></li>
@@ -165,33 +173,34 @@
             
   <div class="tex2jax_ignore mathjax_ignore section" id="pair-style-coul-dsf-cleav">
 <h1>pair_style coul/dsf[cleav]<a class="headerlink" href="#pair-style-coul-dsf-cleav" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfsql</span>  <span class="n">args</span>
-<span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfcubl</span> <span class="n">args</span>
-<span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfNl</span>   <span class="n">args</span>
+<div class="section" id="syntax">
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfsql</span>  <span class="n">alpha</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span> <span class="k">lambda</span> <span class="n">i_IDflag</span> <span class="n">orientation</span>
+<span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfcubl</span> <span class="n">alpha</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span> <span class="k">lambda</span> <span class="n">i_IDflag</span> <span class="n">orientation</span>
+<span class="n">pair_style</span> <span class="n">coul</span><span class="o">/</span><span class="n">dsfNl</span>   <span class="n">alpha</span> <span class="n">cut</span><span class="o">-</span><span class="n">off</span> <span class="k">lambda</span> <span class="n">i_IDflag</span> <span class="n">orientation</span> <span class="n">N</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>args=list of the possible arguments</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code>       = damping parameter (inverse distance units)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cutoff</span></code>      = global internal cut-off</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda</span></code>      = global scaling of the potential</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i_IDflag</span></code>    = new (integer) property to be added to the atoms</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">orientation</span></code> = direction perpendicular to the cleaving plane</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code>           = only for &lt;coul/dsfNl&gt;, power of the polynomial for <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;name pair style&gt; args = alpha cut-off lambda i_IDflag orientation N
-    alpha       = damping parameter (inverse distance units)
-    cutoff      = global internal cut-off
-    lambda      = global scaling of the potential
-    i_IDflag    = new (integer) property to be added to the atoms
-    orientation = direction perpendicular to the cleaving plane
-    N           = only for &lt;coul/dsfNl&gt; only, power of the polynomial for $\lambda$
-</pre></div>
-</div>
 <p><code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> accepts only the following arguments</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_coeff</span> <span class="n">a</span> <span class="n">b</span> <span class="k">lambda</span> 
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pair_coeff a b lambda 
 </pre></div>
 </div>
 <p>where</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">a</span>       <span class="o">=</span> <span class="n">atom</span> <span class="n">of</span> <span class="nb">type</span> <span class="n">a</span> <span class="p">[</span><span class="n">mandatory</span><span class="p">]</span>
-    <span class="n">b</span>       <span class="o">=</span> <span class="n">atom</span> <span class="n">of</span> <span class="nb">type</span> <span class="n">b</span> <span class="p">[</span><span class="n">mandatory</span><span class="p">]</span>
-    <span class="k">lambda</span>  <span class="o">=</span> <span class="k">global</span> <span class="n">scaling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">potential</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>a       = atom of type a [mandatory]
+b       = atom of type b [mandatory]
+lambda  = global scaling of the potential
 </pre></div>
 </div>
+</div>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>This pair style is derived from the <code class="docutils literal notranslate"><span class="pre">coul/dsf</span></code> in LAMMPS and we refer to the <a class="reference external" href="https://docs.lammps.org/pair_coul.html">LAMMPS documentation</a> for the
 description of its main features. Here, only the modifications needed for the cleaving calculations
 will be considered.</p>
@@ -225,6 +234,7 @@ An application of this procedure can be found in Di Pasquale and Davidchack<a c
 </div>
 <hr class="footnotes docutils" />
 </div>
+</div>
 
 
            </div>
@@ -234,10 +244,10 @@ An application of this procedure can be found in Di Pasquale and Davidchack<a c
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="fix_wall.html" class="btn btn-neutral float-right" title="fix wallforce" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pair_lj_cut_cleav_intLJ.html" class="btn btn-neutral float-right" title="pair_style lj/cleavcutNlint" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="pairBG.html" class="btn btn-neutral float-left" title="pair_style lj/BG" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pair_BGs3Nlam.html" class="btn btn-neutral float-left" title="pair_style lj/BGNlcleavs3" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
