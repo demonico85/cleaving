@@ -61,8 +61,7 @@ Direct determination of the IFE from the reversible work of creating an interfac
 from separate bulk phases equilibrated at the coexistence conditions and ends with the same phases in contact across the interface.  The cleaving method,
 originally proposed by Broughton and Gilmer [@Broughton1986Cleaving] for the calculation of the solid-liquid IFE in the Lennard-Jones system, constructs such a
 path from four basic steps: 1,2 - introduce extenernal 'cleaving potentials' in separate bulk solid and liquid systems, 3 - rearrange the boundary conditions to
-merge the systems while maintaining the cleaving potentials, 4 - remove the cleaving potentials.  A sketch of the cleaving path to obtain the IFE between two
-generic phases $\alpha$ and $\beta$ is shown in XXX.  The reversible work in each step can be determined by different free energy computation methods, but those
+merge the systems while maintaining the cleaving potentials, 4 - remove the cleaving potentials. The reversible work in each step can be determined by different free energy computation methods, but those
 based on Thermodynamic Integration (TI) are the most straightfoward and provide accurate and direct results. In the TI methods the free energy difference
 between two thermodynamic states connected by a transformation path is calculated by integrating the enesemble average of some configuration dependent function
 (e.g., the potential energy) with respect to a parameter defining the path from the initial to the final thermodynamic state.
