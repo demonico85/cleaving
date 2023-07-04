@@ -1,7 +1,7 @@
-# Fix style well
+# fix wellPforce
 
 ```
-fix_style wellPforce args
+fix wellPforce args
 ```
 
 - args=list of the possible arguments

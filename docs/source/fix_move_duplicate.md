@@ -1,10 +1,10 @@
-# Fix move duplicate
+# fix move/dupl
 
 
 ## Syntax 
 
 ```
-fix_style ID group-ID move/dupl args
+fix ID group-ID move/dupl args
 ```
 
 - args=list of the possible arguments
