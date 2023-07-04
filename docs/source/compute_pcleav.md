@@ -1,7 +1,7 @@
 # compute cleavpairs
 
 ```
-compute cleavpairs args
+compute ID group_ID cleavpairs args
 ```
 
 - args=list of the possible arguments
