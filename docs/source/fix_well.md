@@ -1,19 +1,20 @@
 # fix wellPforce
 
-```
-fix wellPforce args
-```
-
-- args=list of the possible arguments
+## Syntax
 
 ```
-    wellPforce args = dw rw P lambda file <name file> 
-    dw = depth of the well 
-    rw = interaction range
-    P = power law of the wells
-    lambda = strength of the interactions between wells and atoms
-    < name file > = external file which contains the position of the wells
+fix wellPforce dw rw P lambda file <filename>
 ```
+
+* `wellPforce` args = dw rw P lambda file <name file> 
+* `dw` = depth of the well 
+* `rw` = interaction range
+* `P` = power law of the wells
+* `lambda` = strength of the interactions between wells and atoms
+* `<filename>` = external file which contains the position of the wells
+```
+
+## Description
 
 On each side of the cleaving plane we place two planes with fixed interaction sites. Each site interacts with surrounding atoms through a wells shaped potential. The main difference with the walls (see [walls](../fix_wall.md)) version is that the two planes are now fixed, and the strength of the potential is the quantity which is varied within the simulation.
  
@@ -41,9 +42,7 @@ x2 y2 z2
 xN yN zN
 ```
 
-where $N$ is the total number of wells. 
-
-E.g.:
+where $N$ is the total number of wells. Here is an example:
 
 ```
 264

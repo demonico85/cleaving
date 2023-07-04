@@ -3,38 +3,32 @@
 
 ## Syntax
 
-
-```
-pair_style lj/BGNlcleavs3args
-```
-
-- args=list of the possible arguments
-
-```
-lj/BGNlcleavs3 args = cutoff1 cutoff2 lambda Dfac 
-    cutoff1 = global internal cut-off
-    cutoff2 = global external cut-off
-    lambda  = global scaling of the potential
-    N       = exponent of the function lambda^N
-    Dfac    = multiplicative factor to multiply the derivative of the interaction with respect to lambda 
+```text
+pair_style lj/BGNlcleavs3 cutoff1 cutoff2 lambda Dfac
 ```
 
+* `cutoff1` = global internal cut-off
+* `cutoff2` = global external cut-off
+* `lambda`  = global scaling of the potential
+* `N`       = exponent of the function lambda^N
+* `Dfac`    = multiplicative factor to multiply the derivative of the interaction with respect to lambda
 
-`pair_coeff` accept the same arguments of the pair_style. However, keep in mind that parameters in pair coeff have a specific order
 
-```
+`pair_coeff` accept the same arguments as the `pair_style`. However, keep in mind that parameters in pair coeff have a specific order
+
+```text
 pair_coeff a b lambda Dfac cutoff1 cutoff2
 ```
 
 where
 
-```
-    a       = atom of type a [mandatory]
-    b       = atom of type b [mandatory]
-    lambda  = scaling of the potential
-    Dfac    = multiplicative factor for the derivative of the interaction with respect to lambda     
-    cutoff1 = global internal cut-off
-    cutoff2 = global external cut-off
+```text
+a       = atom of type a [mandatory]
+b       = atom of type b [mandatory]
+lambda  = scaling of the potential
+Dfac    = multiplicative factor for the derivative of the interaction with respect to lambda     
+cutoff1 = global internal cut-off
+cutoff2 = global external cut-off
 ```
 
 the arguments in the `pair_coeff` are all optional except for the atom types. Note that the order is important. If we want to specify a new lambda for a different pair of types we can just write
@@ -101,7 +95,7 @@ Using this style we can represent different switches between different states of
 Let us assume the total Hamiltonian of the system, $H^{T}(\lambda)$, is defined as 
 
 $$
-	H^{T}(\lambda)= \lambda^N H_{a} + H_{b} 
+H^{T}(\lambda)= \lambda^N H_{a} + H_{b} 
 $$  
 
 for $\lambda \in [0,1]$, where we dropped the dependence on $\mathbf{p}$ and $\mathbf{q}$ for simplicity.

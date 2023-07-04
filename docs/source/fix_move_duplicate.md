@@ -4,19 +4,17 @@
 ## Syntax 
 
 ```
-fix ID group-ID move/dupl args
+fix ID group-ID move/dupl C_ID
 ```
 
-- args=list of the possible arguments
+* `C_ID` = ID of the compute displace/atom
 
-```
-   C_ID = ID of the compute displace/atom
-```
+## Description
 
 This fix allows to translate the duplicate atoms of the same distance crossed by the corresponding real atoms. In step3 of the cleaving methodology the duplicate atoms allow to calculate the cross-cleaving plane interactions but they need to "follow" the real atoms when they move in a new position each time step. 
 
 
-In the step3 the system (solid+liquid) is duplicated and `real` and `duplicate` atom types are defined (see [example LJ-SL](example_SL.md) for more details).
+In the step3 the system (solid+liquid) is duplicated and `real` and `duplicate` atom types are defined (see [example LJ-SL](example_SL_walls.md) for more details).
 
 
 ![definition](../figs/dupl1.png "Definition of duplicate atoms")

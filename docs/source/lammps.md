@@ -5,10 +5,11 @@
    :maxdepth: 2
    
    pairBG.md
-   pairBGs3lam.md
-   pairBGs3Nlam.md
+   pair_BGs3lam.md
+   pair_BGs3Nlam.md
    pair_coul_cleav.md
-   pair_lj_cut_cleav_flat.md
+   pair_lj_cut_cleav_intLJ.md
+   pair_lj_cut_cleav_modLJ.md
    fix_wall.md
    fix_well.md
    fix_move_duplicate.md 
