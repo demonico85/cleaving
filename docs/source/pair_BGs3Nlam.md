@@ -128,7 +128,6 @@ In this latter case, the command Dfrac needs to be used when we are passing to t
 ```
 variable lam file lambda.dat
 variable N      equal 3
-variable lambda equal exp($N*log(${lam}))
 variable minl   equal 1-lambda
 
 pair_style lj/BGNlcleavs3  2.3 2.5 1.0 $N 1.0
@@ -137,11 +136,11 @@ pair_coeff 2 2 1.0 1.0
 pair_coeff 3 3 1.0 1.0
 
 pair_coeff 1 2 ${lambda} 1.0
-pair_coeff 1 3 ${minl} 1.0
+pair_coeff 1 3 ${minl} -1.0
 pair_coeff 2 3 1.0 1.0
 ```
 
-The "self" interactions are not modified during the run, as well as the interactions between atoms of type 2 and 3. However, interactions between atoms of type 1 and 2 are `switched-on` (`switched-off`) and interactions between atoms of type 1 and 3 are  `switched-off` (`switched-on`) if $\lambda$ goes from 0 to 1 (from 1 to 0).
+The "self" interactions are not modified during the run, as well as the interactions between atoms of type 2 and 3. However, interactions between atoms of type 1 and 2 are `switched-on` (`switched-off`) and interactions between atoms of type 1 and 3 are  `switched-off` (`switched-on`) if $\lambda$ goes from 1 to 0 (from 0 to 1).
 
 
 ````{note}
