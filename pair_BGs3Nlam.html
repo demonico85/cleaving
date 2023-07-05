@@ -282,8 +282,8 @@ Let us assume the total Hamiltonian of the system, <span class="math notranslate
 \]</div>
 <p>for <span class="math notranslate nohighlight">\(\lambda \in [0,1]\)</span>, where we dropped the dependence on <span class="math notranslate nohighlight">\(\mathbf{p}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> for simplicity.
 In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like <span class="math notranslate nohighlight">\((1-\lambda)\)</span>. Here, we need to set Dfrac=-1.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable N equal 4
-variable lambda file lambda.dat
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable lam file lambda.dat
+variable N      equal 3
 variable minl   equal 1-lambda
 
 pair_style lj/BGNlcleavs3  2.3 2.5 1.0 $N 1.0
@@ -292,11 +292,11 @@ pair_coeff 2 2 1.0 1.0
 pair_coeff 3 3 1.0 1.0
 
 pair_coeff 1 2 ${lambda} 1.0
-pair_coeff 1 3 ${minl} 1.0
+pair_coeff 1 3 ${minl} -1.0
 pair_coeff 2 3 1.0 1.0
 </pre></div>
 </div>
-<p>The “self” interactions are not modified during the run, as well as the interactions between atoms of type 2 and 3. However, interactions between atoms of type 1 and 2 are <code class="docutils literal notranslate"><span class="pre">switched-on</span></code> (<code class="docutils literal notranslate"><span class="pre">switched-off</span></code>) and interactions between atoms of type 1 and 3 are  <code class="docutils literal notranslate"><span class="pre">switched-off</span></code> (<code class="docutils literal notranslate"><span class="pre">switched-on</span></code>) if <span class="math notranslate nohighlight">\(\lambda\)</span> goes from 0 to 1 (from 1 to 0).</p>
+<p>The “self” interactions are not modified during the run, as well as the interactions between atoms of type 2 and 3. However, interactions between atoms of type 1 and 2 are <code class="docutils literal notranslate"><span class="pre">switched-on</span></code> (<code class="docutils literal notranslate"><span class="pre">switched-off</span></code>) and interactions between atoms of type 1 and 3 are  <code class="docutils literal notranslate"><span class="pre">switched-off</span></code> (<code class="docutils literal notranslate"><span class="pre">switched-on</span></code>) if <span class="math notranslate nohighlight">\(\lambda\)</span> goes from 1 to 0 (from 0 to 1).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The “complement” switching obtained with this pair style is <span class="math notranslate nohighlight">\((1-\lambda)^N \neq (1-\lambda^N)\)</span>. In terms of Thermodynamic Integration they are both equivalent as long as, given a function of <span class="math notranslate nohighlight">\(\lambda\)</span>, i.e. <span class="math notranslate nohighlight">\(f(\lambda)\)</span>, we have <span class="math notranslate nohighlight">\(f(\lambda)=0\)</span> for <span class="math notranslate nohighlight">\(\lambda=0\)</span> and <span class="math notranslate nohighlight">\(f(\lambda)=1\)</span> for <span class="math notranslate nohighlight">\(\lambda=1\)</span>.</p>
