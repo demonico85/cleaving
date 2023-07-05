@@ -187,7 +187,7 @@ $$
 	H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
 $$  
 
-is needed, while in principle can be also defined with this pair style, we suggest to use the pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md) instead. The reason is that, with such a scaling the coefficients for $H_{a}$ interactions is going to be $N\lambda^{N-1}$, while the coefficients for $H_{b}$ interactions is given by $N(1-\lambda)^{N-1}$.  The pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md) is able to automatically account for this.
+is needed, while in principle can be also defined with this pair style, we suggest to use the pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md) instead. The reason is that, with such a scaling the coefficients for $H_{a}$ interactions is going to be $N\lambda^{N-1}$, while the coefficients for $H_{b}$ interactions is given by $-N(1-\lambda)^{N-1}$.  The pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md) is able to automatically account for this.
 ````
 
 
