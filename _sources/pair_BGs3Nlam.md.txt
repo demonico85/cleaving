@@ -152,7 +152,7 @@ The work performed in this step can be collected and printed out by using the co
 
 
 ````{note}
-When $N=1& this pair style is equivalent to [pair_style lj/BGcleavs3](./pair_BGs3lam.md).
+When $N=1$ this pair style is equivalent to [pair_style lj/BGcleavs3](./pair_BGs3lam.md).
 ````
 
 
