@@ -126,8 +126,9 @@ for $\lambda \in [0,1]$, where we dropped the dependence on $\mathbf{p}$ and $\m
 In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like $(1-\lambda)$. Here, we need to set Dfrac=-1.
 
 ```
-variable N equal 4
-variable lambda file lambda.dat
+variable lam file lambda.dat
+variable N      equal 3
+variable lambda equal exp($N*log(${lam}))
 variable minl   equal 1-lambda
 
 pair_style lj/BGNlcleavs3  2.3 2.5 1.0 $N 1.0

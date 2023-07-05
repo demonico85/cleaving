@@ -43,7 +43,7 @@ pair_coeff 1 1 lambda Dfac cutoff1 cutoff2
 ## Examples
 
 ```
-pair_style lj/BGNlcleavs3 2.3 2.5 
+pair_style lj/BGcleavs3 2.3 2.5 
 pair_coeff 1 1 1.0
 pair_coeff 1 2 1.0
 pair_coeff 1 3 -1.0
@@ -141,7 +141,7 @@ In this latter case, the command Dfrac needs to be used when we are passing to t
 variable lambda file lambda.dat
 variable minl   equal 1-lambda
 
-pair_style lj/BGlcleavs3  2.3 2.5 1.0 1.0
+pair_style lj/BGcleavs3  2.3 2.5 1.0 1.0
 pair_coeff 1 1 1.0 1.0
 pair_coeff 2 2 1.0 1.0
 pair_coeff 3 3 1.0 1.0
@@ -163,10 +163,12 @@ $$
 $$  
 
 ```
-variable lambda file lambda.dat
+variable lam file lambda.dat
+variable N equal 4
+variable lambda equal exp($N*log(${lam}))
 variable minl   equal 1-lambda
 
-pair_style lj/BGlcleavs3  2.3 2.5 1.0 1.0
+pair_style lj/BGcleavs3  2.3 2.5 1.0 1.0
 pair_coeff 1 1 1.0 1.0
 pair_coeff 2 2 1.0 1.0
 pair_coeff 3 3 1.0 1.0
