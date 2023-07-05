@@ -156,11 +156,13 @@ The "self" interactions are not modified during the run, as well as the interact
 
 
 ````{warning}
-If this pair style is used to simulate a polynomial switching from state $a$ to state $b$, e.g.:
+This pair style can be used to simulate a polynomial switching from state $a$ to state $b$ in the form given by:
 
 $$
 	H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda^N) H_{b} 
 $$  
+
+by defining the polynomial in $\lambda$ outside the pair style, e.g.:
 
 ```
 variable lam file lambda.dat
@@ -178,7 +180,14 @@ pair_coeff 1 3 ${minl} -1.0
 pair_coeff 2 3 1.0 1.0
 ```
 
-then the compute [paircleav](./compute_pcleav.md) must be used with the vector option. That means that each specific interactions is written in the output file. This is needed to be able to obtain the correct work due to the switching.  Otherwise the work will be accumulated as the sum of all the interactions and it is not possible to know what is the contribution coming from $H_{a}$ (which should be multiplied by $N\lambda^{N-1}$) and which is the contribution coming from $H_{a}$ (which should be multiplied by $-N\lambda^{N-1}$). For this reason, even if it possible in principle to use this pair style with a polynomial function of $\lambda$ with $N>1$, we suggest for $N>1$ to use the pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md).  
+However, the energy obtained through the compute [paircleav](./compute_pcleav.md) must be multiplied by $N\lambda^{N-1}$ as the pair style does not recognize that $\lambda$ is not a linear parameter. 
+Note that, if a scaling of the form 
+
+$$
+	H^{T}(\lambda)= \lambda^N H_{a} + (1-\lambda)^N H_{b} 
+$$  
+
+is needed, while in principle can be also defined with this pair style, we suggest to use the pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md) instead. The reason is that, with such a scaling the coefficients for $H_{a}$ interactions is going to be $N\lambda^{N-1}$, while the coefficients for $H_{b}$ interactions is given by $N(1-\lambda)^{N-1}$.  The pair_style [lj/BGNlcleavs3](./pair_BGs3Nlam.md) is able to automatically account for this.
 ````
 
 
