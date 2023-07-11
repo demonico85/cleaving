@@ -168,7 +168,7 @@ by defining the polynomial in $\lambda$ outside the pair style, e.g.:
 variable lam file lambda.dat
 variable N equal 4
 variable lambda equal exp($N*log(${lam}))
-variable minl   equal 1-lambda
+variable minl   equal 1-${lambda}
 
 pair_style lj/BGcleavs3  2.3 2.5 1.0 1.0
 pair_coeff 1 1 1.0 1.0

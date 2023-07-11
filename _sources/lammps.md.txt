@@ -7,6 +7,7 @@
    pairBG.md
    pair_BGs3lam.md
    pair_BGs3Nlam.md
+   pair_BGs3pbc.md
    pair_coul_cleav.md
    pair_lj_cut_cleav_intLJ.md
    pair_lj_cut_cleav_modLJ.md
