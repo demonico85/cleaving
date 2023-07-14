@@ -42,7 +42,8 @@ Given these difficulties, *in silico* experiments offer a viable way to obtain i
 
 Direct determination of the IFE from the reversible work of creating an interface requires the careful design of a thermodynamic transformation path that starts from separate bulk phases equilibrated at coexistence conditions and ends with the same phases in contact across an interface. The cleaving method, originally proposed by Broughton and Gilmer [@Broughton1986Cleaving] for the calculation of the solid-liquid IFE in a Lennard-Jones system, constructs such a path from four basic steps: 
 
-1. and 2. introduce external 'cleaving potentials' in separate bulk solid and liquid systems;
+1. introduce an external 'cleaving potential' in a bulk solid system;
+2. same as 1., but for the liquid system;
 3. rearrange the boundary conditions to merge the systems while maintaining the cleaving potentials;
 4. remove the cleaving potentials. 
 
@@ -62,7 +63,7 @@ The package includes new definitions of pair potentials not included in LAMMPS, 
 The processing of the interactions to generate the work in step 3 is carried out by the new compute `cleavpairs`, which generates the output file needed for the calculation of the IFE. The cleaving method owes its name to the fact that each bulk phase is "cleaved", *i.e.*, cut at a certain position to create the new interface. The cut is modelled with an external potential, that is, a potential depending on the absolute position of atoms within the simulation box. In the cleaving package there are two external potentials available: the "walls" and the "wells". These two external potentials are two additional fix styles, namely `wallforce` and `wellPforce`. We refer to the documentation for a detailed explanation of their use.
 A new fix style `move/dupl` used in step 3 to switch the interactions between phases in contact is also included.
 
-The new functionalities presented here are extremely general and can be applied to a variety of problems, making this package flexibile, thus answering one of the problem in the community, which is the lack of  well maintained codes to carry out interfacial calculations to avoid relying on in-house codes and custom extensions. 
+The new functionalities presented here are extremely general and can be applied to a variety of problems, making this package flexibile, thus answering one of the problem in the community, which is the lack of well maintained codes to carry out interfacial calculations to avoid relying on in-house codes and custom extensions. 
 
 # Acknowledgements
 
