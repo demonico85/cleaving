@@ -87,7 +87,6 @@ variable  crw     equal  2.0^(1.0/6.0)
 variable  rhoc    equal  0.945
 variable  cut1    equal  2.3
 variable  cut2    equal  2.5
-variable  firsteq equal  20000
 variable  eqnts   equal  20000
 variable  nts     equal  25000
 variable  ts      equal  0.005
@@ -119,7 +118,7 @@ neigh_modify every 1 delay 0 check yes exclude type 1 7 exclude type 1 8 exclude
 #### normal interactions
 
 # self
-pair_style lj/Nlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
+pair_style lj/BGNlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
 pair_coeff   1 1  ${epslj} ${siglj}   1.0 1.0
 pair_coeff   2 2  ${epslj} ${siglj}   1.0 1.0
 pair_coeff   3 3  ${epslj} ${siglj}   1.0 1.0 
@@ -148,7 +147,7 @@ fix f1 block setforce 0.0 0.0 0.0
 # ------------------------- Define compute style -------------------------------
 
 
-compute 1 all cleavpairs lj/Nlcleavs3 norm 4 z
+compute 1 all cleavpairs lj/BGNlcleavs3 norm 4 z
 
 
 # ------------- Output thermo information and averaged variables ---------------

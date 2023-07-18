@@ -47,7 +47,6 @@ variable  crw    equal  2.0^(1.0/6.0)
 variable  nloop  equal  1000
 variable  eqnts  equal  3000 
 variable  nts    equal  25000
-variable  firsteqnts    equal 45000
 variable  ts     equal  0.005
 variable  siglj  equal  1.0
 variable  epslj  equal  1.0

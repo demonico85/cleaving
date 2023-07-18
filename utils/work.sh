@@ -1,16 +1,16 @@
 #! /bin/bash
 
 
-
-
-#awk '{i+=1; if(i > 11 &&  i < 4764){print $1,1,$3,$4,$5}else{print $0;}}' InputCW.lmp > dataYang.dump
-
-#awk '{i+=1; if(i > 2){work += $4; cnt += 1}}END{print work/cnt}' 
-
-
-scriptdir="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils"
-minimumsize=5
+dir="~/utils"
+namescript="blockAv.py"
 maxblock=5
+
+
+
+####################################################################################################################################################
+
+scriptdir=$(echo "$dir/$namescript")
+minimumsize=5
 cnt=1
 
 if [ ! "$1" == "B" ] && [ ! "$1" == "b" ] && [ ! "$1" == "F" ] && [ ! "$1" == "f" ];
@@ -66,7 +66,7 @@ while [ $cnt -le $nfiles ];
             awk '{i+=1; if(i > 3){print $7}}' $file > b.tmp
             fn="$(echo ${file%.*}.pdf)"
             echo  $fn
-            python $scriptdir/analysis.py -f 1.tmp -n $maxblock -o $fn  |  awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 3.tmp 
+            python $scriptdir -f 1.tmp -n $maxblock -o $fn  |  awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 3.tmp 
             
             grep . a.tmp > 4.tmp
             grep . b.tmp > 5.tmp
@@ -76,7 +76,7 @@ while [ $cnt -le $nfiles ];
             if [ $actualsize -ge $minimumsize ];
               then
                 fn="$(echo ${file%.*}.f2.pdf)"
-                python $scriptdir/analysis.py -f 4.tmp -n $maxblock -o $fn  | awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 6.tmp 
+                python $scriptdir -f 4.tmp -n $maxblock -o $fn  | awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 6.tmp 
                 ex1=1
             fi 
 
@@ -85,7 +85,7 @@ while [ $cnt -le $nfiles ];
             if [ $actualsize -ge $minimumsize ];
               then
                 fn="$(echo ${file%.*}.f3.pdf)"
-                python $scriptdir/analysis.py -f 5.tmp -n $maxblock -o $fn  | awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 7.tmp
+                python $scriptdir -f 5.tmp -n $maxblock -o $fn  | awk '{if ($1 == "<x>"){av=$3; err=$5;}else if($1 == "95%"){conf=$7;}} END{print av, err, conf }' > 7.tmp
                 ex2=1
             fi 
     
