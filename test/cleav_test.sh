@@ -5,18 +5,15 @@ function checkcommands () {
 
 if ! command -v $1 &> /dev/null
 then
-    echo "$1 could not be found"
+    echo "ERROR: $1 could not be found"
     exit
 fi
-
-
 
 }
 
 
 # Parameters to be changed
 
-dirscripts="/home/mmm1133/Scratch/LJ_sol_liq/utils"
 lmp="lmp_mpi"
 
 trap "exit 15" TERM
@@ -67,8 +64,9 @@ do
  esac
 done
 
+checkcommands $lmp
 
- if ! [[ $nproc =~ $re ]] ; then
+if ! [[ $nproc =~ $re ]] ; then
    echo "ERROR: Need to include number of processes (option -n)"
    echo "Exiting ..."
    exit 1
@@ -89,19 +87,11 @@ echo "Number of MPI processes: $nproc"
 
 
 
-if [ ! -x $lmp ];
-  then
-    echo "ERROR: I cannot find executable $lmp" 
-    echo "Exiting..."
-    exit
-fi
-
 echo "I am working with executable $lmp"
 
 
-if [ ! -d $exampledir ];
-  then
-    echo "I cannot find $exampledir and I cannot run the test"
+if [ ! -d $exampledir ]; then
+    echo "ERROR: I cannot find $exampledir and I cannot run the test"
     echo "Exiting..."
     echo -1
 fi
@@ -136,8 +126,7 @@ echo
 dum=$exampledir/cases/fcc111_T1_walls/input
 
 
-if [ ! -f $dum ];
- then
+if [ ! -f $dum ]; then
     echo "File input not found in the dir $exampledir/cases/fcc111_T1_walls"
     echo "Check it better"
     echo
@@ -150,10 +139,10 @@ cleav=$(awk '{if($1 == "111" || $1 == "110" || $1 == "100"){print $2}}' input)
 temp=$(awk '{if($1 == "Temperature:"){print $2}}' input)
 
 
-    for step in step1 step2 step3 step4
-      do
-        cp -r $exampledir/walls/$step .
-    done
+for step in step1 step2 step3 step4
+do
+    cp -r $exampledir/walls/$step .
+done
 
 
 CWD=$(pwd)
@@ -212,14 +201,13 @@ mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
 
 
 
-if grep -q 'ERROR' $log;
-  then
+if grep -q 'ERROR' $log; then
     echo "Something went wrong in $step"
     echo "Test cannot be completed"
     echo "Consult the log file $log"
     exit 
 else
-    echo "$step succefully run"
+    echo "$step successfully run"
     echo "pair_style lj/BG..............working"
     echo "fix wallforce.................working"  
     echo 
@@ -283,7 +271,7 @@ if grep -q 'ERROR' $log;
     echo "Consult the log file $log"
     exit 
 else
-    echo "$step succefully run"
+    echo "$step successfully run"
     echo "pair_style lj/BG..............working"
     echo "fix wallforce.................working"  
     echo 
@@ -298,7 +286,6 @@ step="step3"
 inpdata="inputStep3.lmp"
 cd $CWD
 
-
 file1=$(ls  $CWD/step1/data/F* | sort -t. -n -k2 -r | head -1) # F* to pickup the forward file
 namefiles1=$(echo $file | rev | cut -d/ -f1 | rev)
 
@@ -306,15 +293,13 @@ file2=$(ls  $CWD/step2/data/F* | sort -t. -n -k2 -r | head -1) # F* to pickup th
 namefiles2=$(echo $file | rev | cut -d/ -f1 | rev)
 
 
-if [ ! -e "$file1" ];
-  then
+if [ ! -e "$file1" ]; then
     echo "File  $namefile1 does not exist"
     echo "something went wrong in step1. Check it better"
     exit 
 fi
 
-if [ ! -e "$file2" ];
-  then
+if [ ! -e "$file2" ]; then
     echo "File  $namefile2 does not exist"
     echo "something went wrong in step2. Check it better"
     exit 
@@ -333,11 +318,6 @@ gfortran $exampledir/utils/step3IN.f90 -o s3inp
 cleav2=$(awk '{if ($3 == "Position2:"){print $4}}' tmp )
 
 
-
-
-
-
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # STEP 3
 
@@ -348,6 +328,9 @@ echo
 cd $CWD
 dir=$CWD/$step
 cd $dir
+
+awk 'NR%10==0||NR==1{print $0}' lambda.dat > new_lambda.dat
+mv new_lambda.dat lambda.dat
 
 mkdir out
 mkdir data
@@ -383,14 +366,13 @@ mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
 
 
 
-if grep -q 'ERROR' $log;
-  then
+if grep -q 'ERROR' $log; then
     echo "Something went wrong in $step"
     echo "Test cannot be completed"
     echo "Consult the log file $log"
     exit 
 else
-    echo "$step succefully run"
+    echo "$step successfully run"
     echo "pair_style lj/BGNlcleavs3.....working"
     echo "compute displace/atom_cleav...working"
     echo "fix move/dupl.................working"
@@ -421,14 +403,13 @@ mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
 
 
 
-if grep -q 'ERROR' $log;
-  then
+if grep -q 'ERROR' $log; then
     echo "Something went wrong in $step"
     echo "Test cannot be completed"
     echo "Consult the log file $log"
     exit 
 else
-    echo "$step succefully run"
+    echo "$step successfully run"
     echo "pair_style lj/BGNlcleavs3.....working"
     echo 
 fi 
@@ -445,9 +426,7 @@ cd $CWD
 
 
 
-echo  $step 
-
-file=$(ls  $CWD/step3/data/F* | sort -t. -n -k2 -r | head -1) # F* to pickup the forward fil1e
+file=$(ls  $CWD/step3/data/F* | sort -t. -n -k2 -r | head -1) # F* to pickup the forward file
 namefiles3=$(echo $file | rev | cut -d/ -f1 | rev)
 
 
@@ -506,12 +485,11 @@ mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
 
 
 
-if grep -q 'ERROR' $log;
-  then
+if grep -q 'ERROR' $log; then
     echo "Something went wrong in $step. Check it better"
     exit 
 else
-    echo "$step succefully run"
+    echo "$step successfully run"
     echo 
 fi 
 
@@ -538,10 +516,10 @@ echo
 # Preparations Dirs
 
 
-    for step in step1 step3 step4
-      do
-        cp -r $exampledir/$step .
-    done
+for step in step1 step3 step4
+do
+    cp -r $exampledir/$step .
+done
 
 
 CWD=$(pwd)
@@ -556,6 +534,8 @@ cd $CWD
 dir=$CWD/$step
 cd $dir
 
+awk 'NR%10==0||NR==1{print $0}' zdir.dat > new_zdir.dat
+mv new_zdir.dat zdir.dat
 
 mkdir out
 mkdir data
@@ -563,7 +543,7 @@ mkdir dat
 
 
 inpdata=$(echo "Fstep1.51.data")
-inpwell=$(echo "fcc111-T1-wells.lmp")
+inpwell=$(echo "fcc111-T01-wells.lmp")
 
 inpscript=$(echo $step".in")
 
@@ -586,20 +566,14 @@ cat tmp | awk -v T=$temp -v S=$inpdata -v W=$inpwell '{
 mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
 
 
-
-if grep -q 'ERROR' $log;
-  then
+if grep -q 'ERROR' $log; then
     echo "Something went wrong in $step"
     echo "Test cannot be completed"
     echo "Consult the log file $log"
     exit 
 else
-    echo "$step succefully run"
+    echo "$step successfully run"
     echo "fix wellsPforce...............working"
     echo "pair_style lj/BGcleavpbc......working"
     echo 
 fi 
-
-
-
-

@@ -34,6 +34,9 @@
 # docs build directory
 docs/build
 
+# testing data
+test/test_*
+
 # eclipse stuff
 .project
 .pydevproject
