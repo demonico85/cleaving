@@ -24,6 +24,7 @@ mass * 1.0
 
 # ---------------------------- Define variables --------------------------------
 
+variable   wellsfile   string "fcc111-T01-wells.lmp" # Name of the wells file
 variable   zc file zdir.dat 
 variable   i           equal  1         # initialization counter
 variable   backloop    equal  0         # perform the backloop yes/no: 1/0
@@ -32,7 +33,6 @@ variable   fact        equal  1.2       # factor controlling extension wells int
 variable   dw          equal  6.0       # depth of the wells, taken as the pe per atom in liquid at triple point
 variable   expp        equal  3.0       # power law exponent in wells potential shape
 variable   eqnts       equal  5000      # equilibration number of time-steps
-variable   firsteqnts  equal  35000     # equilibration before starting the cleaving
 variable   nts         equal  45000     # production number of time-steps
 variable   ts          equal  0.005     # time-step size (in lj units)
 variable   siglj       equal  1.0       # sigma coefficient for BG pair-style
@@ -86,7 +86,7 @@ compute 1 all cleavpairs lj/BGcleavpbc norm 2 z
 
 # ------------- Output thermo information and averaged variables ---------------
 
-fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file fcc111-T01-wells.lmp 
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file ${wellsfile} 
 variable totW   equal "f_f2" 
 
 fix    f5 all nvt temp ${Tsyst} ${Tsyst} ${Tdamp}

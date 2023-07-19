@@ -13,7 +13,7 @@
 
 #ifdef PAIR_CLASS
 
-PairStyle(BGcleavs3,PairLJBGStep3)
+PairStyle(lj/BGcleavs3,PairLJBGStep3)
 
 #else
 

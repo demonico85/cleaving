@@ -1,6 +1,19 @@
 #! /bin/bash -l
 #
 
+function checkcommands () {
+
+if ! command -v $1 &> /dev/null
+then
+    echo "$1 could not be found"
+    exit
+fi
+
+
+
+}
+
+
 # Parameters to be changed
 
 dirscripts="/home/mmm1133/Scratch/LJ_sol_liq/utils"
@@ -9,16 +22,18 @@ lmp="lmp_mpi"
 trap "exit 15" TERM
 export TOP_PID=$$
 
+checkcommands "mpirun"
+checkcommands "gfortran"
 
 # ------------ Init the systems ------------------------------------------------
 
 
 exampledir="../examples/lj_SL"
-TT="T1" #temperature
 
 
 
 runsim=1
+nproc=4
 re='^[0-9]+([.][0-9]+)?$'
 continue=0
 d=$(date +%Y-%m-%d)
@@ -29,7 +44,7 @@ echo
 
 # Read Inputs
 
-while getopts l:s:n:c option
+while getopts l:n:h option
 do
  case "${option}"
  in
@@ -41,6 +56,8 @@ do
        echo "Exiting ..." 
        exit 1
     fi
+    ;;
+ h) echo "cleav_test.sh -l <path lammps executable> OPTIONAL -n <nproc, default=4>"
     ;;
  \?)
     echo "ERROR: Invalid option: -$OPTARG" 
@@ -58,6 +75,10 @@ done
 fi
 
 echo "Number of MPI processes: $nproc"
+
+
+# Check if all the commands are available
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -92,7 +113,7 @@ log=$(echo $now.log)
 #################################################################################
 
 
-testdir=$(echo "test_LJ_fcc111_T1_walls")
+testdir=$(echo "test_LJ_SL_fcc111_T1_walls")
 rm -r $testdir 2> /dev/null
 mkdir $testdir
 
@@ -128,8 +149,7 @@ cp $dum .
 cleav=$(awk '{if($1 == "111" || $1 == "110" || $1 == "100"){print $2}}' input)
 temp=$(awk '{if($1 == "Temperature:"){print $2}}' input)
 
-pwd
-echo $exampledir/walls
+
     for step in step1 step2 step3 step4
       do
         cp -r $exampledir/walls/$step .
@@ -156,8 +176,6 @@ mkdir data
 
 zwi=$(head -1 zwalls.dat)
 zwf=$(tail -1 zwalls.dat)
-
-echo $zwi $zwf
 
 inpdata=$(echo "fcc111-T1.lmp")
 inpwall=$(echo "fcc111-T1-walls.lmp")
@@ -196,8 +214,15 @@ mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
 
 if grep -q 'ERROR' $log;
   then
-    echo "Something went wrong in $step. Check it better"
+    echo "Something went wrong in $step"
+    echo "Test cannot be completed"
+    echo "Consult the log file $log"
     exit 
+else
+    echo "$step succefully run"
+    echo "pair_style lj/BG..............working"
+    echo "fix wallforce.................working"  
+    echo 
 fi 
 
 
@@ -233,7 +258,6 @@ cat tmp | awk -v T=$temp -v S=$inpdata -v C=$cleav '{
         else if($2 == "clwall"){print $1,$2,$3,C;}
         else if($1 == "read_data"){print $1,S;}
         else if( $2 == "nts"){print $1, $2, $3, 10;}
-        else if( $2 == "firsteqnts"){print $1, $2, $3, 10;}    
         else if( $2 == "eqnts"){print $1, $2, $3, 10;}  
         else if( $2 == "Nevery"){print $1, $2, $3, 2;}
         else if( $2 == "Nrepeat"){print $1, $2, $3, 5;}    
@@ -252,13 +276,18 @@ cat tmp |  awk -v W=$inpwall  '{
 mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
 
 
-
 if grep -q 'ERROR' $log;
   then
-    echo "Something went wrong in $step. Check it better"
+    echo "Something went wrong in $step"
+    echo "Test cannot be completed"
+    echo "Consult the log file $log"
     exit 
+else
+    echo "$step succefully run"
+    echo "pair_style lj/BG..............working"
+    echo "fix wallforce.................working"  
+    echo 
 fi 
-
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -335,16 +364,17 @@ inpscript=$(echo $step".in")
 cat $inpscript > tmp
 cat tmp | awk -v T=$temp -v S=$inpdata -v C=$cleav  -v cc=$cleav2 -v zwf=$zwf '{
         if($2 == "Tsyst"){print $1, $2, $3, T;}
+        else if($1 == "pair_style"){print "pair_style lj/BGNlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0"}        
         else if($2 == "clwall1"){print $1,$2,$3,C;}
         else if($2 == "clwall2"){print $1,$2,$3,cc;}
         else if($1 == "read_data"){print $1,S;}
         else if( $2 == "nts"){print $1, $2, $3, 10;}
-        else if( $2 == "firsteqnts"){print $1, $2, $3, 10;}    
         else if( $2 == "eqnts"){print $1, $2, $3, 10;}  
         else if( $2 == "Nevery"){print $1, $2, $3, 2;}
         else if( $2 == "Nrepeat"){print $1, $2, $3, 5;}    
         else if( $2 == "Nfreq"){print $1, $2, $3, 10;}                      
         else if( $2 == "zwf"){print $1, $2, $3, zwf;}
+        else if( $1 == "compute" && $2 == 1){print "compute 1 all cleavpairs lj/BGNlcleavs3 norm 4 z";}        
         else{print $0;}
         	}'  > $inpscript
 
@@ -355,8 +385,52 @@ mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
 
 if grep -q 'ERROR' $log;
   then
-    echo "Something went wrong in $step. Check it better"
+    echo "Something went wrong in $step"
+    echo "Test cannot be completed"
+    echo "Consult the log file $log"
     exit 
+else
+    echo "$step succefully run"
+    echo "pair_style lj/BGNlcleavs3.....working"
+    echo "compute displace/atom_cleav...working"
+    echo "fix move/dupl.................working"
+    echo 
+fi 
+
+echo "Rerunning step3 with lj/BGcleavs3"
+
+cat $inpscript > tmp
+cat tmp | awk -v T=$temp -v S=$inpdata -v C=$cleav  -v cc=$cleav2 -v zwf=$zwf '{
+        if($2 == "Tsyst"){print $1, $2, $3, T;}
+        else if($1 == "pair_style"){print "pair_style lj/BGcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 "}
+        else if($2 == "clwall1"){print $1,$2,$3,C;}
+        else if($2 == "clwall2"){print $1,$2,$3,cc;}
+        else if($1 == "read_data"){print $1,S;}
+        else if( $2 == "nts"){print $1, $2, $3, 10;}
+        else if( $2 == "eqnts"){print $1, $2, $3, 10;}  
+        else if( $2 == "Nevery"){print $1, $2, $3, 2;}
+        else if( $2 == "Nrepeat"){print $1, $2, $3, 5;}    
+        else if( $2 == "Nfreq"){print $1, $2, $3, 10;}                      
+        else if( $2 == "zwf"){print $1, $2, $3, zwf;}
+        else if( $1 == "compute" && $2 == 1){print "compute 1 all cleavpairs lj/BGcleavs3 norm 4 z";}
+        else{print $0;}
+        	}'  > $inpscript
+
+
+mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
+
+
+
+if grep -q 'ERROR' $log;
+  then
+    echo "Something went wrong in $step"
+    echo "Test cannot be completed"
+    echo "Consult the log file $log"
+    exit 
+else
+    echo "$step succefully run"
+    echo "pair_style lj/BGNlcleavs3.....working"
+    echo 
 fi 
 
 
@@ -371,7 +445,7 @@ cd $CWD
 
 
 
-echo "Now working on " $step 
+echo  $step 
 
 file=$(ls  $CWD/step3/data/F* | sort -t. -n -k2 -r | head -1) # F* to pickup the forward fil1e
 namefiles3=$(echo $file | rev | cut -d/ -f1 | rev)
@@ -412,13 +486,20 @@ cat tmp | awk -v T=$temp -v S=$inpdata -v C=$cleav  -v cc=$cleav2 '{
         else if($2 == "clwall2"){print $1,$2,$3,cc;}
         else if($1 == "read_data"){print $1,S;}
         else if( $2 == "nts"){print $1, $2, $3, 10;}
-        else if( $2 == "firsteqnts"){print $1, $2, $3, 10;}    
         else if( $2 == "eqnts"){print $1, $2, $3, 10;}  
         else if( $2 == "Nevery"){print $1, $2, $3, 2;}
         else if( $2 == "Nrepeat"){print $1, $2, $3, 5;}    
         else if( $2 == "Nfreq"){print $1, $2, $3, 10;}                      
         else{print $0;}
         	}'  > $inpscript
+
+
+cat ./in.loop/loop > tmp
+cat tmp |  awk -v W=$inpwall  '{
+        if($1 == "fix" && $2 == "totWA"){print $1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,W;}
+        else if($1 == "fix" && $2 == "totWB"){print $1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,W;}
+        else{print $0;}
+        	}'  > ./in.loop/loop
 
 
 mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
@@ -429,6 +510,96 @@ if grep -q 'ERROR' $log;
   then
     echo "Something went wrong in $step. Check it better"
     exit 
+else
+    echo "$step succefully run"
+    echo 
 fi 
+
+#################################################################################
+
+
+cd $CWD
+cd ..
+
+exampledir="../examples/lj_SV"
+testdir=$(echo "test_LJ_SV_fcc111_T1_walls")
+rm -r $testdir 2> /dev/null
+mkdir $testdir
+
+cd $testdir
+
+exampledir=../$exampledir
+
+echo "Entering woring dir..."
+echo $(pwd)
+echo
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Preparations Dirs
+
+
+    for step in step1 step3 step4
+      do
+        cp -r $exampledir/$step .
+    done
+
+
+CWD=$(pwd)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# STEP 3
+
+step="step3"
+
+echo $step
+cd $CWD
+dir=$CWD/$step
+cd $dir
+
+
+mkdir out
+mkdir data
+mkdir dat
+
+
+inpdata=$(echo "Fstep1.51.data")
+inpwell=$(echo "fcc111-T1-wells.lmp")
+
+inpscript=$(echo $step".in")
+
+cat $inpscript > tmp
+
+cat tmp | awk -v T=$temp -v S=$inpdata -v W=$inpwell '{
+        if($2 == "Tsyst"){print $1, $2, $3, T;}
+        else if($2 == "wellsfile"){print $1, $2, $3, W;}
+        else if($1 == "read_data"){print $1,S;}
+        else if( $2 == "nts"){print $1, $2, $3, 10;}
+        else if( $2 == "eqnts"){print $1, $2, $3, 10;}  
+        else if( $2 == "Nevery"){print $1, $2, $3, 2;}
+        else if( $2 == "Nrepeat"){print $1, $2, $3, 5;}    
+        else if( $2 == "Nfreq"){print $1, $2, $3, 10;}                      
+        else{print $0;}
+        	}'  > $inpscript
+
+
+
+mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
+
+
+
+if grep -q 'ERROR' $log;
+  then
+    echo "Something went wrong in $step"
+    echo "Test cannot be completed"
+    echo "Consult the log file $log"
+    exit 
+else
+    echo "$step succefully run"
+    echo "fix wellsPforce...............working"
+    echo "pair_style lj/BGcleavpbc......working"
+    echo 
+fi 
+
+
 
 
