@@ -4,7 +4,7 @@
 ## Syntax
 
 ```text
-pair_style lj/BGNlcleavs3 cutoff1 cutoff2 lambda Dfac
+pair_style lj/BGNlcleavs3 cutoff1 cutoff2 lambda N Dfac
 ```
 
 * `cutoff1` = global internal cut-off

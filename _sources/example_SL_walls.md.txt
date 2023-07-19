@@ -12,7 +12,7 @@ In this example we will set up the cleaving calculation for the calculation of t
 
 The input files for the whole calculations can be found in the directory `/examples/lj_SL` but in this tutorial we will go through the writing of such files from scratch.
 
-First of all, create a new folder and step in it.
+First of all, create a new folder `lj_SL` and step in it. Copy the folder `/example/lj_SL/utils/` in the folder `lj_SL` just created. The folder `/utils/` contains some simple programs and script that will be needed to run the cleaving method and analyze the results.
 
 ## Step 1 
 
@@ -439,7 +439,7 @@ The SFE is obtained by summing the work performed in the 4 steps detailed above.
 
 * `calcSFE.m`: Matlab script to perform the integration of each curve 
 
-Before analyzing the calculations, let's create a folder `/results/` at the same level of the folders `./step1/`, `./step3`, `./step4`. Here, we will copy the results for each step.
+Before analyzing the calculations, let's create a folder `/results/` at the same level of the folders `./step1/`, `./step3`, `./step4`. Here, we will copy the results for each step. 
 
 1. The files `.out` generated in [Step 1](#step-1) contains the quantity `f_f2`, which is the work performed. An average of that quantity for each $z_w$ gives the variation of the energy in [step 1](#step-1), thus the integration of the results quantity over $z_w$ gives the total work done in the step. In order to calculate the work performed in Step 1:
 
