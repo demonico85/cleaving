@@ -19,3 +19,5 @@ make html
 ```
 
 At the end of the generation point your browser to `build/html/index.html` to browse the docs.
+
+NOTE: The repository contains a directory `/utils` which includes a miscellanea of programs useful for the cleaving calculations (e.g., extracting and average useful quantities). These small programs are given without description and without warranty  
