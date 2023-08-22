@@ -1,0 +1,40 @@
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+
+variable lambdaC equal ${lam}
+
+print       "Forward Interaction ${cnt}: LamC ${lambdaC} LamLJ ${lambdaLJ}"
+
+  
+
+# -------------------- Interactions -------------------------------------------- 
+
+pair_coeff           1 1 ${eps} ${sigma} ${lambdaLJ} ${lambdaC}
+pair_coeff           2 2 0.0    0.0 ${lambdaLJ} ${lambdaC} 
+pair_coeff           1 2 0.0    0.0  ${lambdaLJ} ${lambdaC}
+
+#--------------------------------------------------------------------
+
+run   ${eqnts}
+
+fix   fl6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_lambdaC file dat/lambda.${cnt}.dat  
+fix   f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq}  c_1[*] file dat/inters3.${cnt}.dat mode vector
+fix   f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwf f_totW v_lambdaC file  out/ave.F.${cnt}.out
+
+
+run   ${nts}
+# --------------------------- Unfix --------------------------------------------
+
+unfix fl6
+unfix f6
+unfix f7
+
+
+#%*****************************************************************************%

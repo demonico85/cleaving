@@ -1,0 +1,111 @@
+# LAMMPS input script
+
+echo both
+units                real
+dimension            3
+boundary             p p p
+
+atom_style           full
+
+read_data Fstep1.32.data
+
+#read_data Fstep3.109.data
+
+# ---------------------------- Define variables --------------------------------
+#
+variable  lam file lambda.dat
+variable  zwf     equal  0.58
+variable  cnt    equal  1 
+variable  delta  equal  0.25
+variable  eps    equal  0.1852
+variable  sigma  equal  3.1589
+variable  crw    equal  2.0^(1.0/6.0)
+variable  eqnts  equal 50000
+variable  nts    equal 150000
+variable  Nevery equal 500 
+variable  Nrepeat equal 4
+variable  Nfreq equal 2000
+variable  Tsyst  equal  298.15
+variable  Tdump  equal  100
+variable  ts     equal 2
+variable clwall   equal zhi
+
+
+variable  rw       equal  ${sigma}*${crw}
+variable  zwalls   equal  ${sigma}*${zwf}
+
+
+
+compute cc1 all chunk/atom molecule ids once
+compute myChunk all com/chunk cc1
+# ----------------------------- Interactions -----------------------------------
+
+bond_style           harmonic
+angle_style          harmonic
+
+
+
+#pair potential
+pair_style           lj/cut/tip4p/cut/cleav 1 2 1 1 0.1546 1.0 z 3 cc1 myChunk 12.0
+pair_coeff           1 1 ${eps} ${sigma} 1.0 1.0 
+pair_coeff           2 2 0.0    0.0 1.0 1.0
+pair_coeff           1 2 0.0    0.0 1.0 1.0
+
+
+bond_coeff           1  450  0.9572
+angle_coeff          1  55  104.52
+
+group                H2O type   1 2
+
+comm_modify cutoff 3.5
+
+# ----------------------- Moving Walls  ------------------------
+#
+
+
+variable clwall equal zhi 
+fix totW all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall} file graphene.lmp
+compute 1 all cleavpairs lj/cut/tip4p/cut/cleav norm 2 z 
+
+# ------------------------- Init Vel  -------------------------------
+
+timestep              ${ts}                                                             #2fs 
+#dump                  mydmp all custom 1000 md.lammpstrj id type x y z fx fy fz
+thermo                1000 
+thermo_style          custom step temp pe press ecoul evdwl  
+
+fix                   myshk H2O shake 1.0e-5 600 0 b 1 a 1 
+fix                   mynvt all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+  
+
+# ----------------------- Loop over Coulomb  ------------------------
+#
+reset_atoms image all
+
+##write_data reset.data
+
+variable lambdaLJ equal 1.0
+
+label hereC
+include    in.loop/loopC
+write_data data/Fstep3.${cnt}.data nocoeff
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+next lam
+jump SELF hereC
+
+# ----------------------- Loop over LJ  ------------------------
+#
+#reset_atoms image all
+
+#write_data reset.data
+
+variable  lam file lambda.dat
+variable lambdaC equal 0.0
+label hereLJ
+include    in.loop/loopLJ
+write_data data/Fstep3.${cnt}.data nocoeff
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+next lam
+jump SELF hereLJ
