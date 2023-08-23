@@ -7,6 +7,7 @@ The package contains all the modified potentials and additional computes/fixes n
 This package is presented as part of the consortium Simulation Interfacial Free Energy Techniques (SIFT) which include the packages:
 
   - [MOLD](https://github.com/AndresRTejedor/Mold)
+  - [Einstein IFE](https://github.com/syeandel/Einstein_IFE)
 
 ![SIFT group](./docs/figs/final_logo.png)
 
