@@ -427,7 +427,8 @@ void FixForceLJWall::ReadFWalls()
     
 
   int i,me,cnt;
-
+  char str[128];
+  
   me = comm->me;
 
     if(lposwall != NULL)memory->destroy(lposwall);
@@ -436,12 +437,13 @@ void FixForceLJWall::ReadFWalls()
     if (me == 0) {
       fpw=fopen(namefile, "r");
         if (fpw == NULL) {
-          char str[128];
           sprintf(str,"Cannot open data file %s",namefile);
           error->one(FLERR,str);
         }
 
-        fscanf(fpw, "%d", &natomsinwalls[0]);
+        if(fscanf(fpw, "%d", &natomsinwalls[0]) != 1){ 
+          sprintf(str,"Cannot read number of walls in %s",namefile);
+          error->one(FLERR,str);}
     }
 
     MPI_Bcast(&natomsinwalls[0], 1, MPI_INT, 0, world);
@@ -451,10 +453,16 @@ void FixForceLJWall::ReadFWalls()
     if( me == 0){
         cnt=0;
          while(cnt < natomsinwalls[0]){
-            for(int i=0;i<3;i++) fscanf (fpw, "%lf", &lposwall[cnt][i]);
+            for(int i=0;i<3;i++) {
+            	if(fscanf (fpw, "%lf", &lposwall[cnt][i]) != 1){
+            	sprintf(str,"Cannot read position of wall %d in %s",i,namefile);
+         	error->one(FLERR,str);}
+         		}
             cnt+=1;
         }
-        fscanf(fpw, "%d", &natomsinwalls[1]);
+        if (fscanf(fpw, "%d", &natomsinwalls[1]) != 1){ 
+          sprintf(str,"Cannot read number of wells in %s",namefile);
+          error->one(FLERR,str);}
     }
 
     MPI_Bcast(&cnt, 1, MPI_INT, 0, world);
@@ -472,7 +480,11 @@ void FixForceLJWall::ReadFWalls()
     if( me == 0){
         cnt=0;
         while(cnt < natomsinwalls[1]){
-            for(int i=0;i<3;i++) fscanf (fpw, "%lf", &hposwall[cnt][i]);
+            for(int i=0;i<3;i++) {
+            	if(fscanf (fpw, "%lf", &lposwall[cnt][i]) != 1){
+            	sprintf(str,"Cannot read position of wall %d in %s",i,namefile);
+         	error->one(FLERR,str);}
+         		}
             cnt+=1;
         }
         fclose(fpw);

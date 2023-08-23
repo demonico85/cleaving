@@ -307,7 +307,8 @@ void FixForcePolWell::ReadFWells()
     
 
   int me,cnt;
-
+  char str[128];
+  
   me = comm->me;
 
     if(poswell != NULL)
@@ -316,12 +317,14 @@ void FixForcePolWell::ReadFWells()
     if (me == 0) {
       fpw=fopen(namefile, "r");
         if (fpw == NULL) {
-          char str[128];
           sprintf(str,"Cannot open data file %s",namefile);
           error->one(FLERR,str);
         }
 
-        fscanf(fpw, "%d", &nwells);
+        if(fscanf(fpw, "%d", &nwells)!= 1){ 
+
+          sprintf(str,"Cannot read number of wells in %s",namefile);
+          error->one(FLERR,str);}
     }
 
     MPI_Bcast(&nwells, 1, MPI_INT, 0, world);
@@ -330,7 +333,11 @@ void FixForcePolWell::ReadFWells()
     if( me == 0){
         cnt=0;
          while(cnt < nwells){
-            for(int i=0;i<3;i++) fscanf (fpw, "%lf", &poswell[cnt][i]);
+            for(int i=0;i<3;i++) {
+            	if(fscanf (fpw, "%lf", &poswell[cnt][i]) != 1){
+            	sprintf(str,"Cannot read position of well %d in %s",i,namefile);
+         	error->one(FLERR,str);}
+         	}
             cnt+=1;
         }
         fclose(fpw);

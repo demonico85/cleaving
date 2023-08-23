@@ -57,9 +57,9 @@ class PairLJBGcleavPbc : public Pair {
  protected:
 //FILE *fpl;
   int pallocation,ind_dir;
-  double cut_global, cut_global2;
+  double cut_global_out, cut_global_in;
   double delta;
-  double **cut,**cut2, **cutsq2;
+  double **cut,**cut_in, **cutsq_in;
   double **epsilon,**sigma;
   double **lj1,**lj2,**lj3,**lj4, **lj5, **lj6, **lj7, **lj8, **lj9, **lj10,**c1,**c5;
   double boxlo,boxhi,edge,edgehalf;

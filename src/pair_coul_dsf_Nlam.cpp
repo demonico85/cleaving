@@ -498,6 +498,9 @@ void PairCoulNLDSF::write_restart(FILE *fp)
   for (i = 1; i <= atom->ntypes; i++)
     for (j = i; j <= atom->ntypes; j++) {
       fwrite(&setflag[i][j],sizeof(int),1,fp);
+      fwrite(&lam[i][j],sizeof(double),1,fp);      
+      fwrite(&powlambda[i][j],sizeof(double),1,fp);    
+      fwrite(&powDlambda[i][j],sizeof(double),1,fp);    
     }
 }
 
@@ -514,8 +517,16 @@ void PairCoulNLDSF::read_restart(FILE *fp)
   int me = comm->me;
   for (i = 1; i <= atom->ntypes; i++)
     for (j = i; j <= atom->ntypes; j++) {
-      if (me == 0) fread(&setflag[i][j],sizeof(int),1,fp);
+      if (me == 0){
+      	utils::sfread(FLERR, &setflag[i][j], sizeof(int), 1, fp, nullptr, error);
+      	utils::sfread(FLERR,&lam[i][j],sizeof(double),1,fp,nullptr,error);
+      	utils::sfread(FLERR,&powlambda[i][j],sizeof(double),1,fp,nullptr,error);
+      	utils::sfread(FLERR,&powDlambda[i][j],sizeof(double),1,fp,nullptr,error);      	      	
+      	  }
       MPI_Bcast(&setflag[i][j],1,MPI_INT,0,world);
+      MPI_Bcast(&lam[i][j],1,MPI_DOUBLE,0,world);
+      MPI_Bcast(&powlambda[i][j],1,MPI_DOUBLE,0,world);
+      MPI_Bcast(&powDlambda[i][j],1,MPI_DOUBLE,0,world);            
     }
 }
 
@@ -539,11 +550,13 @@ void PairCoulNLDSF::write_restart_settings(FILE *fp)
 void PairCoulNLDSF::read_restart_settings(FILE *fp)
 {
   if (comm->me == 0) {
-    fread(&alpha,sizeof(double),1,fp);
-    fread(&cut_coul,sizeof(double),1,fp);
-    fread(&offset_flag,sizeof(int),1,fp);
-    fread(&mix_flag,sizeof(int),1,fp);
-    fread(&npow,sizeof(double),1,fp);
+
+    utils::sfread(FLERR, &alpha, sizeof(double), 1, fp, nullptr, error);
+    utils::sfread(FLERR, &cut_coul, sizeof(double), 1, fp, nullptr, error);
+    utils::sfread(FLERR, &offset_flag, sizeof(int), 1, fp, nullptr, error);
+    utils::sfread(FLERR, &mix_flag, sizeof(int), 1, fp, nullptr, error);    
+    utils::sfread(FLERR, &npow, sizeof(double), 1, fp, nullptr, error);  
+  
   }
   MPI_Bcast(&alpha,1,MPI_DOUBLE,0,world);
   MPI_Bcast(&cut_coul,1,MPI_DOUBLE,0,world);

@@ -37,28 +37,29 @@ group Free subtract all Freeze
 
 # ---------------------------- Define variables --------------------------------
 
-variable  clwall equal  0.0
-variable  sigma  equal  1.0
-variable  cnt    equal  1
-variable  eps    equal  1.0
-variable  delta  equal  0.25
 variable  zw file zwalls.dat
-variable  crw    equal  2.0^(1.0/6.0)   
-variable  nloop  equal  1000
-variable  eqnts  equal  3000 
-variable  nts    equal  25000
-variable  ts     equal  0.005
-variable  siglj  equal  1.0
-variable  epslj  equal  1.0
-variable  cut1   equal  2.3
-variable  cut2   equal  2.5
-variable  Tsyst  equal  0.617
-variable  Tdump  equal  0.0748
-variable Nevery equal 100
-variable Nrepeat equal 5 
-variable Nfreq equal 500
-variable dumpfreq equal 20000
-variable restartfreq equal 200000 
+variable  clwall       equal  0.0
+variable  sigma        equal  1.0
+variable  cnt          equal  1
+variable  eps          equal  1.0
+variable  delta        equal  0.25
+variable  crw          equal  2.0^(1.0/6.0)   
+variable  nloop        equal  1000
+variable  eqnts        equal  3000 
+variable  nts          equal  25000
+variable  ts           equal  0.005
+variable  siglj        equal  1.0
+variable  epslj        equal  1.0
+variable  cut1         equal  2.3
+variable  cut2         equal  2.5
+variable  Tsyst        equal  0.617
+variable  Tdump        equal  0.0748
+variable  Nevery       equal  100
+variable  Nrepeat      equal  5 
+variable  Nfreq        equal  500
+variable  dumpfreq     equal  20000
+variable  thermofreq   equal  20000
+variable  restartfreq  equal  200000 
 
 # --------------------- Derivate variables -------------------------------------
 
@@ -87,7 +88,7 @@ fix f1 Freeze setforce 0.0 0.0 0.0
 
 # ------------- Output thermo information and averaged variables ---------------
 
-thermo    1000
+thermo    ${thermofreq}
 timestep  ${ts}
 
 # --------------- Dumping trajectories and store restart file ------------------

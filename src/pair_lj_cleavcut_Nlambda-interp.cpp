@@ -718,23 +718,23 @@ void PairLJCleavCutNLInt::read_restart(FILE *fp)
   int me = comm->me;
   for (i = 1; i <= atom->ntypes; i++)
     for (j = i; j <= atom->ntypes; j++) {
-      if (me == 0) fread(&setflag[i][j],sizeof(int),1,fp);
+      if (me == 0) utils::sfread(FLERR,&setflag[i][j],sizeof(int),1,fp,nullptr,error); 
       MPI_Bcast(&setflag[i][j],1,MPI_INT,0,world);
       if (setflag[i][j]) {
         if (me == 0) {
-          fread(&epsilon[i][j],sizeof(double),1,fp);
-          fread(&sigma[i][j],sizeof(double),1,fp);
-          fread(&cut[i][j],sizeof(double),1,fp);
-          fread(&lam[i][j],sizeof(double),1,fp);
-          fread(&powlambda[i][j],sizeof(double),1,fp);
-          fread(&powDlambda[i][j],sizeof(double),1,fp);
+          utils::sfread(FLERR,&epsilon[i][j],sizeof(double),1,fp,nullptr,error);
+          utils::sfread(FLERR,&sigma[i][j],sizeof(double),1,fp,nullptr,error);
+          utils::sfread(FLERR,&cut[i][j],sizeof(double),1,fp,nullptr,error);
+          utils::sfread(FLERR,&lam[i][j],sizeof(double),1,fp,nullptr,error);
+          utils::sfread(FLERR,&powlambda[i][j],sizeof(double),1,fp,nullptr,error);
+          utils::sfread(FLERR,&powDlambda[i][j],sizeof(double),1,fp,nullptr,error);
               }
         MPI_Bcast(&epsilon[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&sigma[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&cut[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&lam[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&powlambda[i][j],1,MPI_DOUBLE,0,world);
-        MPI_Bcast(&powlambda[i][j],1,MPI_DOUBLE,0,world);
+        MPI_Bcast(&powDlambda[i][j],1,MPI_DOUBLE,0,world);
       }
     }
 }
@@ -762,13 +762,13 @@ void PairLJCleavCutNLInt::read_restart_settings(FILE *fp)
 {
   int me = comm->me;
   if (me == 0) {
-    fread(&cut_global,sizeof(double),1,fp);
-    fread(&rspace,sizeof(double),1,fp);
-    fread(&offset_flag,sizeof(int),1,fp);
-    fread(&mix_flag,sizeof(int),1,fp);
-    fread(&tail_flag,sizeof(int),1,fp);
-    fread(&ind_dir,sizeof(int),1,fp); 
-    fread(&npow,sizeof(double),1,fp);   
+    utils::sfread(FLERR,&cut_global,sizeof(double),1,fp,nullptr,error);
+    utils::sfread(FLERR,&rspace,sizeof(double),1,fp,nullptr,error);
+    utils::sfread(FLERR,&offset_flag,sizeof(double),1,fp,nullptr,error);
+    utils::sfread(FLERR,&mix_flag,sizeof(double),1,fp,nullptr,error);
+    utils::sfread(FLERR,&tail_flag,sizeof(double),1,fp,nullptr,error);
+    utils::sfread(FLERR,&ind_dir,sizeof(double),1,fp,nullptr,error);
+    utils::sfread(FLERR,&npow,sizeof(double),1,fp,nullptr,error);  
   }
   MPI_Bcast(&cut_global,1,MPI_DOUBLE,0,world);
   MPI_Bcast(&rspace,1,MPI_DOUBLE,0,world);

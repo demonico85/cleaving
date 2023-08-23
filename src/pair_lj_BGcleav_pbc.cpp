@@ -86,8 +86,8 @@ PairLJBGcleavPbc::~PairLJBGcleavPbc()
     memory->destroy(setflag);
     memory->destroy(cutsq);
     memory->destroy(cut);
-    memory->destroy(cutsq2);
-    memory->destroy(cut2);
+    memory->destroy(cutsq_in);
+    memory->destroy(cut_in);
     memory->destroy(epsilon);
     memory->destroy(sigma);
     memory->destroy(lj1);
@@ -126,8 +126,8 @@ void PairLJBGcleavPbc::allocate()
 
   memory->create(cutsq,n+1,n+1,"pair:cutsq");
   memory->create(cut,n+1,n+1,"pair:cut");
-  memory->create(cutsq2,n+1,n+1,"pair:cutsq2");
-  memory->create(cut2,n+1,n+1,"pair:cut2");
+  memory->create(cutsq_in,n+1,n+1,"pair:cutsq_in");
+  memory->create(cut_in,n+1,n+1,"pair:cut_in");
   memory->create(epsilon,n+1,n+1,"pair:epsilon");
   memory->create(sigma,n+1,n+1,"pair:sigma");
   memory->create(lj1,n+1,n+1,"pair:lj1");
@@ -203,7 +203,7 @@ void PairLJBGcleavPbc::compute(int eflag, int vflag)
       jtype = type[j];
 
 
-      if (rsq <= cutsq2[itype][jtype]) {
+      if (rsq <= cutsq_in[itype][jtype]) {
         r2inv = 1.0/rsq;
         r6inv = r2inv*r2inv*r2inv;
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
@@ -307,6 +307,7 @@ void PairLJBGcleavPbc::write_restart(FILE *fp)
       if (setflag[i][j]) {
         fwrite(&epsilon[i][j],sizeof(double),1,fp);
         fwrite(&sigma[i][j],sizeof(double),1,fp);
+        fwrite(&cut_in[i][j],sizeof(double),1,fp);        
         fwrite(&cut[i][j],sizeof(double),1,fp);
       }
     }
@@ -325,16 +326,20 @@ void PairLJBGcleavPbc::read_restart(FILE *fp)
   int me = comm->me;
   for (i = 1; i <= atom->ntypes; i++)
     for (j = i; j <= atom->ntypes; j++) {
-      if (me == 0) fread(&setflag[i][j],sizeof(int),1,fp);
+      if (me == 0) utils::sfread(FLERR,&setflag[i][j],sizeof(int),1,fp,nullptr,error); 
+      
       MPI_Bcast(&setflag[i][j],1,MPI_INT,0,world);
+      
       if (setflag[i][j]) {
         if (me == 0) {
-          fread(&epsilon[i][j],sizeof(double),1,fp);
-          fread(&sigma[i][j],sizeof(double),1,fp);
-          fread(&cut[i][j],sizeof(double),1,fp);
+          utils::sfread(FLERR,&epsilon[i][j],sizeof(double),1,fp,nullptr,error);
+          utils::sfread(FLERR,&sigma[i][j],sizeof(double),1,fp,nullptr,error);
+          utils::sfread(FLERR,&cut_in[i][j],sizeof(double),1,fp,nullptr,error);
+          utils::sfread(FLERR,&cut[i][j],sizeof(double),1,fp,nullptr,error);                  
         }
         MPI_Bcast(&epsilon[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&sigma[i][j],1,MPI_DOUBLE,0,world);
+        MPI_Bcast(&cut_in[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&cut[i][j],1,MPI_DOUBLE,0,world);
       }
     }
@@ -348,8 +353,8 @@ void PairLJBGcleavPbc::read_restart(FILE *fp)
 void  PairLJBGcleavPbc::write_restart_settings(FILE *fp)
 {
 
-  fwrite(&cut_global,sizeof(double),1,fp);
-  fwrite(&cut_global2,sizeof(int),1,fp);
+  fwrite(&cut_global_in,sizeof(double),1,fp);
+  fwrite(&cut_global_out,sizeof(int),1,fp);
 
 }
 
@@ -361,11 +366,11 @@ void  PairLJBGcleavPbc::read_restart_settings(FILE *fp)
 {
   int me = comm->me;
   if (me == 0) {
-    fread(&cut_global2,sizeof(double),1,fp);
-    fread(&cut_global,sizeof(double),1,fp);
+    utils::sfread(FLERR,&cut_global_in,sizeof(double),1,fp,nullptr,error);
+    utils::sfread(FLERR,&cut_global_out,sizeof(double),1,fp,nullptr,error);
   }
-  MPI_Bcast(&cut_global2,1,MPI_DOUBLE,0,world);
-  MPI_Bcast(&cut_global,1,MPI_INT,0,world);
+  MPI_Bcast(&cut_global_in,1,MPI_DOUBLE,0,world);
+  MPI_Bcast(&cut_global_out,1,MPI_INT,0,world);
 }
 
 
@@ -378,8 +383,8 @@ void PairLJBGcleavPbc::settings(int narg, char **arg)
   if (narg != 3) error->all(FLERR,"Illegal pair_style command");
 
 
-  cut_global2  = utils::numeric(FLERR,arg[0],false,lmp);
-  cut_global = utils::numeric(FLERR,arg[1],false,lmp);
+  cut_global_in  = utils::numeric(FLERR,arg[0],false,lmp);
+  cut_global_out = utils::numeric(FLERR,arg[1],false,lmp);
 
 
   if(strcmp(arg[2],"x") != 0 && strcmp(arg[2],"y") != 0 && strcmp(arg[2],"z") != 0)
@@ -413,7 +418,7 @@ void PairLJBGcleavPbc::settings(int narg, char **arg)
     int i,j;
     for (i = 1; i <= atom->ntypes; i++)
       for (j = i+1; j <= atom->ntypes; j++)
-        if (setflag[i][j]) cut[i][j] = cut_global;
+        if (setflag[i][j]) cut[i][j] = cut_global_out;
   }
 
 
@@ -442,26 +447,33 @@ void PairLJBGcleavPbc::coeff(int narg, char **arg)
 
   double epsilon_one = utils::numeric(FLERR,arg[2],false,lmp);
   double sigma_one = utils::numeric(FLERR,arg[3],false,lmp);
+  
+  
+  
+  
+  double cutinner = cut_global_in;
+   if (narg > 4) cutinner = utils::numeric(FLERR,arg[4],false,lmp);
+  double cutouter = cut_global_out;
+  if (narg == 6) cutouter = utils::numeric(FLERR,arg[5],false,lmp);
 
-  double cut_two = cut_global2;
-  if (narg > 4) cut_two = utils::numeric(FLERR,arg[4],false,lmp);
-  double cut_one = cut_global;
-  if (narg == 6) cut_one = utils::numeric(FLERR,arg[5],false,lmp);
 
-  if(cut_two > cut_one)
+  if(cutinner > cutouter)
          error->all(FLERR,"First cut_off must be smaller than second one in the definition");
+
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
     for (int j = MAX(jlo,i); j <= jhi; j++) {
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;
-      cut[i][j] = cut_one;
-      cut2[i][j] = cut_two;
+      cut[i][j] = cutouter;
+      cut_in[i][j] = cutinner;
       setflag[i][j] = 1;
       count++;
     }
   }
+
+
 
   if (count == 0) error->all(FLERR,"Incorrect args for pair coefficients");
 
@@ -517,7 +529,7 @@ double PairLJBGcleavPbc::init_one(int i, int j)
                                sigma[i][i],sigma[j][j]);
     sigma[i][j] = mix_distance(sigma[i][i],sigma[j][j]);
     cut[i][j] = mix_distance(cut[i][i],cut[j][j]);
-    cut2[i][j] = mix_distance(cut2[i][i],cut2[j][j]);
+    cut_in[i][j] = mix_distance(cut_in[i][i],cut_in[j][j]);
   }
 
 
@@ -531,7 +543,7 @@ double PairLJBGcleavPbc::init_one(int i, int j)
   lj8[i][j] =  C2 * epsilon[i][j] * pow(sigma[i][j],12.0);
   lj9[i][j] =  C3 * epsilon[i][j] * pow(sigma[i][j],6.0);
   lj10[i][j] = C4 * epsilon[i][j] * 1./pow(sigma[i][j],2.0);
-  cutsq2[i][j] = cut2[i][j]*cut2[i][j];
+  cutsq_in[i][j] = cut_in[i][j]*cut_in[i][j];
 
 
   lj1[j][i]  = lj1[i][j];
@@ -546,7 +558,7 @@ double PairLJBGcleavPbc::init_one(int i, int j)
   lj10[j][i] = lj10[i][j];
 
 
-  cutsq2[j][i] = cutsq2[i][j];
+  cutsq_in[j][i] = cutsq_in[i][j];
 
   c1[i][j] = C1*epsilon[i][j];
   c1[j][i] = c1[i][j];
@@ -592,11 +604,11 @@ double PairLJBGcleavPbc::single(int i, int j, int itype, int jtype, double rsq,
   r2inv = 1.0/rsq;
   r6inv = r2inv*r2inv*r2inv;
 
-  if( rsq < cut_global2*cut_global2){
+  if( rsq < cut_global_in){
   	philj = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) + c1[itype][jtype];
 	forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
   }
-  else if(rsq < cut_global*cut_global){
+  else if(rsq < cut_global_out){
         philj   = r6inv*(lj8[itype][jtype]*r6inv + lj9[itype][jtype]) + lj10[itype][jtype]*rsq + c5[itype][jtype];
         forcelj = r6inv * (lj5[itype][jtype]*r6inv + lj6[itype][jtype]);
 	}
@@ -604,6 +616,7 @@ double PairLJBGcleavPbc::single(int i, int j, int itype, int jtype, double rsq,
   fforce = factor_lj*forcelj*r2inv;
 
   return factor_lj*philj;
+
 }
 
 

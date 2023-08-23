@@ -1,31 +1,16 @@
-###%********************************************************************%
-###%    Copyright The Production of y.yang.1983.comput.cmp@gmail.com    %
-###%********************************************************************%
-#
-#
-# ------------------ List of fixes ------------------------
-#
-# f1 setforce external layers = 0
-# f2 wells specification
-# f3 subtract total momentum from atoms excluding external layers
-# f4 specification NVT ensemble
-# f5 prints thermodynamic quatities and total work
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+###%***************************************************************************%
+###%                                                                          *%                                                                                                                   
+###%    Script to run Step 1 of the Cleaving Method with Wells                *%
+###%                                                                          *%
+###%***************************************************************************%
+###%                                                                          *%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%                                                                          *%
+###%***************************************************************************%
 
 units		lj
 atom_style	atomic
@@ -48,27 +33,26 @@ group Free subtract all Freeze
 # ---------------------------- Define variables --------------------------------
 
 
-variable lam file lambda_wells.dat
-variable  cnt   equal  1
-variable backloop equal 0
-variable rhoc equal 0.945
-variable fact equal 1.2
-variable  dw    equal 6.0 # pe per atom in liquid
-variable  expp  equal 3.0 
-variable  nloop equal  1000
-variable  eqnts equal  5000
-variable  firsteqnts equal 35000
-variable  nts   equal  45000
-variable  ts   equal  0.005
-variable  siglj equal  1.0
-variable  epslj   equal  1.0
-variable  cut1  equal  2.3
-variable  cut2  equal  2.5
-variable Tsyst equal 0.617
-variable Tdump equal 0.0748
-variable Nevery equal 100
-variable Nrepeat equal 5
-variable Nfreq equal 500
+variable  lam file lambda_wells.dat
+variable  cnt        equal  1
+variable  backloop   equal  0
+variable  rhoc       equal  0.945
+variable  fact       equal  1.2
+variable  dw         equal  6.0 # pe per atom in liquid
+variable  expp       equal  3.0 
+variable  eqnts      equal  5000
+variable  nts        equal  45000
+variable  ts         equal  0.005
+variable  siglj      equal  1.0
+variable  epslj      equal  1.0
+variable  cut1       equal  2.3
+variable  cut2       equal  2.5
+variable  Tsyst      equal  0.617
+variable  Tdump      equal  0.0748
+variable  thermofreq equal  20000
+variable  Nevery     equal  100
+variable  Nrepeat    equal  5
+variable  Nfreq      equal  500
 
 
 # ----- Derivate variables ------
@@ -100,7 +84,7 @@ fix f1 Freeze setforce 0.0 0.0 0.0
 
 # ------------- Output thermo information and averaged variables ---------------
 
-thermo    1000
+thermo    ${thermofreq}
 timestep  ${ts}
 
 # --------------- Dumping trajectories and store restart file ------------------
