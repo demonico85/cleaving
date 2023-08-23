@@ -118,28 +118,7 @@ do
 
     kk=kk+1
     write(20,*)kk,kk,kk,2.0*DD+CC,lambda
-!   write(20,*)kk,kk,kk,DD+CC*0.5,lambda
 
-!    AB = AB + intermatrix(2,5) + intermatrix(2,6) + intermatrix(2,7) + intermatrix(5,6) + &
-!            & intermatrix(5,7) + intermatrix(6,7)!
-!
-!    AA = AA + intermatrix(2,3) + intermatrix(2,4) + intermatrix(2,5) + intermatrix(2,6) + &
-!            & intermatrix(2,7) + intermatrix(3,4) + intermatrix(3,5) + intermatrix(3,8) + &
-!            & intermatrix(3,9) + intermatrix(4,5) + intermatrix(4,8) + intermatrix(4,9) + &
-!            & intermatrix(5,6) + intermatrix(5,7) + intermatrix(6,7) + intermatrix(6,8) + &
-!            & intermatrix(7,8) + intermatrix(7,9) + intermatrix(8,9) 
-write(12,*)N+1, AA,AB,AA+AB*0.5
-    N=N+1
-
-    if(AB > 10000 .or. AA > 10000) then 
-        write(12,*)jj,b,AA,AB
-        write(12,*)intermatrix(2,2), intermatrix(3,3) ,intermatrix(4,4), intermatrix(5,5)
-        write(12,*)intermatrix(6,6) , intermatrix(6,6) , intermatrix(7,7) , intermatrix(8,8)
-        write(12,*)intermatrix(2,6) , intermatrix(2,7) , intermatrix(3,8) , intermatrix(3,9)
-        write(12,*)intermatrix(4,8) , intermatrix(4,9) , intermatrix(5,6) , intermatrix(5,7)
-        write(12,*)intermatrix(2,3) ,intermatrix(2,4),intermatrix(3,5),intermatrix(4,5)
-        write(12,*)intermatrix(6,8), intermatrix(6,9) , intermatrix(7,8) , intermatrix(7,9)
-    end if
 end do
 
 

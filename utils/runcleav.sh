@@ -1,11 +1,3 @@
-
-#
-#
-# NON TORNANO i timestep se ricominci. Non dovrebbe essere un problema
-#
-#
-#
-
 # INPUTS
 
 

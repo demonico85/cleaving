@@ -1,10 +1,4 @@
 #! /bin/bash
-#$ -S /bin/bash
-#$ -cwd
-#$ -V 
-#$ -pe smp.pe 2 
-#$ -N tar 
-
 
 or=$1
 T=$2
@@ -27,7 +21,7 @@ step3=1
 step4=1
 
 currdir=$(pwd)
-inpdir="/home/mmm1133/Scratch/LJ_sol_liq/utils"
+inpdir="./utils"
 nbins=5
 replace=0
 

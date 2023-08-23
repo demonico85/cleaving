@@ -8,7 +8,7 @@
 #awk '{i+=1; if(i > 2){work += $4; cnt += 1}}END{print work/cnt}' 
 
 
-scriptdir="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils"
+scriptdir="./utils"
 minimumsize=5
 maxblock=5
 cnt=1
@@ -60,8 +60,8 @@ while [ $cnt -le $nfiles ];
       then
         if [ -e $file ];
           then
-            awk '{i+=1; if(i > 3){print $5}}' $file > 1.tmp # Queste dipendono dall'output di Lammps
-            awk '{i+=1; if(i == 5){print $4}}' $file > 2.tmp
+            awk '{i+=1; if(i > 3){print $4}' $file > 1.tmp # Queste dipendono dall'output di Lammps
+            awk '{i+=1; if(i == 5){print $5}}' $file > 2.tmp
             awk '{i+=1; if(i > 3){print $6}}' $file > a.tmp
             awk '{i+=1; if(i > 3){print $7}}' $file > b.tmp
             fn="$(echo ${file%.*}.pdf)"

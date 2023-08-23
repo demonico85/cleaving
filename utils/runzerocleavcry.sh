@@ -1,13 +1,4 @@
 #! /bin/bash
-#SBATCH --time=100:00:00
-#SBATCH --job-name=zw06T3
-#SBATCH --partition=compute
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=28
-#SBATCH --account=a12-vfl
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=ndp8@le.ac.uk
-#SBATCH --export=PATH
 
 # ---------------------- SOME FUNCTION DEFINITION ------------------------------
 
@@ -39,14 +30,6 @@ function preparedir {
 ####################################################################
 ####################################################################
 
-#      -------- Load some modules for the simulations ------------
-#        module purge
-#        module load gcc/6.3.0/1 openmpi/3.0.1/01
-
-
-#   PBS_O_WORKDIR=$SLURM_SUBMIT_DIR
-#   PBS_NUM_PPN=$SLURM_NTASKS
-
 PBS_NUM_PPN=28
 PBS_O_WORKDIR=$(pwd)
 
@@ -60,7 +43,7 @@ echo "Entering woring dir..."
 echo $(pwd)
 echo
 
-lmpath=$(echo "/home/n/ndp8/shuttleworth/Tzero/$lmp")
+lmpath=$(echo "./Tzero/$lmp")
 if [ ! -e  $lmpath ];
   then
     echo "ERROR: Lammps executable not found in $lmpath"

@@ -9,7 +9,7 @@ function checkcommands () {
 }
 
 currdir=$(pwd)
-inpdir="/home/mmm1133/Scratch/LJ_sol_liq/utils/"
+inpdir="./"
 insim=2  # starting index
 totsim=5 # total number of sims
 nproc=8

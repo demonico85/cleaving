@@ -2,7 +2,7 @@
 
 
 currdir=$(pwd)
-inpdir=/mnt/iusers01/pp01/mjkssnd2/scratch/interface/inputs_8Jul2020
+inpdir=./
 insim=2
 totsim=2
 replace=0
@@ -29,7 +29,7 @@ do
                echo $newfold 
                     if grep -q $namerun $currdir/qstat.log
                       then
-# per ora conta anche i casi con C completed
+#for now it considers cases with C completed
                         echo "Job < $namerun > is already running"
                       else
                         echo "No job called $namerun"

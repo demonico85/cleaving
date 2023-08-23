@@ -67,7 +67,7 @@ function fast_createav ()
 #awk '{i+=1; if(i > 2){work += $4; cnt += 1}}END{print work/cnt}' 
 
 
-scriptdir="/home/mmm1133/Scratch/LJ_sol_liq/utils"
+scriptdir="./utils"
 minimumsize=5
 maxblock=5
 cnt=1

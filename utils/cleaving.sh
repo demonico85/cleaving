@@ -3,11 +3,9 @@
 
 # Parameters to be changed
 
-dirscripts="/home/mmm1133/Scratch/LJ_sol_liq/utils"
+dirscripts="./"
 lmp="lmp_mpi"
-#lmp="lmp_mpi-02Nov22"
-#lmpath="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit"
-#lmp="$lmpath/$lmp"
+
 
 trap "exit 15" TERM
 export TOP_PID=$$

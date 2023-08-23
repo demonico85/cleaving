@@ -5,7 +5,7 @@
 #awk '{i+=1; if(i > 2){work += $4; cnt += 1}}END{print work/cnt}' 
 
 
-scriptdir="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils"
+scriptdir="./utils"
 minimumsize=5
 maxblock=5
 cnt=1

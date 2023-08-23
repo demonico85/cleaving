@@ -1,13 +1,4 @@
 #! /bin/bash
-#SBATCH --time=100:00:00
-#SBATCH --job-name=zw06T3
-#SBATCH --partition=compute
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=28
-#SBATCH --account=a12-vfl
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=ndp8@le.ac.uk
-#SBATCH --export=PATH
 
 # ---------------------- SOME FUNCTION DEFINITION ------------------------------
 
@@ -43,28 +34,6 @@ function preparedir {
 # cluster dependent
 
 
-host=$(hostname | cut -f3 -d.)
-myname=$(whoami) 
-
-
-if [ $host == "csf3" ];
-  then
-    module purge
-    module load  mpi/openmpi/2.0.2/gcc-4.8.5
-    PBS_O_WORKDIR=$(pwd)
-    PBS_NUM_PPN=$NSLOTS
-elif [ $myname == "ndp8" ];
-  then
-    module purge
-    module load gcc/6.3.0/1 openmpi/3.0.1/01
-
-    PBS_O_WORKDIR=$SLURM_SUBMIT_DIR
-    PBS_NUM_PPN=$SLURM_NTASKS
-else
-    echo "ERROR: $(hostname) not recognised"
-    echo "Exiting..."
-    exit
-fi
 
 
 ##PBS_NUM_PPN=20
@@ -80,7 +49,7 @@ echo "Entering woring dir..."
 echo $(pwd)
 echo
 
-lmpath=$(echo "/gpfs/home/leics/ndp8/$lmp")
+lmpath=$(echo "./$lmp")
 if [ ! -e  $lmpath ];
   then
     echo "ERROR: Lammps executable not found in $lmpath"

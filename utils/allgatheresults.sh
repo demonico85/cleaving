@@ -2,7 +2,7 @@
 
 
 currdir=$(pwd)
-inpdir=/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils
+inpdir=./utils
 nbins=5
 replace=0
 in=1

@@ -1,9 +1,5 @@
 #! /bin/bash
-#$ -S /bin/bash
-#$ -cwd
-#$ -V 
-#$ -pe smp.pe 2 
-#$ -N tar 
+
 
 
 
@@ -14,7 +10,7 @@ step4=1
 insim=1
 totsim=5
 currdir=$(pwd)
-inpdir="/mnt/iusers01/pp01/mjkssnd2/scratch/sandpit/utils"
+inpdir="./utils"
 nbins=5
 replace=0
 
