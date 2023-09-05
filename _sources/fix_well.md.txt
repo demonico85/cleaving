@@ -12,7 +12,6 @@ fix ID group_ID wellPforce dw rw P lambda file <filename>
 * `P` = power law of the wells
 * `lambda` = strength of the interactions between wells and atoms
 * `<filename>` = external file which contains the position of the wells
-```
 
 ## Description
 
@@ -21,11 +20,11 @@ On each side of the cleaving plane we place two planes with fixed interaction si
 The well potential we use in this work is  defined as {footcite:t}`handel2008direct`: 
 
 $$
-	\psi(r;\lambda) = 
-		\begin{cases}
-			\lambda dw\left[\left(\frac{r}{rw}\right)^2-1\right]^{P} \:\:\: r < rw \\
-			0  \:\:\: r \geq rw
-		\end{cases} 
+\psi(r;\lambda) = 
+	\begin{cases}
+		\lambda dw\left[\left(\frac{r}{rw}\right)^2-1\right]^{P} \:\:\: r < rw \\
+		0  \:\:\: r \geq rw
+	\end{cases} 
 $$
 where $r=|\mathbf{r}_{atoms}-\mathbf{r}_{wells}|$ for each couple atom-well.
 

@@ -193,9 +193,9 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">norm</span></code> keyword normalize the interaction for units of interface created (i.e., the result will be in units of [Energy] / [lenght]<span class="math notranslate nohighlight">\(^2\)</span>). The keyword must be followed by:</p>
 <ol class="arabic simple">
 <li><p>a positive integer <span class="math notranslate nohighlight">\(N\)</span> specifying the number of interfaces created, which is used to calculate the total area created to normalize the work</p></li>
-<li><p>a direction (x,y,z). The direction specify the normal to the newly created surface. If e.g., z is specified, then the new interface <span class="math notranslate nohighlight">\(S\)</span> will be equal to  <span class="math notranslate nohighlight">\(S = x_{edge} * y_{edge}\)</span>.</p></li>
+<li><p>a direction (x,y,z). The direction specify the normal to the newly created surface. If e.g., z is specified, then the new interface <span class="math notranslate nohighlight">\(S\)</span> will be equal to  <span class="math notranslate nohighlight">\(S = x_{\rm edge} \cdot y_{\rm edge}\)</span>.</p></li>
 </ol>
-<p>The total area <span class="math notranslate nohighlight">\(S_{TOT}\)</span> used for the normalization will be therefore <span class="math notranslate nohighlight">\(S_{TOT}=S*N=x_{edge} * y_{edge} * N\)</span>, where <span class="math notranslate nohighlight">\(x_{edge}\)</span> and <span class="math notranslate nohighlight">\(y_{edge}\)</span> are the size of the box in the x and y directions.</p>
+<p>The total area used for the normalization will therefore be <span class="math notranslate nohighlight">\(S_{\rm TOT}=S \cdot N=x_{\rm edge} \cdot y_{\rm edge} \cdot N\)</span>, where <span class="math notranslate nohighlight">\(x_{\rm edge}\)</span> and <span class="math notranslate nohighlight">\(y_{\rm edge}\)</span> are the size of the box in the x and y directions.</p>
 <p>Note: that at the moment this works only for non-triclinic box.</p>
 <p>Note: If the keyword norm is not specified, than the compute will only report the energy taken from the specified pair_style (no normalization).</p>
 </div>
