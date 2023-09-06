@@ -46,7 +46,7 @@ class PairLJCutTIP4PCutCleav : public Pair {
 //FILE *fp;
   int    natoms,pallocation,index,ind_dir,npow,ntypes;
   int *gbox,*giflag;
-    int nchunk;
+    int nchunk, switchcoul,switchlj;
   double xprd,yprd,zprd,xy,yz,xz, lambda,lambdaC;
   double cut_lj_global, cut_coul_global,lboxhalf;
   double cut_coul, cut_coulsq;

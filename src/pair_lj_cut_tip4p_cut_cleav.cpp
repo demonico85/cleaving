@@ -249,9 +249,10 @@ void PairLJCutTIP4PCutCleav::compute(int eflag, int vflag)
          k2=molecule[j];
          t1=tag[i];
          t2=tag[j];
-         if(k1 != k2)
-                scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
-
+         if (switchlj){
+         	if(k1 != k2)
+                	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
+			}
           flam = 1.0;
           fDlam = 1.0;
 
@@ -335,14 +336,16 @@ void PairLJCutTIP4PCutCleav::compute(int eflag, int vflag)
 /* This is a repetition of what we wrote for the LJ part, but it is needed 
  * if coul_cut_off > lj_cut_off then we are not calculating the scaling for some pairs*/
 
-        scaling=0;
+         scaling=0;
          k1=molecule[i];
          k2=molecule[j];
          t1=tag[i];
          t2=tag[j];
-         if(k1 != k2)
-                scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
-
+         if (switchcoul){
+         	if(k1 != k2)
+                	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
+	      }
+	      
           flam = 1.0;
           fDlam = 1.0;
 
@@ -693,7 +696,7 @@ void PairLJCutTIP4PCutCleav::allocate()
 
 void PairLJCutTIP4PCutCleav::settings(int narg, char **arg)
 {
-  if (narg < 10 || narg > 12) error->all(FLERR,"Illegal pair_style command");
+  if (narg < 10 || narg > 14) error->all(FLERR,"Illegal pair_style command");
 
   typeO = utils::inumeric(FLERR,arg[0],false,lmp);
   typeH = utils::inumeric(FLERR,arg[1],false,lmp);
@@ -723,6 +726,8 @@ void PairLJCutTIP4PCutCleav::settings(int narg, char **arg)
     npow =  utils::numeric(FLERR,arg[7],false,lmp);
     idchunk = utils::strdup(arg[8]);
     idcom = utils::strdup(arg[9]);
+    
+    
 
   
 
@@ -743,18 +748,30 @@ if (ccom && (strcmp(idchunk,ccom->idchunk) != 0))
 
 
   cut_lj_global = utils::numeric(FLERR,arg[10],false,lmp);
-  if (narg == 11) cut_coul = cut_lj_global;
-  else cut_coul = utils::numeric(FLERR,arg[11],false,lmp);
+  cut_coul = utils::numeric(FLERR,arg[11],false,lmp);
+
+
+  switchcoul = 1; // default switch: on 
+  switchlj   = 1;
+
+  if (narg > 12){ 
+    switchcoul = utils::numeric(FLERR,arg[12],false,lmp);  
+    switchlj = utils::numeric(FLERR,arg[13],false,lmp);
+	}
 
   cut_coulsq = cut_coul * cut_coul;
   cut_coulsqplus = (cut_coul + 2.0*qdist) * (cut_coul + 2.0*qdist);
+
+printf("ALLOCATED %d\n",allocated); 
 
   if (allocated) {
     int i,j;
     for (i = 1; i <= atom->ntypes; i++)
       for (j = i; j <= atom->ntypes; j++)
-        if (setflag[i][j]) cut_lj[i][j] = cut_lj_global;
+        if (setflag[i][j]){ cut_lj[i][j] = cut_lj_global;
         lam[i][j] = lambda;
+        lamC[i][j] = lambda;
+     }
   }
 }
 
@@ -787,6 +804,9 @@ void PairLJCutTIP4PCutCleav::coeff(int narg, char **arg)
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
     for (int j = MAX(jlo,i); j <= jhi; j++) {
+    
+printf("BBBB %d %d %f %d  \n",i,j);    
+    
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;
       cut_lj[i][j] = cut_lj_one;
