@@ -12,7 +12,6 @@ fix ID group_ID wellPforce dw rw P lambda file <filename>
 * `P` = power law of the wells
 * `lambda` = strength of the interactions between wells and atoms
 * `<filename>` = external file which contains the position of the wells
-```
 
 ## Description
 

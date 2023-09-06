@@ -18,9 +18,9 @@ This compute collects the scaled interactions which are used to calculate the wo
 The `norm` keyword normalize the interaction for units of interface created (i.e., the result will be in units of [Energy] / [lenght]$^2$). The keyword must be followed by:
 
 1. a positive integer $N$ specifying the number of interfaces created, which is used to calculate the total area created to normalize the work
-2. a direction (x,y,z). The direction specify the normal to the newly created surface. If e.g., z is specified, then the new interface $S$ will be equal to  $S = x_{edge} * y_{edge}$. 
+2. a direction (x,y,z). The direction specify the normal to the newly created surface. If e.g., z is specified, then the new interface $S$ will be equal to  $S = x_{\rm edge} \cdot y_{\rm edge}$. 
 
-The total area $S_{TOT}$ used for the normalization will be therefore $S_{TOT}=S*N=x_{edge} * y_{edge} * N$, where $x_{edge}$ and $y_{edge}$ are the size of the box in the x and y directions.
+The total area used for the normalization will therefore be $S_{\rm TOT}=S \cdot N=x_{\rm edge} \cdot y_{\rm edge} \cdot N$, where $x_{\rm edge}$ and $y_{\rm edge}$ are the size of the box in the x and y directions.
 
 Note: that at the moment this works only for non-triclinic box.
 
