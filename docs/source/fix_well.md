@@ -23,8 +23,8 @@ The well potential we use in this work is  defined as {footcite:t}`handel2008dir
 $$
 	\psi(r;\lambda) = 
 		\begin{cases}
-			\lambda dw\left[\left(\frac{r}{rw}\right)^2-1\right]^{P} \:\:\: r < rw \\
-			0  \:\:\: r \geq rw
+			\lambda d_w\left[\left(\frac{r}{r_w}\right)^2-1\right]^{P} \:\:\: r < r_w \\
+			0  \:\:\: r \geq r_w
 		\end{cases} 
 $$
 where $r=|\mathbf{r}_{atoms}-\mathbf{r}_{wells}|$ for each couple atom-well.

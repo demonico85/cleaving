@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'SurFEC'
+project = 'SIFT'
 copyright = '2022, Nicodemo Di Pasquale and Lorenzo Rovigatti'
 author = 'Nicodemo Di Pasquale and Lorenzo Rovigatti'
 
