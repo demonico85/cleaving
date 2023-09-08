@@ -64,10 +64,16 @@ PairLJCutTIP4PCutCleav::PairLJCutTIP4PCutCleav(LAMMPS *lmp) : Pair(lmp)
   if(natoms == 0){
       error->all(FLERR,"Pair style must be declared after box generation");
   }
+  
+  // here we split between LJ and C, for the sake of cleaving computation of work we  double the atom types
+  // 1 to ntypes -> LJ types
+  // ntypes+1 to 2*ntypes -> C types
+
+  dubtypes=ntypes*2;
 
   natoms=natoms+1;
   if(ntypes > 0){
-    nextra = ntypes*ntypes+1; // the zero-th position is not considered
+    nextra = dubtypes*dubtypes+1; // the zero-th position is not considered
     pvector = new double[nextra];
     pallocation = 1;
     }
@@ -272,7 +278,7 @@ void PairLJCutTIP4PCutCleav::compute(int eflag, int vflag)
         f[j][2] -= delz*forcelj;
 
         if (eflag) {
-          m=jtype+(itype-1)*ntypes;
+          m=jtype+(itype-1)*dubtypes;
           evdwl = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) -
             offset[itype][jtype];
           evdwl *= factor_lj;
@@ -485,7 +491,7 @@ void PairLJCutTIP4PCutCleav::compute(int eflag, int vflag)
           }
 
           if (eflag) {
-            m=jtype+(itype-1)*ntypes;
+            m=(jtype+ntypes)+(ntypes+itype-1)*dubtypes;
             ecoul = qqrd2e * qtmp * q[j] * sqrt(r2inv);
             ecoul *= factor_coul;
 //fprintf(fp,"C %d %d %d %d %d\n %d %d SC  %d   \n %f %f\n",tag[i],tag[j],itype,jtype,m,giflag[t1],giflag[t2],scaling,x[i][2],x[j][2]);
@@ -762,15 +768,15 @@ if (ccom && (strcmp(idchunk,ccom->idchunk) != 0))
   cut_coulsq = cut_coul * cut_coul;
   cut_coulsqplus = (cut_coul + 2.0*qdist) * (cut_coul + 2.0*qdist);
 
-printf("ALLOCATED %d\n",allocated); 
+//printf("ALLOCATED %d\n",allocated); 
 
   if (allocated) {
     int i,j;
     for (i = 1; i <= atom->ntypes; i++)
       for (j = i; j <= atom->ntypes; j++)
-        if (setflag[i][j]){ cut_lj[i][j] = cut_lj_global;
-        lam[i][j] = lambda;
-        lamC[i][j] = lambda;
+        if (setflag[i][j]) {cut_lj[i][j] = cut_lj_global;
+        	lam[i][j] = lambda;
+        	lamC[i][j]= lambda;
      }
   }
 }
@@ -805,7 +811,7 @@ void PairLJCutTIP4PCutCleav::coeff(int narg, char **arg)
   for (int i = ilo; i <= ihi; i++) {
     for (int j = MAX(jlo,i); j <= jhi; j++) {
     
-printf("BBBB %d %d %f %d  \n",i,j);    
+//printf("BBBB %d %d %f %d  \n",i,j);    
     
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;

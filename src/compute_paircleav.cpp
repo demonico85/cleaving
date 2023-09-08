@@ -107,10 +107,23 @@ ComputePairCl::ComputePairCl(LAMMPS *lmp, int narg, char **arg) :
     error->all(FLERR,"Unrecognized pair style in compute pair command");
   
   npair = pair->nextra;
+  
+  
+
 
 
 
   ntypes = atom->ntypes;
+  
+  int dmy;
+  
+  dmy=(npair-1)/ntypes/ntypes;
+  
+  printf("QUAAAAA %d %d %d \n",ntypes,dmy,npair);
+  
+    if(dmy == 4)ntypes=2*ntypes;
+  
+  
   size_array_rows = ntypes+1;
   size_array_cols = ntypes+1;
 
