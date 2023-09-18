@@ -67,7 +67,7 @@ The new functionalities presented here are extremely general and can be applied 
 
 # Acknowledgements
 
-We acknowledge support from the CECAM and CCP5 through the CECAM/CCP5 sandpit grant (2022) awarded to Nicodemo Di Pasquale and Lorenzo Rovigatti.
+We acknowledge support from the CECAM and CCP5 through the CECAM/CCP5 sandpit grant ((EP/V028537/1)) awarded to Nicodemo Di Pasquale and Lorenzo Rovigatti.
 
 # References
 
