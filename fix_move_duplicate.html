@@ -190,7 +190,7 @@
 <p>In the step3 the system (solid+liquid) is duplicated and <code class="docutils literal notranslate"><span class="pre">real</span></code> and <code class="docutils literal notranslate"><span class="pre">duplicate</span></code> atom types are defined (see <a class="reference internal" href="example_SL_walls.html"><span class="doc std std-doc">example LJ-SL</span></a> for more details) as showin in the next Figure.</p>
 <p><img alt="definition" src="_images/dupl1.png" /></p>
 <p>The duplicate atoms are used to keep track of the interactions crossing the cleaving planes, which are the ones to be calculated in order to find the total work in step3.
-However, the equation of motion must be integrated <em>only</em> for the real atoms. After the integration steo the <em>real</em> atoms move by a distance <span class="math notranslate nohighlight">\(\Delta \mathbf{x}\)</span> (see next Figure).</p>
+However, the equations of motion must be integrated <em>only</em> for the real atoms. After the integration steo the <em>real</em> atoms move by a distance <span class="math notranslate nohighlight">\(\Delta \mathbf{x}\)</span> (see next Figure).</p>
 <p><img alt="move" src="_images/dupl2.png" /></p>
 <p>This fix allows the duplicated atoms to follow the movement of the corresponding real atoms. By specifying this fix we are moving the <em>duplicated</em> atoms by the same quantity calculated for the real atoms as shown in the next Figure.</p>
 <p><img alt="move" src="_images/dupl3.png" /></p>

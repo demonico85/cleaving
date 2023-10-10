@@ -11,7 +11,7 @@ pair_style lj/BG cutoff1 cutoff2
 
 ## Description
 
-The Broughton and Gilmer modification to Lennard-Jones potential {footcite:t}`Broughton1983` is given by:
+The {footcite:t}`Broughton1983` modification to Lennard-Jones potential is given by:
 
 $$
 	U(r_{ln}) =

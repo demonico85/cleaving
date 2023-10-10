@@ -21,7 +21,7 @@ In the step3 the system (solid+liquid) is duplicated and `real` and `duplicate` 
 
 
 The duplicate atoms are used to keep track of the interactions crossing the cleaving planes, which are the ones to be calculated in order to find the total work in step3. 
-However, the equation of motion must be integrated _only_ for the real atoms. After the integration steo the _real_ atoms move by a distance $\Delta \mathbf{x}$ (see next Figure).
+However, the equations of motion must be integrated _only_ for the real atoms. After the integration steo the _real_ atoms move by a distance $\Delta \mathbf{x}$ (see next Figure).
 
 ![move](../figs/dupl2.png "Move the real atoms")
 
