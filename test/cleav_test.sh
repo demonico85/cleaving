@@ -64,6 +64,7 @@ do
  esac
 done
 
+lmp=$(realpath $lmp)
 checkcommands $lmp
 
 if ! [[ $nproc =~ $re ]] ; then
@@ -111,7 +112,7 @@ cd $testdir
 
 exampledir=../$exampledir
 
-echo "Entering woring dir..."
+echo "Entering working dir..."
 echo $(pwd)
 echo
 
@@ -197,7 +198,7 @@ cat tmp |  awk -v W=$inpwall  '{
 
 
 
-mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
+mpirun -np $nproc $lmp  -in  $inpscript > $log
 
 
 
@@ -261,7 +262,7 @@ cat tmp |  awk -v W=$inpwall  '{
 
 
 
-mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
+mpirun -np $nproc $lmp  -in  $inpscript > $log
 
 
 if grep -q 'ERROR' $log;
@@ -362,7 +363,7 @@ cat tmp | awk -v T=$temp -v S=$inpdata -v C=$cleav  -v cc=$cleav2 -v zwf=$zwf '{
         	}'  > $inpscript
 
 
-mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
+mpirun -np $nproc $lmp  -in  $inpscript > $log
 
 
 
@@ -399,7 +400,7 @@ cat tmp | awk -v T=$temp -v S=$inpdata -v C=$cleav  -v cc=$cleav2 -v zwf=$zwf '{
         	}'  > $inpscript
 
 
-mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
+mpirun -np $nproc $lmp  -in  $inpscript > $log
 
 
 
@@ -481,7 +482,7 @@ cat tmp |  awk -v W=$inpwall  '{
         	}'  > ./in.loop/loop
 
 
-mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
+mpirun -np $nproc $lmp  -in  $inpscript > $log
 
 
 
@@ -508,7 +509,7 @@ cd $testdir
 
 exampledir=../$exampledir
 
-echo "Entering woring dir..."
+echo "Entering working dir..."
 echo $(pwd)
 echo
 
@@ -563,7 +564,7 @@ cat tmp | awk -v T=$temp -v S=$inpdata -v W=$inpwell '{
 
 
 
-mpirun -np $nproc ../../$lmp  -in  $inpscript > $log
+mpirun -np $nproc $lmp  -in  $inpscript > $log
 
 
 if grep -q 'ERROR' $log; then
