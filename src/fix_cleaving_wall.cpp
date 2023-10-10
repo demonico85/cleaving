@@ -481,7 +481,7 @@ void FixForceLJWall::ReadFWalls()
         cnt=0;
         while(cnt < natomsinwalls[1]){
             for(int i=0;i<3;i++) {
-            	if(fscanf (fpw, "%lf", &lposwall[cnt][i]) != 1){
+            	if(fscanf (fpw, "%lf", &hposwall[cnt][i]) != 1){
             	sprintf(str,"Cannot read position of wall %d in %s",i,namefile);
          	error->one(FLERR,str);}
          		}
