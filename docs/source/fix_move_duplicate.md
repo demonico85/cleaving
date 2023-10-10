@@ -24,7 +24,7 @@ The atoms interacts with one another. The duplicate atoms are used to keep track
 
 The equation of motion must be integrated _only_ for the real atoms. The atoms then move by a distance $\Delta \mathbf{x}$.
 
-![move](../figs/dupl1.png "Move the real atoms")
+![move](../figs/dupl2.png "Move the real atoms")
 
 
 This fix allows the duplicated atoms to follow the movement of the real atoms. By specifying this fix we are moving the atoms of the same quantity as the real atoms.
@@ -32,7 +32,7 @@ This fix allows the duplicated atoms to follow the movement of the real atoms. B
 
 The equation of motion must be integrated _only_ for the real atoms. The atoms then move by a distance $\Delta \mathbf{x}$.
 
-![move](../figs/dupl1.png "Move the real atoms")
+![move](../figs/dupl3.png "Move the real atoms")
 
 
 ```{footbibliography}
