@@ -31,8 +31,7 @@ cutoff1 = global internal cut-off
 cutoff2 = global external cut-off
 ```
 
-the arguments in the `pair_coeff` are all optional except for the atom types. Note that the order is important. If we want to specify a new lambda for a different pair of types we can just write
-
+the arguments in the `pair_coeff` are all optional except for the atom types.  However, if we need to specify a particular argument, we need to specify also all the preceeding ones. If we want to specify a new lambda for a different pair of types we can just write
 ```
 pair_coeff 1 1 1.0
 ```
@@ -54,7 +53,7 @@ pair coeff 1 3 -1.0
 
 ## Description
 
-This pair style implements the Broughton and Gilmer modification to Lennard-Jones potential {footcite:t}`Broughton1983` (see [pair lj/BG]{pairBG.md}) to be used in the step3 of the cleaving algorithm. This pair style returns also an array with all the calculated interactions which are needed to calculate the work in the step3. This array can be accessed using the new compute [compute paircleav]}{compute_pcleav.md}. 
+This pair style implements the {footcite:t}`Broughton1983` modification to Lennard-Jones potential  (see [pair lj/BG]{pairBG.md}) to be used in the step3 of the cleaving algorithm. This pair style returns also an array with all the calculated interactions which are needed to calculate the work in the step3. This array can be accessed using the new compute [compute paircleav]}{compute_pcleav.md}. 
 
 
 The potential implemented in this pair style is 
@@ -87,7 +86,7 @@ $$
 		\end{cases}
 $$
 
-In this case the expression of the potential is multiplied by the derivative of $\lambda$ with respect itself which is equal to 1 (i.e., $\partial \lambda / \partial \lambda=1$), and therefore the value of Dfrac must be set equal to 1.
+In this case the expression of the potential is multiplied by the derivative of $\lambda$ with respect itself which is equal to 1 (i.e., $\partial \lambda / \partial \lambda=1$). Therefore, the value of Dfrac must be set equal to 1.
 
 Using this style we can represent different switches between different states of the system:
 
@@ -123,7 +122,7 @@ $$
 $$  
 
 for $\lambda \in [0,1]$, where we dropped the dependence on $\mathbf{p}$ and $\mathbf{q}$ for simplicity.
-In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like $(1-\lambda)$. Here, we need to set Dfrac=-1.
+In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like $(1-\lambda)$. Here, we need to set Dfrac=-1 for some pair coefficients.
 
 ```
 variable lam file lambda.dat

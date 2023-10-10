@@ -200,11 +200,12 @@ cutoff1 = global internal cut-off
 cutoff2 = global external cut-off
 </pre></div>
 </div>
-<p>the arguments in the <code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> are all optional except for the atom types. Note that the order is important. If we want to specify a new lambda for a different pair of types we can just write</p>
+<p>The arguments in the <code class="docutils literal notranslate"><span class="pre">pair_coeff</span></code> are all optional except for the atom types. However, if we need to specify a particular argument, we need to specify also all the preceeding ones.
+If we want to specify a new lambda for a different pair of types we can just write</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_coeff</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mf">1.0</span>
 </pre></div>
 </div>
-<p>However, in order to specify a new (e.g., external) cutoff we need to rewrite all the preceeding arguments:</p>
+<p>Instead, in order to specify a new (e.g., external) cutoff we need to rewrite all the preceeding arguments:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_coeff</span> <span class="mi">1</span> <span class="mi">1</span> <span class="k">lambda</span> <span class="n">Dfac</span> <span class="n">cutoff1</span> <span class="n">cutoff2</span>
 </pre></div>
 </div>
@@ -220,7 +221,7 @@ cutoff2 = global external cut-off
 </div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>This pair style implements the Broughton and Gilmer modification to Lennard-Jones potential Broughton and Gilmer<a class="footnote-reference brackets" href="#footcite-broughton1983" id="id1">1</a> (see [pair lj/BG]{pairBG.md}) to be used in the step3 of the cleaving algorithm. This pair style returns also an array with all the calculated interactions which are needed to calculate the work in the step3. This array can be accessed using the new compute [compute paircleav]}{compute_pcleav.md}.</p>
+<p>This pair style implements the Broughton and Gilmer<a class="footnote-reference brackets" href="#footcite-broughton1983" id="id1">1</a> modification to Lennard-Jones potential  (see [pair lj/BG]{pairBG.md}) to be used in the step3 of the cleaving algorithm. This pair style returns also an array with all the calculated interactions which are needed to calculate the work in the step3. This array can be accessed using the new compute [compute paircleav]}{compute_pcleav.md}.</p>
 <p>The potential implemented in this pair style is</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -231,12 +232,11 @@ cutoff2 = global external cut-off
 				0, 		\; r_{ln} \geq 2.5\sigma		
 		\end{cases}
 \end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|\)</span> for each couple of atoms <span class="math notranslate nohighlight">\(l,n\)</span> in the system, and <span class="math notranslate nohighlight">\(C_1, C_2, C_3, C_4, C_5\)</span> are constants we used the values reported in Davidchack and Laird<a class="footnote-reference brackets" href="#footcite-davidchack2003direct" id="id2">2</a>.
-The constants are hardcorded within the pair style and they not need to be defined.</p>
+<p>where <span class="math notranslate nohighlight">\(r_{ln}=|\mathbf{r}_l-\mathbf{r}_n|\)</span> for each couple of atoms <span class="math notranslate nohighlight">\(l,n\)</span> in the system, and <span class="math notranslate nohighlight">\(C_1, C_2, C_3, C_4, C_5\)</span> are constants hardcorded within the pair style, therefore they not need to be defined. For C_1, C_2, C_3, C_4, C_5$ we used the values reported in Davidchack and Laird<a class="footnote-reference brackets" href="#footcite-davidchack2003direct" id="id2">2</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(lambda\)</span> must vary in the (closed) interval [0,1]</p></li>
+<li><p><span class="math notranslate nohighlight">\(\lambda\)</span> must vary in the (closed) interval [0,1]</p></li>
 <li><p>There is no internal check that <span class="math notranslate nohighlight">\(\lambda\)</span> is changing consistently (i.e., always decreasing or increasing)</p></li>
 </ul>
 </div>
@@ -250,7 +250,7 @@ The constants are hardcorded within the pair style and they not need to be defin
 				0, 		\; r_{ln} \geq 2.5\sigma		
 		\end{cases}
 \end{split}\]</div>
-<p>In this case the the expression of the potential is multiplied by the derivatibe of <span class="math notranslate nohighlight">\(\lambda\)</span> with respect itself which is equal to 1 (i.e., <span class="math notranslate nohighlight">\(\partial \lambda / \partial \lambda=1\)</span>), and therefore the value of Dfrac must be set equal to 1.</p>
+<p>In this case, the the expression of the potential is multiplied by the derivative of <span class="math notranslate nohighlight">\(\lambda\)</span> with respect itself, which is equal to 1 (i.e., <span class="math notranslate nohighlight">\(\partial \lambda / \partial \lambda=1\)</span>). Therefore, the value of Dfrac must be set equal to 1.</p>
 <p>Using this style we can represent different switches between different states of the system:</p>
 <ul class="simple">
 <li><p>We want to describe the switching between two different states of the system, e.g., <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(a+b\)</span>.
@@ -296,7 +296,7 @@ Let us assume the total Hamiltonian of the system, <span class="math notranslate
 	H^{T}(\lambda)= \lambda H_{a} + (1-\lambda) H_{b} 
 \]</div>
 <p>for <span class="math notranslate nohighlight">\(\lambda \in [0,1]\)</span>, where we dropped the dependence on <span class="math notranslate nohighlight">\(\mathbf{p}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> for simplicity.
-In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like <span class="math notranslate nohighlight">\((1-\lambda)\)</span>. Here, we need to set Dfrac=-1.</p>
+In this latter case, the command Dfrac needs to be used when we are passing to the pair_style an expression like <span class="math notranslate nohighlight">\((1-\lambda)\)</span>. Here, we need to set Dfrac=-1 for some pair coefficients.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable lambda file lambda.dat
 variable minl   equal 1-lambda
 
