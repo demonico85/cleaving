@@ -53,7 +53,7 @@ pair coeff 1 3 -1.0
 
 ## Description
 
-This pair style implements the {footcite:t}`Broughton1983` modification to Lennard-Jones potential  (see [pair lj/BG](pairBG.md)) to be used in the step3 of the cleaving algorithm. This pair style returns also an array with all the calculated interactions which are needed to calculate the work in the step3. This array can be accessed using the new compute [compute paircleav]}(compute_pcleav.md). 
+This pair style implements the {footcite:t}`Broughton1983` modification to Lennard-Jones potential  (see [pair lj/BG](pairBG.md)) to be used in the step3 of the cleaving algorithm. This pair style returns also an array with all the calculated interactions which are needed to calculate the work in the step3. This array can be accessed using the new compute [compute paircleav](compute_pcleav.md). 
 
 
 The potential implemented in this pair style is 
