@@ -1,8 +1,6 @@
-# cleaving
+# CLEAVING
 
-Lammps Package for cleaving calculations USER-CLEAVING
-
-The package contains all the modified potentials and additional computes/fixes needed by the cleaving model to calculate the Surface Free Energy in a system using Thermodynamic Integration.
+The LAMMPS package CLEAVING contains all the modified potentials and additional computes/fixes needed by the cleaving model to use Thermodynamic Integration to calculate the Surface Free Energy of a given system.
 
 This package is presented as part of the consortium Simulation Interfacial Free Energy Techniques (SIFT) which include the packages:
 
