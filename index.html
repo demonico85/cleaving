@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Cleaving &mdash; SIFT  documentation</title>
+  <title>CLEAVING &mdash; CLEAVING  documentation</title>
   
 
   
@@ -51,7 +51,7 @@
           
 
           
-            <a href="#" class="icon icon-home" alt="Documentation Home"> SIFT
+            <a href="#" class="icon icon-home" alt="Documentation Home"> CLEAVING
           
 
           
@@ -102,7 +102,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">SIFT</a>
+          <a href="#">CLEAVING</a>
         
       </nav>
 
@@ -133,7 +133,7 @@
     
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Cleaving</li>
+      <li>CLEAVING</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -153,9 +153,20 @@
            <div itemprop="articleBody">
             
   <div class="tex2jax_ignore mathjax_ignore section" id="cleaving">
-<h1>Cleaving<a class="headerlink" href="#cleaving" title="Permalink to this headline">¶</a></h1>
-<p>Lammps Package for cleaving calculations USER-CLEAVING</p>
-<p>The package contains all the modified potentials and additional computes/fixes needed by the cleaving model to calculate the Surface Free Energy in a system using Thermodynamic Integration.</p>
+<h1>CLEAVING<a class="headerlink" href="#cleaving" title="Permalink to this headline">¶</a></h1>
+<p>The LAMMPS package CLEAVING contains all the modified potentials and additional computes/fixes needed by the cleaving model to use Thermodynamic Integration to calculate the Surface Free Energy of a given system.</p>
+<div class="section" id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>Direct determination of the IFE from the reversible work of creating an interface requires the careful design of a thermodynamic transformation path that starts from separate bulk phases equilibrated at coexistence conditions and ends with the same phases in contact across an interface. The cleaving method, originally proposed by Broughton and Gilmer <a class="footnote-reference brackets" href="#footcite-broughton1986cleaving" id="id1">1</a> for the calculation of the solid-liquid IFE in a Lennard-Jones system, constructs such a path from four basic steps:</p>
+<ol class="arabic simple">
+<li><p>introduce an external ‘cleaving potential’ in the first phase (<em>e.g.</em> a solid);</p></li>
+<li><p>same as 1., but for the second phase (<em>e.g</em>.) a liquid;</p></li>
+<li><p>rearrange the boundary conditions to merge the systems while maintaining the cleaving potentials;</p></li>
+<li><p>remove the cleaving potentials.</p></li>
+</ol>
+<p>A sketch of the cleaving path to obtain the IFE between two generic phases <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span></p>
+<p>is shown in \autoref{fig:cleaving}. The reversible work in each step can be determined by different free energy computation methods, but those based on Thermodynamic Integration are the most straightfoward and provide accurate and direct results. With TI methods the free energy difference between two thermodynamic states connected by a transformation path is calculated by integrating the ensemble average of some configuration dependent function (<em>e.g.</em>, the potential energy) with respect to a parameter defining the path from the initial to the final thermodynamic state.</p>
+<p>To date, the cleaving method, which owes its name to the fact that each bulk phase is “cleaved”, i.e., cut at a certain position to create the new interface, has been used to calculate the solid-liquid IFE in hard and soft spheres <a class="footnote-reference brackets" href="#footcite-davidchack00prl" id="id2">2</a><a class="footnote-reference brackets" href="#footcite-davidchack05prl" id="id3">3</a>, Lennard-Jones , TIP4P model water <a class="footnote-reference brackets" href="#footcite-handel08prl" id="id4">4</a><a class="footnote-reference brackets" href="#footcite-davidchack12ice" id="id5">5</a>, Embedded-Atom Model (EAM) iron <a class="footnote-reference brackets" href="#footcite-liu2013csm" id="id6">6</a>, silver-ethylene glycol , orcinol-chloroform and orcinol-nitromethane <a class="footnote-reference brackets" href="#footcite-addula2020computation" id="id7">7</a>, as well as for the calculation of the surface free energy of molecular crystals, such as mannitol <a class="footnote-reference brackets" href="#footcite-dipasquale2022cleaving" id="id8">8</a>. However, due to the rather involved multi-step calculations required by the cleaving method, its use so far has been limited to a few research groups. Wider adoption of the cleaving approach for the calculation of solid-liquid and solid-solid IFE for different forcefields requires a more convenient simulation interface for the construction of the thermodynamic transformation path and calculation of the reversible work along this path. Here we attempt to fill this need with the CLEAVING package, which is designed to make it more straightforward for LAMMPS users to access the calculation of solid-liquid and solid-solid IFE in a wide variety of systems.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul>
@@ -186,6 +197,39 @@
 </ul>
 </li>
 </ul>
+</div>
+</div>
+<div class="section" id="bibliography">
+<h2>Bibliography<a class="headerlink" href="#bibliography" title="Permalink to this headline">¶</a></h2>
+<div class="docutils container" id="id9">
+<dl class="footnote brackets">
+<dt class="label" id="footcite-broughton1986cleaving"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>J. Q. Broughton and G. H. Gilmer. Molecular dynamics investigation of the crystal–fluid interface. vi. excess surface free energies of crystal–liquid systems. <em>The Journal of chemical physics</em>, 84(10):5759–5768, 1986. <a class="reference external" href="https://doi.org/10.1063/1.449884">doi:10.1063/1.449884</a>.</p>
+</dd>
+<dt class="label" id="footcite-davidchack00prl"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>R. L. Davidchack and B. B. Laird. Direct calculation of the hard-sphere crystal/melt interfacial free energy. <em>Physical review letters</em>, 85(22):4751, 2000. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.85.4751">doi:10.1103/PhysRevLett.85.4751</a>.</p>
+</dd>
+<dt class="label" id="footcite-davidchack05prl"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p>Ruslan L Davidchack and Brian B Laird. Crystal structure and interaction dependence of the crystal-melt interfacial free energy. <em>Physical review letters</em>, 94(8):086102, 2005. <a class="reference external" href="https://doi.org/10.1103/physrevlett.94.086102">doi:10.1103/physrevlett.94.086102</a>.</p>
+</dd>
+<dt class="label" id="footcite-handel08prl"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd><p>Richard Handel, Ruslan L Davidchack, Jamshed Anwar, and Andrey Brukhno. Direct calculation of solid-liquid interfacial free energy for molecular systems: tip4p ice-water interface. <em>Physical review letters</em>, 100(3):036104, 2008. <a class="reference external" href="https://doi.org/10.1103/physrevlett.100.036104">doi:10.1103/physrevlett.100.036104</a>.</p>
+</dd>
+<dt class="label" id="footcite-davidchack12ice"><span class="brackets"><a class="fn-backref" href="#id5">5</a></span></dt>
+<dd><p>Ruslan L Davidchack, Richard Handel, Jamshed Anwar, and Andrey V Brukhno. Ice ih–water interfacial free energy of simple water models with full electrostatic interactions. <em>Journal of Chemical Theory and Computation</em>, 8(7):2383–2390, 2012. <a class="reference external" href="https://doi.org/10.1021/ct300193e">doi:10.1021/ct300193e</a>.</p>
+</dd>
+<dt class="label" id="footcite-liu2013csm"><span class="brackets"><a class="fn-backref" href="#id6">6</a></span></dt>
+<dd><p>J Liu, RL Davidchack, and HB Dong. Molecular dynamics calculation of solid–liquid interfacial free energy and its anisotropy during iron solidification. <em>Computational materials science</em>, 74:92–100, 2013. <a class="reference external" href="https://doi.org/10.1016/j.commatsci.2013.03.018">doi:10.1016/j.commatsci.2013.03.018</a>.</p>
+</dd>
+<dt class="label" id="footcite-addula2020computation"><span class="brackets"><a class="fn-backref" href="#id7">7</a></span></dt>
+<dd><p>Ravi Kumar Reddy Addula and Sudeep N Punnathanam. Computation of solid–fluid interfacial free energy in molecular systems using thermodynamic integration. <em>The Journal of Chemical Physics</em>, 153(15):154504, 2020. <a class="reference external" href="https://doi.org/10.1063/5.0028653">doi:10.1063/5.0028653</a>.</p>
+</dd>
+<dt class="label" id="footcite-dipasquale2022cleaving"><span class="brackets"><a class="fn-backref" href="#id8">8</a></span></dt>
+<dd><p>N. Di Pasquale and R. L. Davidchack. Cleaving method for molecular crystals and its application to calculation of the surface free energy of crystalline β-d-mannitol at room temperature. <em>The Journal of Physical Chemistry A</em>, 126(13):2134–2141, 2022. <a class="reference external" href="https://doi.org/10.1021/acs.jpca.2c00604">doi:10.1021/acs.jpca.2c00604</a>.</p>
+</dd>
+</dl>
+</div>
+<hr class="footnotes docutils" />
 </div>
 </div>
 
