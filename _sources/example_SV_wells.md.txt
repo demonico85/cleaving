@@ -275,7 +275,7 @@ jump SELF here
 
 ## Calculation of the SFE 
 
-The SFE is obtained by summing the work performed in the [Step 1](#step-1), [Step 3](#step-3), [Step 4](#step-4). The work is calculated by using the results produced in each step. The folder `/utils/` contains some small programs for the post-processing. 
+The SFE is obtained by summing the work performed in the [Step 1](#step-1), [Step 3](#step-3), [Step 4](#step-4). The work is calculated by using the results produced in each step. The folder `/examples/LJ_SV/utils/` contains some small programs for the post-processing. 
 
 * `work.sh`: bash script to calculate the average of the relevant properties for each step of the thermodynamic integration
 
