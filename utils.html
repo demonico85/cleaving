@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utils &mdash; CLEAVING  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Solid-Liquid interface of a Lennard-Jones crystal in contact with a Lennard-Jones liquid with walls" href="example_SL_walls.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> CLEAVING
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CLEAVING</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/utils.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="tex2jax_ignore mathjax_ignore section" id="utils">
+<h1>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
+<p>Here, we report a list of the subroutines included in the directory <code class="docutils literal notranslate"><span class="pre">utils/</span></code> along with a brief comment on what is their purpose.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These programs are useful for cleaving pre/post processing calculations (e.g., extracting and averaging useful quantities). These small programs are given without warranty</p>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TzerogatherEn.sh</span></code>: Extract the value of <span class="math notranslate nohighlight">\(\gamma\)</span> as difference in energy for a zero temperature LJ crystal at different strains</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tzerogathermin.sh</span></code>: Extract the value of <span class="math notranslate nohighlight">\(\gamma\)</span> from step3 for a zero temperature LJ crystal at different strains</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allgatheresults.sh</span></code>: Collect work in all the four steps, for different run of cleaving, at different temperature, with different crystal orientation and different cleaving potential in a LJ crystal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">athenawork.sh</span></code>: Collect work in all the four steps for a LJ crystal, version to be used in a queue system to run the postprocessing as a batch job</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blockAv.py</span></code>: Script to calculate block average and some statistics of a list of measurements</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c3cryst.f90</span></code>: Rewrite the file inters3.* obtained in step3 in a format similar to step1/2/4 to be read using the same subroutines used for these steps. Valid for zero temperature LJ crystals</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c3cryst_wells.f90</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">c3cryst.f90</span></code>, to be used with wells cleaving potential</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calcintegrals.f90</span></code>: Trapezoidal rule to calculate work integrals</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calcworkstep3.f90</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">c3cryst.f90</span></code>, valid for solid-liquid interfaces in a LJ crystal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calcworkstep3_nodupl.f90</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">calcworkstep3.f90</span></code>, do not consider the duplicate atoms in step3</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">check_sim.sh</span></code>: Check if the simulation in a queue system are still running or if they have stopped before the end of the calculation completed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cleaving.sh</span></code>: Automated script to run the entire cleaving model for a solid-liquid interface. It needs <code class="docutils literal notranslate"><span class="pre">preparation.sh</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compile.sh</span></code>: Compile the fortran subroutines in the <code class="docutils literal notranslate"><span class="pre">utils/</span></code> directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dump2.data.sh</span></code>: Convert dump configuration to data file. It needs <code class="docutils literal notranslate"><span class="pre">dump2data.f90</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dump2.data.sh</span></code>: Convert dump configuration to data file. It is called by <code class="docutils literal notranslate"><span class="pre">dump2data.f90</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fixedlayer.f90</span></code>:  Create a block of FCC crystal with certain orientation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gatherwork.sh</span></code>: Check if cleaving calculation is running, if not, it collects the work file at each step</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">multiple_sim.sh</span></code>: Submit cleaving calculations in different condition to a queue system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">new_step3IN.f90</span></code>: Create input file for step3 in a LJ crystal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">preparation.sh</span></code>: Script called by <code class="docutils literal notranslate"><span class="pre">cleaving.sh</span></code> to initialize the different directories used for cleaving</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pressureprofile.sh</span></code>: Script to calculate the ensemble average of the pressure (stress) profile in a box</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remove.sh</span></code>: Clean directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restartmann.sh</span></code>: restart cleaving calculation on a queue system (written for mannitol system)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runcleav.sh</span></code>: Submit a new cleaving calculation or restart it to a queue system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runcleavcry.sh</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">cleaving.sh</span></code> but for a solid-vacuum LJ crystal at finite temperature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runzerocleavcry.sh</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">runcleavcry.sh</span></code> but for a system at zero temperature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s3zeroinpljcry.sh</span></code>: Set up step3 for solid-vacuum interface for a LJ crystal at zero temperature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s4inpljcry.sh</span></code>: Set up step4 for solid-vacuum interface for a LJ crystal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">selwall.sh</span></code>: Calculate work separately for the two pairs of walls in step4</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">singleres.sh</span></code>: Calculate work in all the steps for a single configuration of the inputs (e.g., orientation, temperature) for walls cleaving potential</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">singleres_wells.sh</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">singleres.sh</span></code> but for wells cleaving potential</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step3IN.f90</span></code>: Create input file for step3 in a LJ crystal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step4IN.f90</span></code>: Create input file for step4 in a LJ crystal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">submit.sh</span></code>: Submit a range of cleaving calculation as batch jobs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">work.sh</span></code>: Calculate block average of the work at each step of cleaving for a LJ system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">work_new_s4.sh</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">work.sh</span></code> but modified to give the work for each pairs of walls separately</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">work_s3.sh</span></code>: Same as work, modified with to use a different convention for the fixes name identifying the cleaving work</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">workmannitol.sh</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">work.sh</span></code> but modified for mannitol system</p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="example_SL_walls.html" class="btn btn-neutral float-left" title="Solid-Liquid interface of a Lennard-Jones crystal in contact with a Lennard-Jones liquid with walls" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2022, Nicodemo Di Pasquale and Lorenzo Rovigatti
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

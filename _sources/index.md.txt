@@ -25,6 +25,7 @@ To date, the cleaving method, which owes its name to the fact that each bulk pha
    install.md
    lammps.md
    example.md
+   utils.md
 ```
 
 ## Bibliography
