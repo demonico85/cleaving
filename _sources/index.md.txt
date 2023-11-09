@@ -11,7 +11,7 @@ Direct determination of the IFE from the reversible work of creating an interfac
 3. rearrange the boundary conditions to merge the systems while maintaining the cleaving potentials;
 4. remove the cleaving potentials.
 
-A sketch of the cleaving path to obtain the IFE between two generic phases $\alpha$ and $\beta$ are shown here:
+A sketch of a cleaving path to obtain the IFE between two generic phases $\alpha$ and $\beta$ can be represented as:
 
 ![cleaving](../figs/joss.png "cleaving")
 
