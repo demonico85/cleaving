@@ -13,7 +13,7 @@ Direct determination of the IFE from the reversible work of creating an interfac
 
 A sketch of the cleaving path to obtain the IFE between two generic phases $\alpha$ and $\beta$ are shown here:
 
-![cleaving](../figs/joss")
+![cleaving](../figs/joss.png "cleaving")
 
 The reversible work in each step can be determined by different free energy computation methods, but those based on Thermodynamic Integration are the most straightfoward and provide accurate and direct results. With TI methods the free energy difference between two thermodynamic states connected by a transformation path is calculated by integrating the ensemble average of some configuration dependent function (*e.g.*, the potential energy) with respect to a parameter defining the path from the initial to the final thermodynamic state.
 
