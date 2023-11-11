@@ -1,0 +1,167 @@
+###%***************************************************************************%
+###%                                                                          *%                                                                                                                   
+###%    Script to run Step 1 of the Cleaving Method with Walls                *%
+###%                                                                          *%
+###%***************************************************************************%
+###%                                                                          *%
+###%    Based on:                                                             *%
+###%    R. Davidchack, B. Laird, J. Chem. Phys., 118:7651-7657 (2003)         *%
+###%                                                                          *%
+###%   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~         *%
+###%                                                                          *%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%                                                                          *%
+###%***************************************************************************%
+
+
+units		lj
+atom_style	atomic
+
+boundary p p p
+read_data inputStep3.lmp
+
+mass * 1.0
+
+
+group crys type 1 4 5 6
+group liquid type  2 3 7 8 
+
+group real type 1 2 3 4
+group dupl type 5 6 7 8
+
+group realliq type 2 3
+group realcry type 1 4
+
+# ---------------------------- Define variables --------------------------------
+
+variable clwall1 equal 8.099840380596101
+variable clwall2 equal 24.299521141788304 
+variable backloop equal 0
+variable  sigma   equal  1.0
+variable  eps     equal  1.0
+variable  delta   equal  0.25
+variable  siglj   equal  1.0
+variable  epslj   equal  1.0
+variable cnt equal 1
+variable lam file lambda.dat 
+variable lambda equal ${lam}
+variable delam equal 0.005
+variable zwf equal 0.62
+variable  crw     equal  2.0^(1.0/6.0)   
+variable  rhoc    equal  0.945
+variable  cut1    equal  2.3
+variable  cut2    equal  2.5
+variable  eqnts   equal  0
+variable  nts     equal  1000
+variable  ts      equal  0.005
+variable thermoSteps equal 5000
+variable dumpfreq equal 20000
+variable Nevery equal 2
+variable Nrepeat equal 500 
+variable Nfreq equal 1000
+variable  nloop   equal  2000
+variable Tsyst equal 0.617
+variable  Tdump   equal  0.0748
+variable restartfreq equal 200000 
+
+# ------------------------- Derivate variables ---------------------------------
+#
+
+variable minlam equal 1-${lambda}
+variable  rw    equal  ${sigma}*${crw}
+variable  cutoff1 equal  ${siglj}*${cut1} 
+variable  cutoff2 equal  ${siglj}*${cut2}
+
+# ---------------------------- Neighbours Exclusion ----------------------------
+
+neigh_modify every 1 delay 0 check yes exclude type 1 7 exclude type 1 8 exclude type 2 5 exclude type 2 6 exclude type 3 5 exclude type 3 6 exclude type 4 7 exclude type 4 8 exclude type 5 6 exclude type 5 7 exclude type 5 8  exclude type 6 7  exclude type 6 8  exclude type 7 8  
+
+# ----------------------------- Interactions -----------------------------------
+
+
+#### normal interactions
+
+# self
+pair_style lj/BGNlcleavs3 ${cutoff1} ${cutoff2} 1.0 1.0 1.0
+pair_coeff   1 1  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   2 2  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   3 3  ${epslj} ${siglj}   1.0 1.0 
+pair_coeff   4 4  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   5 5  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   6 6  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   7 7  ${epslj} ${siglj}   0.0 1.0
+pair_coeff   8 8  ${epslj} ${siglj}   0.0 1.0
+
+# single
+pair_coeff   1 4  ${epslj} ${siglj}   1.0 1.0
+pair_coeff   2 3  ${epslj} ${siglj}   1.0 1.0
+
+
+neighbor     0.3 bin
+atom_modify  sort 0 0.0
+
+
+# ------------------------- fix atoms  -------------------------------
+
+velocity real zero linear
+velocity real zero angular
+
+# ------------------------- Define compute style -------------------------------
+
+
+compute 1 all cleavpairs lj/BGNlcleavs3 norm 4 z
+
+
+# ------------- Output thermo information and averaged variables ---------------
+
+
+
+fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall1} file fcc111-T1-walls.lmp
+fix f3 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp 
+variable totW   equal "f_f2 + f_f3"  
+
+
+fix  f4  real nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+
+compute cc1 real displace/atom_cleav
+fix Nf1  dupl move/dupl c_cc1[*]
+
+compute Treal real temp
+compute PE real pe/atom
+compute preal real reduce sum c_PE
+variable PER equal c_preal
+
+compute Sl realliq stress/atom NULL
+compute Sc realcry stress/atom NULL
+compute RSl realliq reduce sum c_Sl[1] c_Sl[2] c_Sl[3]
+compute RSc realcry reduce sum c_Sc[1] c_Sc[2] c_Sc[3]
+
+variable volR equal vol/2
+
+variable pressL equal -(c_RSl[1]+c_RSl[2]+c_RSl[3])/(3*${volR})
+variable pressC equal -(c_RSc[1]+c_RSc[2]+c_RSc[3])/(3*${volR})
+variable pressToT equal -(c_RSc[1]+c_RSc[2]+c_RSc[3]+c_RSl[1]+c_RSl[2]+c_RSl[3])/(3*vol)
+
+thermo_style custom step c_Treal v_PER v_pressC v_pressL v_pressToT
+thermo   ${thermoSteps}
+timestep ${ts}
+
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix    f5  real momentum 1000 linear 1 1 1
+
+# -------------------------- Forward changing interactions lambda ----------------------
+
+label here
+include    in.loop/loop
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+next lam
+jump SELF here
+
+write_data  Fstep3.${cnt}.data  nocoeff

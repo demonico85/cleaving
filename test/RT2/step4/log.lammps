@@ -1,0 +1,3239 @@
+LAMMPS (2 Aug 2023)
+###%***************************************************************************%
+###%                                                                          *%
+###%    Script to run Step 4 of the Cleaving Method with Walls                *%
+###%                                                                          *%
+###%***************************************************************************%
+###%                                                                          *%
+###%    Based on:                                                             *%
+###%    R. Davidchack, B. Laird, J. Chem. Phys., 118:7651-7657 (2003)         *%
+###%                                                                          *%
+###%   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~         *%
+###%                                                                          *%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%                                                                          *%
+###%***************************************************************************%
+
+units		lj
+atom_style	atomic
+
+boundary p p p
+read_data   inputStep4.lmp
+Reading data file ...
+  orthogonal box = (0 0 0) to (5.5112433 5.7274521 32.399362)
+  1 by 1 by 4 MPI processor grid
+  reading atoms ...
+  1080 atoms
+  reading velocities ...
+  1080 velocities
+  read_data CPU = 0.006 seconds
+
+group crys type 1 4
+540 atoms in group crys
+group liquid type  2 3
+540 atoms in group liquid
+
+mass * 1.0
+
+
+# ---------------------------- Define variables --------------------------------
+
+variable clwall1 equal 8.099840380596101
+variable clwall2 equal 24.299521141788304
+variable  cnt     equal  1
+variable  siglj   equal  1.0
+variable  epslj   equal  1.0
+variable  sigma   equal  1.0
+variable  eps     equal  1.0
+variable  delta   equal  0.25
+variable  zw file zwalls_back.dat
+variable  crw     equal  2.0^(1.0/6.0)
+variable  eqnts   equal  0
+variable  nts     equal  1000
+variable  ts      equal  0.005
+variable  cut1    equal  2.3
+variable  cut2    equal  2.5
+variable  Tsyst   equal  0.617
+variable  Tdump   equal  0.0748
+variable Nevery equal 2
+variable Nrepeat equal 500
+variable Nfreq equal 1000
+variable thermoSteps equal 5000
+
+# ----- Derivate variables ------
+
+variable  cutoff1  equal  ${siglj}*${cut1}
+variable  cutoff1  equal  1*${cut1}
+variable  cutoff1  equal  1*2.3
+variable  cutoff2  equal  ${siglj}*${cut2}
+variable  cutoff2  equal  1*${cut2}
+variable  cutoff2  equal  1*2.5
+variable  rw       equal  ${sigma}*${crw}
+variable  rw       equal  1*${crw}
+variable  rw       equal  1*1.12246204830937
+variable  cntt     equal ${cnt}
+variable  cntt     equal 1
+
+# ----------------------------- Interactions -----------------------------------
+
+
+pair_style lj/BG ${cutoff1} ${cutoff2}
+pair_style lj/BG 2.3 ${cutoff2}
+pair_style lj/BG 2.3 2.5
+pair_coeff   * *  ${epslj} ${siglj}
+pair_coeff   * *  1 ${siglj}
+pair_coeff   * *  1 1
+
+
+neighbor     0.3 bin
+neigh_modify every 1 delay 0 check yes
+atom_modify  sort 0 0.0
+
+# ------------- Output thermo information and averaged variables ---------------
+
+fix  f4  all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+fix  f4  all nvt temp 0.617 ${Tsyst} ${Tdump}
+fix  f4  all nvt temp 0.617 0.617 ${Tdump}
+fix  f4  all nvt temp 0.617 0.617 0.0748
+
+thermo    ${thermoSteps}
+thermo    5000
+timestep  ${ts}
+timestep  0.005
+
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix    f5  all momentum 1000 linear 1 1 1
+
+# ----------------------- Moving Walls  ------------------------
+
+
+label here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.62
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.62
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.62 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.62 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.62 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.62 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.62 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.62 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.62 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.62 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 4 5 24
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/BG, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   0.58952707    -6.5681251      0             -5.6846533      4.6398797    
+Loop time of 1.72925e-06 on 4 procs for 0 steps with 1080 atoms
+
+101.2% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.729e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1527.5 ave        1530 max        1524 min
+Histogram: 1 0 0 1 0 0 0 0 0 2
+Neighs:        12136.2 ave       12642 max       11864 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48545
+Ave neighs/atom = 44.949074
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.1.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   0.58952707    -6.5681251      0             -5.6846533      4.6398797    
+      1000   0.59737527    -6.5744728      0             -5.6792396      4.6246979    
+Loop time of 0.392855 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1099642.711 tau/day, 2545.469 timesteps/s, 2.749 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.1355     | 0.1401     | 0.14211    |   0.7 | 35.66
+Neigh   | 0.029352   | 0.030172   | 0.03158    |   0.5 |  7.68
+Comm    | 0.022129   | 0.025144   | 0.029657   |   1.8 |  6.40
+Output  | 1.1e-05    | 3.625e-05  | 4.475e-05  |   0.0 |  0.01
+Modify  | 0.19542    | 0.19544    | 0.19548    |   0.0 | 49.75
+Other   |            | 0.00196    |            |       |  0.50
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1528.5 ave        1530 max        1526 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:        12142.8 ave       12752 max       11833 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48571
+Ave neighs/atom = 44.973148
+Neighbor list builds = 101
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 1+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 2
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.64
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.64
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.64 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.64 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.64 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.64 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.64 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.64 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.64 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.64 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      1000   0.59737527    -6.5744728      0             -5.6792396      4.6246979    
+Loop time of 1.39575e-06 on 4 procs for 0 steps with 1080 atoms
+
+107.5% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.396e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1528.5 ave        1530 max        1528 min
+Histogram: 3 0 0 0 0 0 0 0 0 1
+Neighs:        12141.5 ave       12757 max       11827 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48566
+Ave neighs/atom = 44.968519
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.2.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      1000   0.59737527    -6.5744728      0             -5.6792396      4.6246979    
+      2000   0.58607768    -6.6140238      0             -5.7357213      4.3985199    
+Loop time of 0.391584 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1103211.367 tau/day, 2553.730 timesteps/s, 2.758 Matom-step/s
+99.5% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13429    | 0.13941    | 0.14187    |   0.8 | 35.60
+Neigh   | 0.029261   | 0.030004   | 0.031401   |   0.5 |  7.66
+Comm    | 0.02434    | 0.027281   | 0.032338   |   1.9 |  6.97
+Output  | 1.6583e-05 | 5.3219e-05 | 6.5541e-05 |   0.0 |  0.01
+Modify  | 0.19276    | 0.19292    | 0.1931     |   0.0 | 49.27
+Other   |            | 0.001911   |            |       |  0.49
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1522.5 ave        1526 max        1518 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Neighs:        12135.8 ave       12675 max       11840 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48543
+Ave neighs/atom = 44.947222
+Neighbor list builds = 101
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 2+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 3
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.66
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.66
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.66 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.66 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.66 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.66 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.66 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.66 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.66 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.66 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      2000   0.58607768    -6.6140238      0             -5.7357213      4.3985199    
+Loop time of 1.2915e-06 on 4 procs for 0 steps with 1080 atoms
+
+77.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.292e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1523 ave        1526 max        1518 min
+Histogram: 1 0 0 0 0 0 0 2 0 1
+Neighs:        12129.2 ave       12670 max       11827 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48517
+Ave neighs/atom = 44.923148
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.3.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      2000   0.58607768    -6.6140238      0             -5.7357213      4.3985199    
+      3000   0.60954431    -6.5615808      0             -5.6481109      4.6818787    
+Loop time of 0.450448 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 959046.193 tau/day, 2220.014 timesteps/s, 2.398 Matom-step/s
+96.0% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.14365    | 0.14766    | 0.15106    |   0.7 | 32.78
+Neigh   | 0.029833   | 0.030636   | 0.031798   |   0.5 |  6.80
+Comm    | 0.037396   | 0.041986   | 0.045982   |   1.5 |  9.32
+Output  | 2.0875e-05 | 8.4781e-05 | 0.00010613 |   0.0 |  0.02
+Modify  | 0.22648    | 0.22676    | 0.22707    |   0.1 | 50.34
+Other   |            | 0.003321   |            |       |  0.74
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1527 ave        1530 max        1522 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:          12143 ave       12649 max       11883 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48572
+Ave neighs/atom = 44.974074
+Neighbor list builds = 98
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 3+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 4
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.68
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.68
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.68 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.68 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.68 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.68 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.68 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.68 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.68 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.68 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      3000   0.60954431    -6.5615808      0             -5.6481109      4.6818787    
+Loop time of 1.53125e-06 on 4 procs for 0 steps with 1080 atoms
+
+114.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.531e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1527.5 ave        1530 max        1524 min
+Histogram: 1 0 0 1 0 0 0 0 0 2
+Neighs:        12156.8 ave       12657 max       11891 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48627
+Ave neighs/atom = 45.025
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.4.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      3000   0.60954431    -6.5615808      0             -5.6481109      4.6818787    
+      4000   0.62401683    -6.6001827      0             -5.6650242      4.5037614    
+Loop time of 0.392827 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1099719.896 tau/day, 2545.648 timesteps/s, 2.749 Matom-step/s
+99.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13514    | 0.13939    | 0.14142    |   0.7 | 35.48
+Neigh   | 0.028985   | 0.030054   | 0.0315     |   0.5 |  7.65
+Comm    | 0.025149   | 0.02874    | 0.032714   |   1.6 |  7.32
+Output  | 1.3208e-05 | 5.9677e-05 | 7.5291e-05 |   0.0 |  0.02
+Modify  | 0.19239    | 0.19257    | 0.19267    |   0.0 | 49.02
+Other   |            | 0.002011   |            |       |  0.51
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1524.5 ave        1530 max        1520 min
+Histogram: 1 0 1 0 0 0 1 0 0 1
+Neighs:        12146.8 ave       12399 max       11923 min
+Histogram: 1 1 0 0 0 0 0 1 0 1
+
+Total # of neighbors = 48587
+Ave neighs/atom = 44.987963
+Neighbor list builds = 101
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 4+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 5
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.7
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.7
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.7 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.7 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.7 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.7 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.7 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.7 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.7 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.7 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      4000   0.62401683    -6.6001827      0             -5.6650242      4.5037614    
+Loop time of 1.2605e-06 on 4 procs for 0 steps with 1080 atoms
+
+79.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.26e-06   |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1523.5 ave        1528 max        1520 min
+Histogram: 1 0 1 0 0 1 0 0 0 1
+Neighs:        12125.8 ave       12364 max       11917 min
+Histogram: 1 1 0 0 0 0 0 1 0 1
+
+Total # of neighbors = 48503
+Ave neighs/atom = 44.910185
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.5.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      4000   0.62401683    -6.6001827      0             -5.6650242      4.5037614    
+      5000   0.61691304    -6.6134741      0             -5.6889614      4.4057107    
+Loop time of 0.39018 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1107182.335 tau/day, 2562.922 timesteps/s, 2.768 Matom-step/s
+99.6% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13504    | 0.1395     | 0.14215    |   0.7 | 35.75
+Neigh   | 0.029029   | 0.030039   | 0.03163    |   0.6 |  7.70
+Comm    | 0.021619   | 0.025854   | 0.029912   |   1.8 |  6.63
+Output  | 1.2041e-05 | 3.7166e-05 | 4.6e-05    |   0.0 |  0.01
+Modify  | 0.19281    | 0.19292    | 0.19304    |   0.0 | 49.44
+Other   |            | 0.001828   |            |       |  0.47
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1524.5 ave        1528 max        1520 min
+Histogram: 1 0 1 0 0 0 0 0 0 2
+Neighs:        12140.2 ave       12616 max       11918 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48561
+Ave neighs/atom = 44.963889
+Neighbor list builds = 101
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 5+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 6
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.72
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.72
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.72 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.72 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.72 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.72 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.72 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.72 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.72 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.72 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      5000   0.61691304    -6.6134741      0             -5.6889614      4.4057107    
+Loop time of 1.4895e-06 on 4 procs for 0 steps with 1080 atoms
+
+117.5% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.49e-06   |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1524.5 ave        1528 max        1520 min
+Histogram: 1 0 1 0 0 0 0 0 0 2
+Neighs:        12140.2 ave       12616 max       11918 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48561
+Ave neighs/atom = 44.963889
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.6.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      5000   0.61691304    -6.6134741      0             -5.6889614      4.4057107    
+      6000   0.64222848    -6.5629303      0             -5.6004796      4.7247605    
+Loop time of 0.390971 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1104942.199 tau/day, 2557.737 timesteps/s, 2.762 Matom-step/s
+99.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13465    | 0.13936    | 0.14148    |   0.7 | 35.64
+Neigh   | 0.028585   | 0.029476   | 0.03105    |   0.6 |  7.54
+Comm    | 0.025811   | 0.029227   | 0.0336     |   1.6 |  7.48
+Output  | 1.6708e-05 | 7.9021e-05 | 0.00010004 |   0.0 |  0.02
+Modify  | 0.19057    | 0.19086    | 0.1911     |   0.1 | 48.82
+Other   |            | 0.001977   |            |       |  0.51
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1523.5 ave        1528 max        1518 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+Neighs:        12146.8 ave       12664 max       11848 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48587
+Ave neighs/atom = 44.987963
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 6+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 7
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.74
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.74
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.74 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.74 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.74 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.74 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.74 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.74 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.74 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.74 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      6000   0.64222848    -6.5629303      0             -5.6004796      4.7247605    
+Loop time of 1.72925e-06 on 4 procs for 0 steps with 1080 atoms
+
+101.2% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.729e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1523.5 ave        1528 max        1518 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+Neighs:        12146.8 ave       12686 max       11834 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48587
+Ave neighs/atom = 44.987963
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.7.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      6000   0.64222848    -6.5629303      0             -5.6004796      4.7247605    
+      7000   0.61368673    -6.6114797      0             -5.6918019      4.4166613    
+Loop time of 0.393882 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1096774.392 tau/day, 2538.830 timesteps/s, 2.742 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13523    | 0.13975    | 0.14177    |   0.7 | 35.48
+Neigh   | 0.028711   | 0.029546   | 0.031011   |   0.5 |  7.50
+Comm    | 0.024356   | 0.027947   | 0.032474   |   1.7 |  7.10
+Output  | 1.8708e-05 | 8.6864e-05 | 0.00010996 |   0.0 |  0.02
+Modify  | 0.19425    | 0.19446    | 0.19455    |   0.0 | 49.37
+Other   |            | 0.002097   |            |       |  0.53
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1525.5 ave        1528 max        1524 min
+Histogram: 2 0 0 0 0 1 0 0 0 1
+Neighs:        12155.8 ave       12557 max       11888 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+
+Total # of neighbors = 48623
+Ave neighs/atom = 45.021296
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 7+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 8
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.76
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.76
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.76 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.76 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.76 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.76 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.76 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.76 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.76 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.76 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      7000   0.61368673    -6.6114797      0             -5.6918019      4.4166613    
+Loop time of 1.58325e-06 on 4 procs for 0 steps with 1080 atoms
+
+63.2% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.583e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1525.5 ave        1528 max        1524 min
+Histogram: 2 0 0 0 0 1 0 0 0 1
+Neighs:        12153.8 ave       12545 max       11874 min
+Histogram: 1 1 0 0 0 1 0 0 0 1
+
+Total # of neighbors = 48615
+Ave neighs/atom = 45.013889
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.8.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      7000   0.61368673    -6.6114797      0             -5.6918019      4.4166613    
+      8000   0.62789838    -6.6103012      0             -5.6693258      4.4575077    
+Loop time of 0.395004 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1093660.502 tau/day, 2531.622 timesteps/s, 2.734 Matom-step/s
+99.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13568    | 0.14018    | 0.14225    |   0.7 | 35.49
+Neigh   | 0.028895   | 0.029871   | 0.031447   |   0.6 |  7.56
+Comm    | 0.023659   | 0.027352   | 0.031852   |   1.8 |  6.92
+Output  | 1.475e-05  | 4.3531e-05 | 5.3333e-05 |   0.0 |  0.01
+Modify  | 0.19534    | 0.19543    | 0.19552    |   0.0 | 49.48
+Other   |            | 0.002119   |            |       |  0.54
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1518.5 ave        1520 max        1516 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:          12129 ave       12596 max       11896 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48516
+Ave neighs/atom = 44.922222
+Neighbor list builds = 100
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 8+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 9
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.78
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.78
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.78 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.78 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.78 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.78 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.78 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.78 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.78 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.78 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      8000   0.62789838    -6.6103012      0             -5.6693258      4.4575077    
+Loop time of 1.37475e-06 on 4 procs for 0 steps with 1080 atoms
+
+90.9% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.375e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1518.5 ave        1520 max        1516 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:          12129 ave       12596 max       11896 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48516
+Ave neighs/atom = 44.922222
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.9.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      8000   0.62789838    -6.6103012      0             -5.6693258      4.4575077    
+      9000   0.61728938    -6.5629323      0             -5.6378556      4.7040592    
+Loop time of 0.394816 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1094181.100 tau/day, 2532.827 timesteps/s, 2.735 Matom-step/s
+99.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13523    | 0.13964    | 0.14185    |   0.7 | 35.37
+Neigh   | 0.028558   | 0.029538   | 0.031148   |   0.6 |  7.48
+Comm    | 0.026011   | 0.029721   | 0.0339     |   1.6 |  7.53
+Output  | 1.6542e-05 | 4.8229e-05 | 5.9e-05    |   0.0 |  0.01
+Modify  | 0.19357    | 0.19376    | 0.19391    |   0.0 | 49.08
+Other   |            | 0.002106   |            |       |  0.53
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1523 ave        1526 max        1520 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Neighs:          12143 ave       12607 max       11912 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48572
+Ave neighs/atom = 44.974074
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 9+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 10
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.8
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.8
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.8 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.8 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.8 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.8 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.8 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.8 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.8 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.8 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      9000   0.61728938    -6.5629323      0             -5.6378556      4.7040592    
+Loop time of 1.23975e-06 on 4 procs for 0 steps with 1080 atoms
+
+80.7% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.24e-06   |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1519 ave        1522 max        1512 min
+Histogram: 1 0 0 0 0 0 0 0 1 2
+Neighs:        12138.8 ave       12601 max       11870 min
+Histogram: 2 0 0 0 1 0 0 0 0 1
+
+Total # of neighbors = 48555
+Ave neighs/atom = 44.958333
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.10.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      9000   0.61728938    -6.5629323      0             -5.6378556      4.7040592    
+     10000   0.61555782    -6.6030468      0             -5.680565       4.4863384    
+Loop time of 0.395416 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1092521.203 tau/day, 2528.984 timesteps/s, 2.731 Matom-step/s
+99.2% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13567    | 0.14055    | 0.14334    |   0.8 | 35.55
+Neigh   | 0.02836    | 0.02929    | 0.030787   |   0.5 |  7.41
+Comm    | 0.025182   | 0.028718   | 0.033496   |   1.9 |  7.26
+Output  | 1.2917e-05 | 3.4552e-05 | 4.1958e-05 |   0.0 |  0.01
+Modify  | 0.1947     | 0.19478    | 0.19486    |   0.0 | 49.26
+Other   |            | 0.002043   |            |       |  0.52
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1525 ave        1528 max        1522 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Neighs:          12103 ave       12571 max       11867 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48412
+Ave neighs/atom = 44.825926
+Neighbor list builds = 98
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 10+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 11
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.82
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.82
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.82 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.82 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.82 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.82 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.82 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.82 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.82 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.82 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     10000   0.61555782    -6.6030468      0             -5.680565       4.4863384    
+Loop time of 1.479e-06 on 4 procs for 0 steps with 1080 atoms
+
+101.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.479e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1526.5 ave        1528 max        1522 min
+Histogram: 1 0 0 0 0 0 0 0 0 3
+Neighs:        12107.2 ave       12584 max       11886 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 48429
+Ave neighs/atom = 44.841667
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.11.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     10000   0.61555782    -6.6030468      0             -5.680565       4.4863384    
+     11000   0.59542111    -6.6028823      0             -5.7105777      4.4637496    
+Loop time of 0.389124 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1110187.055 tau/day, 2569.877 timesteps/s, 2.775 Matom-step/s
+99.5% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13472    | 0.13927    | 0.1409     |   0.7 | 35.79
+Neigh   | 0.028759   | 0.029525   | 0.030839   |   0.5 |  7.59
+Comm    | 0.025304   | 0.027799   | 0.032401   |   1.6 |  7.14
+Output  | 2.2333e-05 | 0.00010623 | 0.00013425 |   0.0 |  0.03
+Modify  | 0.19018    | 0.19048    | 0.19119    |   0.1 | 48.95
+Other   |            | 0.001951   |            |       |  0.50
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1524 ave        1526 max        1522 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+Neighs:        12106.8 ave       12599 max       11808 min
+Histogram: 1 1 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48427
+Ave neighs/atom = 44.839815
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 11+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 12
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.84
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.84
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.84 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.84 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.84 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.84 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.84 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.84 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.84 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.84 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     11000   0.59542111    -6.6028823      0             -5.7105777      4.4637496    
+Loop time of 1.2395e-06 on 4 procs for 0 steps with 1080 atoms
+
+80.7% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.239e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1524.5 ave        1526 max        1524 min
+Histogram: 3 0 0 0 0 0 0 0 0 1
+Neighs:        12110.2 ave       12606 max       11820 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48441
+Ave neighs/atom = 44.852778
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.12.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     11000   0.59542111    -6.6028823      0             -5.7105777      4.4637496    
+     12000   0.62398392    -6.5732127      0             -5.6381035      4.6542463    
+Loop time of 0.396256 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1090203.222 tau/day, 2523.619 timesteps/s, 2.726 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13526    | 0.13976    | 0.14212    |   0.7 | 35.27
+Neigh   | 0.028697   | 0.029641   | 0.031164   |   0.6 |  7.48
+Comm    | 0.025791   | 0.029595   | 0.033924   |   1.7 |  7.47
+Output  | 1.3417e-05 | 4.7718e-05 | 5.9333e-05 |   0.0 |  0.01
+Modify  | 0.19494    | 0.19506    | 0.19517    |   0.0 | 49.23
+Other   |            | 0.002153   |            |       |  0.54
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1524 ave        1528 max        1520 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+Neighs:        12115.5 ave       12672 max       11874 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 48462
+Ave neighs/atom = 44.872222
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 12+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 13
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.86
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.86
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.86 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.86 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.86 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.86 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.86 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.86 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.86 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.86 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     12000   0.62398392    -6.5732127      0             -5.6381035      4.6542463    
+Loop time of 1.4895e-06 on 4 procs for 0 steps with 1080 atoms
+
+100.7% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.49e-06   |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1523 ave        1528 max        1516 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+Neighs:        12104.2 ave       12658 max       11866 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 48417
+Ave neighs/atom = 44.830556
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.13.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     12000   0.62398392    -6.5732127      0             -5.6381035      4.6542463    
+     13000   0.63967737    -6.5756334      0             -5.6170058      4.6445433    
+Loop time of 0.393889 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1096755.193 tau/day, 2538.785 timesteps/s, 2.742 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13526    | 0.13988    | 0.14231    |   0.7 | 35.51
+Neigh   | 0.028626   | 0.029581   | 0.031089   |   0.5 |  7.51
+Comm    | 0.026136   | 0.029935   | 0.034427   |   1.7 |  7.60
+Output  | 1.0167e-05 | 4.0854e-05 | 5.1208e-05 |   0.0 |  0.01
+Modify  | 0.19232    | 0.19245    | 0.19263    |   0.0 | 48.86
+Other   |            | 0.002009   |            |       |  0.51
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1520 ave        1528 max        1514 min
+Histogram: 1 1 0 0 0 1 0 0 0 1
+Neighs:        12137.2 ave       12490 max       11909 min
+Histogram: 2 0 0 0 0 1 0 0 0 1
+
+Total # of neighbors = 48549
+Ave neighs/atom = 44.952778
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 13+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 14
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.88
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.88
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.88 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.88 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.88 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.88 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.88 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.88 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.88 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.88 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     13000   0.63967737    -6.5756334      0             -5.6170058      4.6445433    
+Loop time of 1.2185e-06 on 4 procs for 0 steps with 1080 atoms
+
+102.6% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.218e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1519.5 ave        1524 max        1514 min
+Histogram: 1 0 1 0 0 0 0 0 0 2
+Neighs:        12128.8 ave       12507 max       11907 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48515
+Ave neighs/atom = 44.921296
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.14.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     13000   0.63967737    -6.5756334      0             -5.6170058      4.6445433    
+     14000   0.62166015    -6.6017056      0             -5.6700787      4.4871878    
+Loop time of 0.390154 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1107254.699 tau/day, 2563.090 timesteps/s, 2.768 Matom-step/s
+99.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.1355     | 0.13981    | 0.14191    |   0.7 | 35.83
+Neigh   | 0.028886   | 0.029719   | 0.031022   |   0.5 |  7.62
+Comm    | 0.02201    | 0.025458   | 0.0296     |   1.7 |  6.53
+Output  | 1.8e-05    | 5.374e-05  | 6.5708e-05 |   0.0 |  0.01
+Modify  | 0.19308    | 0.19319    | 0.19329    |   0.0 | 49.52
+Other   |            | 0.001919   |            |       |  0.49
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1526 ave        1528 max        1524 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+Neighs:        12117.5 ave       12604 max       11843 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48470
+Ave neighs/atom = 44.87963
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 14+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 15
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.9
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.9
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.9 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.9 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.9 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.9 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.9 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.9 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.9 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.9 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     14000   0.62166015    -6.6017056      0             -5.6700787      4.4871878    
+Loop time of 1.1665e-06 on 4 procs for 0 steps with 1080 atoms
+
+107.2% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.167e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1525.5 ave        1526 max        1524 min
+Histogram: 1 0 0 0 0 0 0 0 0 3
+Neighs:        12119.2 ave       12593 max       11849 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48477
+Ave neighs/atom = 44.886111
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.15.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     14000   0.62166015    -6.6017056      0             -5.6700787      4.4871878    
+     15000   0.63019143    -6.5830907      0             -5.6386788      4.5890624    
+Loop time of 0.439153 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 983712.060 tau/day, 2277.111 timesteps/s, 2.459 Matom-step/s
+96.6% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.14094    | 0.14705    | 0.15002    |   0.9 | 33.48
+Neigh   | 0.029261   | 0.030199   | 0.031461   |   0.5 |  6.88
+Comm    | 0.033192   | 0.037895   | 0.043513   |   1.9 |  8.63
+Output  | 1.4625e-05 | 5.1386e-05 | 6.3709e-05 |   0.0 |  0.01
+Modify  | 0.21989    | 0.2208     | 0.22149    |   0.1 | 50.28
+Other   |            | 0.003157   |            |       |  0.72
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1523 ave        1528 max        1518 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Neighs:        12141.5 ave       12634 max       11826 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+
+Total # of neighbors = 48566
+Ave neighs/atom = 44.968519
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 15+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 16
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.92
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.92
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.92 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.92 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.92 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.92 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.92 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.92 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.92 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.92 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     15000   0.63019143    -6.5830907      0             -5.6386788      4.5890624    
+Loop time of 1.10375e-06 on 4 procs for 0 steps with 1080 atoms
+
+68.0% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.104e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1523 ave        1528 max        1518 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Neighs:        12141.5 ave       12634 max       11826 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+
+Total # of neighbors = 48566
+Ave neighs/atom = 44.968519
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.16.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     15000   0.63019143    -6.5830907      0             -5.6386788      4.5890624    
+     16000   0.57030303    -6.5429016      0             -5.6882391      4.7575533    
+Loop time of 0.386395 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1118026.890 tau/day, 2588.025 timesteps/s, 2.795 Matom-step/s
+99.5% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13399    | 0.13888    | 0.14135    |   0.8 | 35.94
+Neigh   | 0.028148   | 0.029144   | 0.030658   |   0.6 |  7.54
+Comm    | 0.021551   | 0.025763   | 0.030762   |   2.1 |  6.67
+Output  | 2.75e-05   | 9.8948e-05 | 0.00012296 |   0.0 |  0.03
+Modify  | 0.19051    | 0.19067    | 0.19088    |   0.0 | 49.35
+Other   |            | 0.001843   |            |       |  0.48
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1527.5 ave        1530 max        1524 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+Neighs:        12142.2 ave       12635 max       11861 min
+Histogram: 1 1 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48569
+Ave neighs/atom = 44.971296
+Neighbor list builds = 98
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 16+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 17
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.94
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.94
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.94 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.94 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.94 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.94 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.94 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.94 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.94 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.94 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     16000   0.57030303    -6.5429016      0             -5.6882391      4.7575533    
+Loop time of 1.396e-06 on 4 procs for 0 steps with 1080 atoms
+
+89.5% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.396e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1524.5 ave        1526 max        1522 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:          12152 ave       12642 max       11865 min
+Histogram: 1 1 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48608
+Ave neighs/atom = 45.007407
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.17.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     16000   0.57030303    -6.5429016      0             -5.6882391      4.7575533    
+     17000   0.63779241    -6.5813338      0             -5.625531       4.6157896    
+Loop time of 0.396 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1090908.804 tau/day, 2525.252 timesteps/s, 2.727 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13441    | 0.13966    | 0.14157    |   0.8 | 35.27
+Neigh   | 0.028838   | 0.029617   | 0.031156   |   0.5 |  7.48
+Comm    | 0.027652   | 0.030558   | 0.035939   |   1.8 |  7.72
+Output  | 1.9083e-05 | 5.4031e-05 | 6.5958e-05 |   0.0 |  0.01
+Modify  | 0.1937     | 0.19394    | 0.19419    |   0.0 | 48.97
+Other   |            | 0.002171   |            |       |  0.55
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1525.5 ave        1530 max        1522 min
+Histogram: 1 0 1 0 0 1 0 0 0 1
+Neighs:        12115.5 ave       12514 max       11892 min
+Histogram: 1 1 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48462
+Ave neighs/atom = 44.872222
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 17+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 18
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.96
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.96
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.96 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.96 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.96 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.96 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.96 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.96 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.96 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.96 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     17000   0.63779241    -6.5813338      0             -5.625531       4.6157896    
+Loop time of 1.875e-06 on 4 procs for 0 steps with 1080 atoms
+
+106.7% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.875e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1523.5 ave        1526 max        1522 min
+Histogram: 2 0 0 0 0 1 0 0 0 1
+Neighs:        12114.2 ave       12559 max       11889 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48457
+Ave neighs/atom = 44.867593
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.18.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     17000   0.63779241    -6.5813338      0             -5.625531       4.6157896    
+     18000   0.6105721     -6.5878969      0             -5.6728868      4.5570436    
+Loop time of 0.394089 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1096198.040 tau/day, 2537.495 timesteps/s, 2.740 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13458    | 0.1398     | 0.14278    |   0.8 | 35.47
+Neigh   | 0.028601   | 0.02958    | 0.03101    |   0.5 |  7.51
+Comm    | 0.025358   | 0.029675   | 0.034649   |   1.9 |  7.53
+Output  | 1.4416e-05 | 5.9239e-05 | 7.425e-05  |   0.0 |  0.02
+Modify  | 0.19276    | 0.19287    | 0.19296    |   0.0 | 48.94
+Other   |            | 0.002108   |            |       |  0.54
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1526 ave        1530 max        1522 min
+Histogram: 1 0 1 0 0 0 0 1 0 1
+Neighs:        12143.8 ave       12538 max       11871 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+
+Total # of neighbors = 48575
+Ave neighs/atom = 44.976852
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 18+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 19
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 0.98
+
+print       "Wall Position ${zwalls}"
+Wall Position 0.98
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.98 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.98 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.98 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 0.98 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.98 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.98 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.98 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 0.98 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     18000   0.6105721     -6.5878969      0             -5.6728868      4.5570436    
+Loop time of 1.104e-06 on 4 procs for 0 steps with 1080 atoms
+
+90.6% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.104e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1525 ave        1528 max        1520 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:        12156.5 ave       12596 max       11877 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+
+Total # of neighbors = 48626
+Ave neighs/atom = 45.024074
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.19.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     18000   0.6105721     -6.5878969      0             -5.6728868      4.5570436    
+     19000   0.61712168    -6.5765485      0             -5.6517231      4.6236975    
+Loop time of 0.391633 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1103073.278 tau/day, 2553.410 timesteps/s, 2.758 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13493    | 0.13958    | 0.14129    |   0.7 | 35.64
+Neigh   | 0.029216   | 0.030147   | 0.031411   |   0.5 |  7.70
+Comm    | 0.02579    | 0.028263   | 0.032773   |   1.6 |  7.22
+Output  | 1.95e-05   | 6.8573e-05 | 8.5e-05    |   0.0 |  0.02
+Modify  | 0.19137    | 0.19161    | 0.19201    |   0.1 | 48.93
+Other   |            | 0.001967   |            |       |  0.50
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1520.5 ave        1524 max        1518 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:        12168.8 ave       12594 max       11857 min
+Histogram: 1 1 0 0 0 1 0 0 0 1
+
+Total # of neighbors = 48675
+Ave neighs/atom = 45.069444
+Neighbor list builds = 101
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 19+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 20
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 1
+
+print       "Wall Position ${zwalls}"
+Wall Position 1
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     19000   0.61712168    -6.5765485      0             -5.6517231      4.6236975    
+Loop time of 1.5415e-06 on 4 procs for 0 steps with 1080 atoms
+
+81.1% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.542e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1520.5 ave        1524 max        1518 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:        12168.8 ave       12594 max       11857 min
+Histogram: 1 1 0 0 0 1 0 0 0 1
+
+Total # of neighbors = 48675
+Ave neighs/atom = 45.069444
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.20.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     19000   0.61712168    -6.5765485      0             -5.6517231      4.6236975    
+     20000   0.61061607    -6.5620702      0             -5.6469942      4.6922186    
+Loop time of 0.39503 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1093588.088 tau/day, 2531.454 timesteps/s, 2.734 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13558    | 0.13959    | 0.14126    |   0.6 | 35.34
+Neigh   | 0.028493   | 0.029525   | 0.030965   |   0.6 |  7.47
+Comm    | 0.027832   | 0.030602   | 0.034218   |   1.3 |  7.75
+Output  | 1.4208e-05 | 3.8458e-05 | 4.675e-05  |   0.0 |  0.01
+Modify  | 0.19292    | 0.19311    | 0.19333    |   0.0 | 48.88
+Other   |            | 0.002162   |            |       |  0.55
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1523.5 ave        1526 max        1520 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+Neighs:          12166 ave       12724 max       11852 min
+Histogram: 1 1 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48664
+Ave neighs/atom = 45.059259
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 20+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 21
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 1.02
+
+print       "Wall Position ${zwalls}"
+Wall Position 1.02
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.02 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.02 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.02 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.02 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.02 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.02 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.02 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.02 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     20000   0.61061607    -6.5620702      0             -5.6469942      4.6922186    
+Loop time of 1.3335e-06 on 4 procs for 0 steps with 1080 atoms
+
+75.0% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.334e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1519 ave        1522 max        1514 min
+Histogram: 1 0 0 0 0 0 0 2 0 1
+Neighs:        12148.2 ave       12711 max       11867 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48593
+Ave neighs/atom = 44.993519
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.21.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     20000   0.61061607    -6.5620702      0             -5.6469942      4.6922186    
+     21000   0.59332757    -6.5906009      0             -5.7014336      4.5193251    
+Loop time of 0.390276 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1106909.340 tau/day, 2562.290 timesteps/s, 2.767 Matom-step/s
+99.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13435    | 0.13933    | 0.14138    |   0.8 | 35.70
+Neigh   | 0.028505   | 0.029426   | 0.031047   |   0.6 |  7.54
+Comm    | 0.024798   | 0.028407   | 0.033311   |   1.8 |  7.28
+Output  | 1.1875e-05 | 4.8188e-05 | 6.0583e-05 |   0.0 |  0.01
+Modify  | 0.19088    | 0.19101    | 0.19121    |   0.0 | 48.94
+Other   |            | 0.002048   |            |       |  0.52
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1521 ave        1528 max        1516 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:        12126.8 ave       12471 max       11829 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+
+Total # of neighbors = 48507
+Ave neighs/atom = 44.913889
+Neighbor list builds = 99
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 21+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 22
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 1.04
+
+print       "Wall Position ${zwalls}"
+Wall Position 1.04
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.04 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.04 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.04 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.04 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.04 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.04 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.04 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.04 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     21000   0.59332757    -6.5906009      0             -5.7014336      4.5193251    
+Loop time of 1.37525e-06 on 4 procs for 0 steps with 1080 atoms
+
+109.1% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.375e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1519 ave        1528 max        1512 min
+Histogram: 1 0 1 0 0 1 0 0 0 1
+Neighs:        12115.2 ave       12485 max       11820 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+
+Total # of neighbors = 48461
+Ave neighs/atom = 44.871296
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.22.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     21000   0.59332757    -6.5906009      0             -5.7014336      4.5193251    
+     22000   0.62578392    -6.6415957      0             -5.703789       4.2778746    
+Loop time of 0.393904 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1096712.674 tau/day, 2538.687 timesteps/s, 2.742 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13479    | 0.13941    | 0.14185    |   0.7 | 35.39
+Neigh   | 0.028682   | 0.029706   | 0.031346   |   0.6 |  7.54
+Comm    | 0.026681   | 0.030637   | 0.035181   |   1.7 |  7.78
+Output  | 1.7917e-05 | 7.0917e-05 | 8.8625e-05 |   0.0 |  0.02
+Modify  | 0.19193    | 0.19204    | 0.19216    |   0.0 | 48.75
+Other   |            | 0.002044   |            |       |  0.52
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1524 ave        1526 max        1520 min
+Histogram: 1 0 0 0 0 0 1 0 0 2
+Neighs:          12101 ave       12487 max       11875 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48404
+Ave neighs/atom = 44.818519
+Neighbor list builds = 100
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 22+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 23
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 1.06
+
+print       "Wall Position ${zwalls}"
+Wall Position 1.06
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.06 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.06 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.06 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.06 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.06 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.06 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.06 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.06 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     22000   0.62578392    -6.6415957      0             -5.703789       4.2778746    
+Loop time of 1.55225e-06 on 4 procs for 0 steps with 1080 atoms
+
+112.7% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.552e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1523 ave        1524 max        1520 min
+Histogram: 1 0 0 0 0 0 0 0 0 3
+Neighs:        12099.2 ave       12515 max       11873 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48397
+Ave neighs/atom = 44.812037
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.23.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     22000   0.62578392    -6.6415957      0             -5.703789       4.2778746    
+     23000   0.6469059     -6.535012       0             -5.5655516      4.8707229    
+Loop time of 0.395982 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1090957.560 tau/day, 2525.365 timesteps/s, 2.727 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13574    | 0.13962    | 0.14215    |   0.6 | 35.26
+Neigh   | 0.028839   | 0.029733   | 0.031357   |   0.6 |  7.51
+Comm    | 0.027724   | 0.031757   | 0.035335   |   1.5 |  8.02
+Output  | 1.9625e-05 | 0.0001089  | 0.00013917 |   0.0 |  0.03
+Modify  | 0.19236    | 0.19255    | 0.19269    |   0.0 | 48.62
+Other   |            | 0.002223   |            |       |  0.56
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1520.5 ave        1526 max        1514 min
+Histogram: 1 0 0 1 0 0 0 0 1 1
+Neighs:          12170 ave       12790 max       11934 min
+Histogram: 3 0 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 48680
+Ave neighs/atom = 45.074074
+Neighbor list builds = 100
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 23+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 24
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 1.08
+
+print       "Wall Position ${zwalls}"
+Wall Position 1.08
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.08 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.08 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.08 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.08 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.08 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.08 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.08 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.08 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     23000   0.6469059     -6.535012       0             -5.5655516      4.8707229    
+Loop time of 1.5105e-06 on 4 procs for 0 steps with 1080 atoms
+
+66.2% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.511e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1519.5 ave        1526 max        1512 min
+Histogram: 1 0 0 0 1 0 0 1 0 1
+Neighs:        12177.5 ave       12769 max       11962 min
+Histogram: 3 0 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 48710
+Ave neighs/atom = 45.101852
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.24.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     23000   0.6469059     -6.535012       0             -5.5655516      4.8707229    
+     24000   0.61701749    -6.5982955      0             -5.6736262      4.4895323    
+Loop time of 0.392841 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1099682.192 tau/day, 2545.561 timesteps/s, 2.749 Matom-step/s
+99.3% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13537    | 0.13997    | 0.14173    |   0.7 | 35.63
+Neigh   | 0.029278   | 0.030168   | 0.031625   |   0.5 |  7.68
+Comm    | 0.024575   | 0.027636   | 0.032177   |   1.7 |  7.03
+Output  | 1.3e-05    | 4.8896e-05 | 6.0959e-05 |   0.0 |  0.01
+Modify  | 0.19283    | 0.19302    | 0.1932     |   0.0 | 49.14
+Other   |            | 0.001997   |            |       |  0.51
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1523.5 ave        1524 max        1522 min
+Histogram: 1 0 0 0 0 0 0 0 0 3
+Neighs:          12121 ave       12622 max       11846 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48484
+Ave neighs/atom = 44.892593
+Neighbor list builds = 101
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 24+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 25
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 1.1
+
+print       "Wall Position ${zwalls}"
+Wall Position 1.1
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.1 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.1 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.1 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.1 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.1 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.1 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.1 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.1 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     24000   0.61701749    -6.5982955      0             -5.6736262      4.4895323    
+Loop time of 1.375e-06 on 4 procs for 0 steps with 1080 atoms
+
+90.9% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.375e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1523.5 ave        1524 max        1522 min
+Histogram: 1 0 0 0 0 0 0 0 0 3
+Neighs:          12121 ave       12622 max       11846 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48484
+Ave neighs/atom = 44.892593
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.25.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     24000   0.61701749    -6.5982955      0             -5.6736262      4.4895323    
+     25000   0.59852508    -6.5953013      0             -5.698345       4.5165323    
+Loop time of 0.389178 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1110031.498 tau/day, 2569.517 timesteps/s, 2.775 Matom-step/s
+99.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13398    | 0.13926    | 0.14184    |   0.8 | 35.78
+Neigh   | 0.028083   | 0.029052   | 0.030717   |   0.6 |  7.46
+Comm    | 0.023604   | 0.027814   | 0.033283   |   2.1 |  7.15
+Output  | 1.675e-05  | 7.1615e-05 | 9.0334e-05 |   0.0 |  0.02
+Modify  | 0.19097    | 0.19107    | 0.19125    |   0.0 | 49.10
+Other   |            | 0.001912   |            |       |  0.49
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1528 ave        1530 max        1526 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+Neighs:          12135 ave       12637 max       11798 min
+Histogram: 2 0 0 0 0 1 0 0 0 1
+
+Total # of neighbors = 48540
+Ave neighs/atom = 44.944444
+Neighbor list builds = 98
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 25+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 26
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 1.12
+
+print       "Wall Position ${zwalls}"
+Wall Position 1.12
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.12 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.12 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.12 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.12 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.12 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.12 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.12 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.12 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     25000   0.59852508    -6.5953013      0             -5.698345       4.5165323    
+Loop time of 1.53125e-06 on 4 procs for 0 steps with 1080 atoms
+
+81.6% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.531e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1528.5 ave        1530 max        1528 min
+Histogram: 3 0 0 0 0 0 0 0 0 1
+Neighs:        12137.5 ave       12648 max       11844 min
+Histogram: 2 0 0 0 1 0 0 0 0 1
+
+Total # of neighbors = 48550
+Ave neighs/atom = 44.953704
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.26.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     25000   0.59852508    -6.5953013      0             -5.698345       4.5165323    
+     26000   0.63673763    -6.6115011      0             -5.657279       4.4436742    
+Loop time of 0.407342 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1060533.059 tau/day, 2454.938 timesteps/s, 2.651 Matom-step/s
+98.6% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13647    | 0.14101    | 0.14405    |   0.7 | 34.62
+Neigh   | 0.029337   | 0.030072   | 0.031611   |   0.5 |  7.38
+Comm    | 0.028396   | 0.032838   | 0.037765   |   1.8 |  8.06
+Output  | 2.7042e-05 | 6.9156e-05 | 8.3375e-05 |   0.0 |  0.02
+Modify  | 0.2        | 0.20039    | 0.20133    |   0.1 | 49.20
+Other   |            | 0.002957   |            |       |  0.73
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1519.5 ave        1522 max        1518 min
+Histogram: 2 0 0 0 0 1 0 0 0 1
+Neighs:        12137.2 ave       12692 max       11849 min
+Histogram: 2 0 0 1 0 0 0 0 0 1
+
+Total # of neighbors = 48549
+Ave neighs/atom = 44.952778
+Neighbor list builds = 100
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 26+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 27
+next zw
+jump SELF here
+include    in.loop/loop
+###%***************************************************************************%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%***************************************************************************%
+
+
+variable    zwalls equal ${zw}
+variable    zwalls equal 1.14
+
+print       "Wall Position ${zwalls}"
+Wall Position 1.14
+
+fix  totWA all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.14 ${delta} ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.14 0.25 ${rw} ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.14 0.25 1.12246204830937 ${clwall1} file  fcc111-T1-walls.lmp
+fix  totWA all wallforce 1 1 1.14 0.25 1.12246204830937 8.0998403805961 file  fcc111-T1-walls.lmp
+fix  totWB all wallforce ${eps} ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 ${sigma} ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 ${zw} ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.14 ${delta} ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.14 0.25 ${rw} ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.14 0.25 1.12246204830937 ${clwall2} file  fcc111-T1-walls.lmp
+fix  totWB all wallforce 1 1 1.14 0.25 1.12246204830937 24.2995211417883 file  fcc111-T1-walls.lmp
+variable totW   equal "f_totWA + f_totWB"
+
+run   ${eqnts}
+run   0
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     26000   0.63673763    -6.6115011      0             -5.657279       4.4436742    
+Loop time of 1.5625e-06 on 4 procs for 0 steps with 1080 atoms
+
+96.0% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.562e-06  |            |       |100.00
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:         1523.5 ave        1526 max        1520 min
+Histogram: 1 0 0 1 0 0 0 0 0 2
+Neighs:        12113.5 ave       12715 max       11817 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+
+Total # of neighbors = 48454
+Ave neighs/atom = 44.864815
+Neighbor list builds = 0
+Dangerous builds = 0
+
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  2 500 1000  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.27.out
+
+run ${nts}
+run 1000
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.018 | 3.018 | 3.018 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+     26000   0.63673763    -6.6115011      0             -5.657279       4.4436742    
+     27000   0.61984285    -6.5959449      0             -5.6670415      4.5112139    
+Loop time of 0.402433 on 4 procs for 1000 steps with 1080 atoms
+
+Performance: 1073471.837 tau/day, 2484.889 timesteps/s, 2.684 Matom-step/s
+98.7% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.13661    | 0.14167    | 0.14579    |   0.9 | 35.20
+Neigh   | 0.028998   | 0.029916   | 0.031653   |   0.6 |  7.43
+Comm    | 0.024249   | 0.030274   | 0.035868   |   2.4 |  7.52
+Output  | 2.0292e-05 | 8.2177e-05 | 0.00010296 |   0.0 |  0.02
+Modify  | 0.19809    | 0.19835    | 0.19847    |   0.0 | 49.29
+Other   |            | 0.002146   |            |       |  0.53
+
+Nlocal:            270 ave         270 max         270 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Nghost:           1521 ave        1524 max        1516 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:        12123.2 ave       12670 max       11880 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 48493
+Ave neighs/atom = 44.900926
+Neighbor list builds = 100
+Dangerous builds = 0
+
+unfix totWA
+unfix totWB
+unfix f6
+
+#%*****************************************************************************%
+variable    cntt equal ${cnt}+1
+variable    cntt equal 27+1
+variable    cnt  equal ${cntt}
+variable    cnt  equal 28
+next zw
+jump SELF here
+
+write_data Fstep4.${cnt}.data nocoeff
+write_data Fstep4.28.data nocoeff
+System init for write_data ...
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+Total wall time: 0:00:10

@@ -1,0 +1,96 @@
+###%***************************************************************************%
+###%                                                                          *%                                                                                                                   
+###%    Script to run Step 1 of the Cleaving Method with Walls                *%
+###%                                                                          *%
+###%***************************************************************************%
+###%                                                                          *%
+###%    Based on:                                                             *%
+###%    R. Davidchack, B. Laird, J. Chem. Phys., 118:7651-7657 (2003)         *%
+###%                                                                          *%
+###%   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~         *%
+###%                                                                          *%
+###%    Created by:                                                           *%
+###%    Nicodemo Di Pasquale                                                  *%
+###%    Department of Mathematics                                             *%
+###%    University of Leicester                                               *%
+###%    24 March 2018                                                         *%
+###%                                                                          *%
+###%***************************************************************************%
+
+units		lj
+atom_style	atomic
+
+boundary p p p
+read_data  liquid.data
+
+mass * 1.0
+
+
+# ---------------------------- Define variables --------------------------------
+
+variable  clwall equal  8.099840380596101 
+variable  sigma  equal  1.0
+variable  cnt    equal  1
+variable  eps    equal  1.0
+variable  delta  equal  0.25
+variable  zw file zwalls.dat
+variable  crw    equal  2.0^(1.0/6.0)   
+variable  eqnts  equal  0 
+variable  nts    equal  1000
+variable  firsteqnts    equal 45000
+variable  ts     equal  0.005
+variable  siglj  equal  1.0
+variable  epslj  equal  1.0
+variable  cut1   equal  2.3
+variable  cut2   equal  2.5
+variable  Tsyst  equal  0.617
+variable  Tdump  equal  0.0748
+variable Nevery equal 2
+variable Nrepeat equal 500 
+variable Nfreq equal 1000
+
+# --------------------- Derivate variables -------------------------------------
+
+
+variable  rw       equal  ${sigma}*${crw}
+variable  cutoff1  equal  ${siglj}*${cut1} 
+variable  cutoff2  equal  ${siglj}*${cut2} 
+variable  cntt     equal  ${cnt}  
+
+# ----------------------------- Interactions -----------------------------------
+
+pair_style lj/BG ${cutoff1} ${cutoff2}
+pair_coeff   * *  ${epslj} ${siglj}
+
+neighbor     0.3 bin
+neigh_modify every 1 delay 0 check yes 
+atom_modify  sort 0 0.0
+
+# ------------------------- fix atoms  -------------------------------
+
+velocity all zero linear
+velocity all zero angular
+
+# ------------- Output thermo information and averaged variables ---------------
+
+thermo    1000
+timestep  ${ts}
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix    Fix2  all momentum 1 linear 1 1 1
+
+# -------------------------- Set Up Calculation ------------------------------ 
+
+fix  fnvt  all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+
+# ----------------------- Moving Walls  ------------------------
+
+label here 
+include    in.loop/loop 
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+next zw 
+jump SELF here
+
+write_data Fstep2.${cnt}.data nocoeff

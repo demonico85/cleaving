@@ -1,0 +1,36 @@
+#*******************************************************************************#
+#                           Change boundaries loop                              #
+#*******************************************************************************#
+#%       Created by:                                                           *%
+#%            Nicodemo Di Pasquale                                             *%
+#%            Department of Mathematics                                        *%
+#%            University of Leicester                                          *%
+#%            March 2018                                                       *%
+#%******************************************************************************%
+
+
+variable dhi equal ${zc}
+variable newzhi equal ${dhi}+${initzhi} 
+variable newzlo equal ${initzlo}
+
+
+change_box all z final ${newzlo}  ${newzhi}
+
+print       "${dir} Interaction ${i}: ${zc} "
+print       " ${initzhi} ${dhi} zhi "
+
+#--------------------------------------------------------------------
+
+run   ${eqnts}
+
+fix   f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq}  c_1[*] file dat/inters3.${i}.dat mode vector
+#fix   f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_totW v_lambda f_f2 v_dhi file  out/ave.F.${i}.out
+
+run   ${nts}
+# --------------------------- Unfix --------------------------------------------
+
+unfix f6
+#unfix f7
+
+
+#%*****************************************************************************%
