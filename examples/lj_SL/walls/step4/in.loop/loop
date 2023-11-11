@@ -17,9 +17,6 @@ variable totW   equal "f_totWA + f_totWB"
 
 run   ${eqnts}
 
-variable    cnt equal ${cntt}+1
-variable    cntt equal ${cnt}
-
 
 # Density
 fix fd all ave/chunk ${nts} 1 ${nts} binchunk density/number file data/dens.${cnt}.out
