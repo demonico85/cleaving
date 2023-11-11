@@ -40,3 +40,5 @@ test/test_*
 # eclipse stuff
 .project
 .pydevproject
+
+.DS_Store
