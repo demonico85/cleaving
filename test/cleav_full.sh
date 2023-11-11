@@ -102,18 +102,18 @@ log=$(echo $now.log)
 
 echo "Starting regression test 1"
 
-if [ ! -d Rtest1 ];
+if [ ! -d RT1 ];
   then
-   echo "I cannot find dir Rtest1 to run the test"
+   echo "I cannot find dir R1 to run the test"
    echo "Check your directory"
    echo "Exiting..."
    exit
 fi
 
-cp -r Rtest1 RT1
+cp -r RT1 test_RT1
 
 echo "Entering working dir..."
-cd ./RT1
+cd ./test_RT1
 echo $(pwd)
 echo
 
@@ -304,20 +304,18 @@ echo "Starting regression test 2"
 
 #################################################################################
 
-if [ ! -d Rtest2 ];
+if [ ! -d RT2 ];
   then
-   echo "I cannot find dir Rtest2 to run the test"
+   echo "I cannot find dir RT2 to run the test"
    echo "Check your directory"
    echo "Exiting..."
    exit
 fi
 
-rm -r RT2 2> /dev/null
-
-cp -r Rtest2 RT2
+cp -r RT2 test_RT2
 
 echo "Entering working dir..."
-cd ./RT2
+cd ./test_RT2
 echo $(pwd)
 echo
 
