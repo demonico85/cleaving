@@ -362,7 +362,7 @@ for i in `seq 1 500`
      then
      break
    fi
-   awk 'NR>2{l=$5;a+=$4;t++} END {print a/t, l}' $file >> $(echo $step".dat")
+   awk 'NR>2{l=$4;a+=$5;t++} END {print l, a/t}' $file >> $(echo $step".dat")
 done
 
 
@@ -411,7 +411,7 @@ for i in `seq 1 500`
      then
      break
    fi
-   awk 'NR>2{l=$5;a+=$4;t++} END {print a/t, l}' $file >> $(echo $step".dat")
+   awk 'NR>2{l=$4;a+=$5;t++} END {print l, a/t}' $file >> $(echo $step".dat")
 done
 
 
@@ -449,26 +449,32 @@ fi
 
 cd ./dat
 for i in `seq 1 500`
-  do
-  file=$(echo "inters3."$i".dat")
-  if [ ! -f $file ];
-     then
-     break
-   fi
-    awk 'BEGIN{ntypes=8}{i+=1; if(i>4){
-     for (i=1; i< ntypes+1; i++){
-     	getline
-     	  for(j=1; j< ntypes+1; j++){
-     	      k=j+2
-     	      M[i,j]=$k;
-     		}
-    	}
+do
+    file=$(echo "inters3."$i".dat")
+    if [ ! -f $file ];
+        then
+        break
+    fi
+    awk 'BEGIN {
+        ntypes=8;
     }
-  }  
-    END{
-     CC=M[1,5]+ M[2,7]+ M[3,8]+M[4,6]+ M[1,6]+ M[2,8] + M[4,5]+ M[3,7]
-     DD = M[1,2]+ M[1,3]+ M[2,4]+M[3,4]
-    print CC+2.0*DD}' $file >> s3.tmp
+    {
+        i += 1; 
+        if(i > 4) {
+            for(i = 1; i < ntypes + 1; i++) {
+                getline
+                for(j = 1; j < ntypes + 1; j++) {
+                    k = j+2
+                    M[i,j] = $k;
+                }
+            }
+        }
+    }
+    END {
+        CC = M[1,5] + M[2,7] + M[3,8] + M[4,6] + M[1,6] + M[2,8] + M[4,5] + M[3,7];
+        DD = M[1,2] + M[1,3] + M[2,4] + M[3,4];
+        print CC + 2.0*DD;
+    }' $file >> s3.tmp
 done
 
 paste ../lambda.dat s3.tmp > $(echo $step".dat")

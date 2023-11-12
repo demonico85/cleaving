@@ -13,7 +13,7 @@ compute ID group_ID cleavpairs <pair_style name> norm N <direction>
 
 ## Description
 
-This compute collects the scaled interactions which are used to calculate the work to create a new interface. Note that it cannot be used for any pair_style, since the calculation of the scaled interactions for the cleaving must be obtained within the pair_style itself. For this reason, modified pair_styles are available in the package (see ADD).
+This compute collects the scaled interactions which are used to calculate the work to create a new interface. Note that it cannot be used for any pair_style, since the calculation of the scaled interactions for the cleaving must be obtained within the pair_style itself. For this reason, modified pair_styles are available in the package (see the documented pair styles).
 
 The `norm` keyword normalize the interaction for units of interface created (i.e., the result will be in units of [Energy] / [lenght]$^2$). The keyword must be followed by:
 
@@ -24,4 +24,4 @@ The total area used for the normalization will therefore be $S_{\rm TOT}=S \cdot
 
 Note: that at the moment this works only for non-triclinic box.
 
-Note: If the keyword norm is not specified, than the compute will only report the energy taken from the specified pair_style (no normalization). 
+Note: If the keyword norm is not specified, then the compute will only report the energy taken from the specified pair_style (no normalization). 
