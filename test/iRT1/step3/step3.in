@@ -1,0 +1,118 @@
+###%****************************************************************************%
+#####%                                                                          *%
+#####%    Script for Step 3: LJ crystal in contact with vacuum                  *%
+#####%                             with Broughton-Gilmer potential              *%
+#####%                                                                          *%
+#####%***************************************************************************%
+#####%                                                                          *%
+#####%    Created by:                                                           *%
+#####%    Nicodemo Di Pasquale                                                  *%
+#####%    Department of Mathematics                                             *%
+#####%    University of Leicester                                               *%
+#####%    March 2018                                                            *%
+#####%                                                                          *%
+#####%***************************************************************************%
+
+units		lj
+atom_style	atomic
+
+boundary p p p
+read_data  Fstep1.52.data   #data.dump # [InputCW.lmp] is a input trajectory file of step1 (wall included)
+
+mass * 1.0
+
+
+# ---------------------------- Define variables --------------------------------
+
+variable   wellsfile   string "fcc111-T01-wells.lmp" # Name of the wells file
+variable   zc file zdir.dat 
+variable   i           equal  1         # initialization counter
+variable   backloop    equal  0         # perform the backloop yes/no: 1/0
+variable   rhoc        equal  1.05604   # density at which calculate the size of the unit cell
+variable   fact        equal  1.2       # factor controlling extension wells interactopm
+variable   dw          equal  6.0       # depth of the wells, taken as the pe per atom in liquid at triple point
+variable   expp        equal  3.0       # power law exponent in wells potential shape
+variable   eqnts       equal  0      # equilibration number of time-steps
+variable   nts         equal  1000     # production number of time-steps
+variable   ts          equal  0.005     # time-step size (in lj units)
+variable   siglj       equal  1.0       # sigma coefficient for BG pair-style
+variable   epslj       equal  1.0       # epsilon coefficient for BG pair-style 
+variable   cut1        equal  2.3       # internal cut-off for BG pair-style
+variable   cut2        equal  2.5       # external cut-off for BG pair-style
+variable   Tsyst       equal  0.1       # (reduced) temperature of the system
+variable   NtsTdamp    equal  100       # Number of ts to damp temperature
+variable   Nevery      equal  1       # use input values every this many time steps
+variable   Nrepeat     equal  1         # # of times to use input values for calculating averages
+variable   Nfreq       equal  1000       # calculate averages every this many time steps
+variable   thermoSteps equal  1000      # # of time-steps before printing properties on screen
+variable   lambda      equal  1.0       # strength of the wells
+
+
+# ----- Derivate variables ------
+#
+
+variable  initzhi   equal  $(zhi)                   # Initial value of the lowest z coordinate
+variable  initzlo   equal  $(zlo)                   # Initial value of the highest z coordinate
+variable  Tdamp    equal  ${NtsTdamp}*${ts}        # Value of Temperature damp
+variable  a0       equal  exp(1/3*ln(4/${rhoc}))   # size of the unit cell at the density rhoc
+variable  rrw      equal  sqrt(2)*${a0}/4.0        # nearest neighbour fcc 111
+variable  rw       equal  ${rrw}*${fact}           # extension of the interaction of the wells with atoms
+variable  ii       equal  ${i}                     # dummy counter
+variable  cutoff1  equal  ${siglj}*${cut1}         # internal cut-off for BG pair-style
+variable  cutoff2  equal  ${siglj}*${cut2}         # external cut-off for BG pair-style
+
+
+# ------------------------- fix atoms  -------------------------------
+
+velocity all zero linear
+velocity all zero angular
+
+# ----------------------------- Interactions -----------------------------------
+
+
+#### normal interactions
+
+# self
+pair_style lj/BGcleavpbc ${cutoff1} ${cutoff2} z 
+pair_coeff   * *  ${epslj} ${siglj}  
+
+neighbor     0.3 bin
+atom_modify  sort 0 0.0
+
+
+# ------------------------- Define cleaving options -------------------------------
+
+compute 1 all cleavpairs lj/BGcleavpbc norm 2 z
+
+# ------------- Output thermo information and averaged variables ---------------
+
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file ${wellsfile} 
+variable totW   equal "f_f2" 
+
+fix    f5 all nvt temp ${Tsyst} ${Tsyst} ${Tdamp}
+
+thermo    ${thermoSteps} 
+timestep  ${ts}
+
+# --------------- Dumping trajectories and store restart file ------------------
+
+#dump        Dp1 all xyz 1000 dump/dump.*.xyz
+#restart   30000 X.restart/X.restart
+
+
+# -------------------------- Zero linear momentum ------------------------------
+
+fix f4  all  momentum 1000 linear 1 1 1
+
+# -------------------------- Forward changing interactions lambda ----------------------
+
+variable dir string "F"
+
+label here
+include    in.loop/loop
+variable    ii equal ${i}+1
+variable    i  equal ${ii}
+next zc
+jump SELF here
+
+write_data  ${dir}step3.${i}.data  nocoeff

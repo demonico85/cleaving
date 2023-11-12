@@ -1,0 +1,29 @@
+#*******************************************************************************#
+##                                Wells loop                                     #
+##*******************************************************************************#
+##%       Created by:                                                           *%
+##%            Nicodemo Di Pasquale                                             *%
+##%            Department of Mathematics                                        *%
+##%            University of Leicester                                          *%
+##%            March 2018                                                       *%
+##%******************************************************************************%
+
+
+variable    lambda equal ${lam}
+
+fix f2 all wellPforce ${dw} ${rw} ${expp} ${lambda} file ${wellsfile} 
+
+print       "Well depth ${lambda}"
+
+run   ${eqnts}
+
+fix  f6 all ave/time ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe f_f2 v_lambda file  out/ave.${dir}.${i}.out
+
+run  ${nts}
+
+# --------------------------- Unfix --------------------------------------------
+
+unfix f2
+unfix f6
+
+#%*****************************************************************************%
