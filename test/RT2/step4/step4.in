@@ -42,7 +42,7 @@ variable  delta   equal  0.25
 variable  zw file zwalls_back.dat
 variable  crw     equal  2.0^(1.0/6.0)   
 variable  eqnts   equal  0
-variable  nts     equal  1000
+variable  nts     equal  10000
 variable  ts      equal  0.005
 variable  cut1    equal  2.3
 variable  cut2    equal  2.5

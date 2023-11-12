@@ -32,8 +32,8 @@ variable   fact        equal  1.2       # factor controlling extension wells int
 variable   dw          equal  6.0       # depth of the wells, taken as the pe per atom in liquid at triple point
 variable   expp        equal  3.0       # power law exponent in wells potential shape
 variable   eqnts       equal  0      # equilibration number of time-steps
-variable   firsteqnts  equal  1000     # equilibration before starting the cleaving
-variable   nts         equal  1000     # production number of time-steps
+variable   firsteqnts  equal  10000     # equilibration before starting the cleaving
+variable   nts         equal  10000     # production number of time-steps
 variable   ts          equal  0.005     # time-step size (in lj units)
 variable   siglj       equal  1.0       # sigma coefficient for BG pair-style
 variable   epslj       equal  1.0       # epsilon coefficient for BG pair-style 

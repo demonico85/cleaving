@@ -110,6 +110,7 @@ if [ ! -d RT1 ];
    exit
 fi
 
+rm -rf test_RT1
 cp -r RT1 test_RT1
 
 echo "Entering working dir..."
@@ -162,7 +163,7 @@ for i in `seq 1 500`
      then
      break
    fi
-    awk '{i+=1; if(i==3){print $5, $4}}' $file >> $(echo $step".dat")
+   awk 'NR>2 {l=$5;a+=$4;t++} END {print l, a/t}' $file >> $(echo $step".dat")
 done
 
 
@@ -214,7 +215,7 @@ for i in `seq 1 500`
      then
      break
    fi
-    awk '{i+=1; if(i>4){w+=$3+$4}}END{print w}' $file >> s3.tmp
+   awk 'NR>3{if(NR%4 == 0) t++; else w+=$3+$4;} END {print w/t}' $file >> s3.tmp
 done
 
 paste ../zdir.dat s3.tmp > $(echo $step".dat")
@@ -237,10 +238,7 @@ inpscript=$(echo $step".in")
 rm -r ./out 2> /dev/null
 mkdir out
 
-
 mpirun -np $nproc $lmp  -in  $inpscript > $log
-
-
 
 if grep -q 'ERROR' $log; then
     echo "Something went wrong in $step"
@@ -261,7 +259,7 @@ for i in `seq 1 500`
      then
      break
    fi
-    awk '{i+=1; if(i==3){print $5, $4}}' $file >> $(echo $step".dat")
+   awk 'NR>2{l=$5;a+=$4;t++} END {print l, a/t}' $file >> $(echo $step".dat")
 done
 
 
@@ -312,6 +310,7 @@ if [ ! -d RT2 ];
    exit
 fi
 
+rm -rf test_RT2
 cp -r RT2 test_RT2
 
 echo "Entering working dir..."
@@ -363,7 +362,7 @@ for i in `seq 1 500`
      then
      break
    fi
-    awk '{i+=1; if(i==3){print $4, $5}}' $file >> $(echo $step".dat")
+   awk 'NR>2{l=$5;a+=$4;t++} END {print a/t, l}' $file >> $(echo $step".dat")
 done
 
 
@@ -412,7 +411,7 @@ for i in `seq 1 500`
      then
      break
    fi
-    awk '{i+=1; if(i==3){print $4, $5}}' $file >> $(echo $step".dat")
+   awk 'NR>2{l=$5;a+=$4;t++} END {print a/t, l}' $file >> $(echo $step".dat")
 done
 
 
@@ -431,13 +430,8 @@ dir=$CWD/$step
 cd $dir
 inpscript=$(echo $step".in")
 
-
-
 rm -r ./dat 2> /dev/null
 mkdir dat
-
-
-
 
 mpirun -np $nproc $lmp  -in  $inpscript > $log
 
@@ -521,7 +515,7 @@ for i in `seq 1 500`
      then
      break
    fi
-    awk '{i+=1; if(i==3){print $5, $4}}' $file >> $(echo $step".dat")
+   awk 'NR>2{l=$5;a+=$4;t++} END {print l, a/t}' $file >> $(echo $step".dat")
 done
 
 

@@ -56,7 +56,7 @@ variable  rhoc    equal  0.945
 variable  cut1    equal  2.3
 variable  cut2    equal  2.5
 variable  eqnts   equal  0
-variable  nts     equal  1000
+variable  nts     equal  10000
 variable  ts      equal  0.005
 variable thermoSteps equal 5000
 variable dumpfreq equal 20000

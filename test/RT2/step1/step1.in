@@ -35,7 +35,7 @@ variable  eps          equal  1.0
 variable  delta        equal  0.25
 variable  crw          equal  2.0^(1.0/6.0)   
 variable  eqnts        equal  0 
-variable  nts          equal  1000
+variable  nts          equal  10000
 variable  ts           equal  0.005
 variable  siglj        equal  1.0
 variable  epslj        equal  1.0
