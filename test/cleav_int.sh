@@ -104,17 +104,17 @@ echo "Starting regression test 1"
 
 if [ ! -d iRT1 ];
   then
-   echo "I cannot find dir R1 to run the test"
+   echo "I cannot find dir iRT1 to run the test"
    echo "Check your directory"
    echo "Exiting..."
    exit
 fi
 
-rm -rf test_RT1
-cp -r iRT1 test_RT1
+rm -rf test_iRT1
+cp -r iRT1 test_iRT1
 
 echo "Entering working dir..."
-cd ./test_RT1
+cd ./test_iRT1
 echo $(pwd)
 echo
 
@@ -163,7 +163,7 @@ for i in `seq 1 500`
      then
      break
    fi
-   awk 'NR>3 {l=$5;a=$4} END {print "Wells interactions step1:", a}' $file 
+   awk 'NR>3 {l=$5;a=$4} END {print "Wells interactions step1:", a}' $file > $CWD/results.dat
 done
 
 
@@ -208,7 +208,7 @@ for i in `seq 1 500`
      then
      break
    fi
-   awk 'NR>7{w+=$3+$4;} END {print "Switch-off interactions work step3:", w}' $file
+   awk 'NR>7{w+=$3+$4;} END {print "Switch-off interactions work step3:", w}' $file >> $CWD/results.dat
 done
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -247,7 +247,7 @@ for i in `seq 1 500`
      then
      break
    fi
-   awk 'NR>3{l=$5;a=$4;} END {print "Wells interactions step4:", a}' $file 
+   awk 'NR>3{l=$5;a=$4;} END {print "Wells interactions step4:", a}' $file >> $CWD/results.dat
 done
 
 cd $CWD
@@ -264,11 +264,11 @@ if [ ! -d iRT2 ];
    exit
 fi
 
-rm -rf test_RT2
-cp -r iRT2 test_RT2
+rm -rf test_iRT2
+cp -r iRT2 test_iRT2
 
 echo "Entering working dir..."
-cd ./test_RT2
+cd ./test_iRT2
 echo $(pwd)
 echo
 
@@ -295,8 +295,6 @@ mkdir out
 
 mpirun -np $nproc $lmp  -in  $inpscript > $log
 
-
-
 if grep -q 'ERROR' $log; then
     echo "Something went wrong in $step"
     echo "Test cannot be completed"
@@ -316,7 +314,7 @@ for i in `seq 1 500`
      then
      break
    fi
-    awk 'NR>3{a=$5;} END {print "Walls interactions step1:", a}' $file
+    awk 'NR>3{a=$5;} END {print "Walls interactions step1:", a}' $file > $CWD/results.dat
 done
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -331,8 +329,6 @@ dir=$CWD/$step
 cd $dir
 
 inpscript=$(echo $step".in")
-
-
 
 rm -r ./out/ 2> /dev/null
 mkdir out
@@ -361,7 +357,7 @@ for i in `seq 1 500`
      then
      break
    fi
-    awk 'NR>3{a=$5;} END {print "Walls interactions step2:", a}' $file
+    awk 'NR>3{a=$5;} END {print "Walls interactions step2:", a}' $file >> $CWD/results.dat
 done
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -414,7 +410,7 @@ for i in `seq 1 500`
     END{
      CC=M[1,5]+ M[2,7]+ M[3,8]+M[4,6]+ M[1,6]+ M[2,8] + M[4,5]+ M[3,7]
      DD = M[1,2]+ M[1,3]+ M[2,4]+M[3,4]
-    print "Switch interaction step3:", CC+2.0*DD}' $file
+    print "Switch interaction step3:", CC+2.0*DD}' $file >> $CWD/results.dat
 done
 
 
@@ -437,7 +433,6 @@ mkdir out
 mpirun -np $nproc $lmp  -in  $inpscript > $log
 
 
-
 if grep -q 'ERROR' $log; then
     echo "Something went wrong in $step"
     echo "Test cannot be completed"
@@ -457,9 +452,27 @@ for i in `seq 1 500`
      then
      break
    fi
-   awk 'NR>3{l=$5;a=$4;} END {print "Walls interactions step4:", a}' $file
+   awk 'NR>3{l=$5;a=$4;} END {print "Walls interactions step4:", a}' $file >> $CWD/results.dat
 done
 
+cd $CWD
+cd ..
+
+echo "#####################################"
+echo "Results from iRT1 (solid-vacuum LJ):"
+
+cat test_iRT1/results.dat
+
+echo "#####################################"
+
+echo
+
+echo "#####################################"
+echo "Results from iRT2 (solid-liquid LJ):"
+
+cat test_iRT2/results.dat
+
+echo "#####################################"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
