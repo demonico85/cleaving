@@ -97,6 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="lammps.html">LAMMPS commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
 
             
@@ -182,13 +183,31 @@
 </div>
 <div class="section" id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
-<p>The installation can be tested by heading over to <code class="docutils literal notranslate"><span class="pre">/test</span></code>, which contains a script that runs a short sample of cleaving calculation.</p>
+<p>The installation can be tested by heading over to <code class="docutils literal notranslate"><span class="pre">/test</span></code>. We provide two different tests: the first one checks that the installation (and therefore the main LAMMPS cleaving commands) works by performing one-time-step simulations, while the second one runs slightly longer simulations to perform ``interaction’’ checks for each cleaving step for the solid-liquid and solid-vacuum Broughton and Gilmer LJ potential.</p>
+<p>The tests can be run by executing <code class="docutils literal notranslate"><span class="pre">./cleav_run.sh</span></code> (for the installation check) or <code class="docutils literal notranslate"><span class="pre">./cleav_int.sh</span></code> (for the interaction test) following these instructions:</p>
 <ol class="arabic simple">
 <li><p>LAMMPS should be patched with the cleaving files and compiled as detailed <a class="reference internal" href="#compilation"><span class="std std-doc">above</span></a>.</p></li>
-<li><p>Run the script <code class="docutils literal notranslate"><span class="pre">./cleav_test.sh</span> <span class="pre">-l</span> <span class="pre">LAMMPS_BINARY</span></code>, where <code class="docutils literal notranslate"><span class="pre">LAMMPS_BINARY</span></code>, which defaults to <code class="docutils literal notranslate"><span class="pre">lmp_mpi</span></code>, is the path of the LAMMPS executable to be tested.</p></li>
-<li><p>An optional argument <code class="docutils literal notranslate"><span class="pre">-n</span></code> can be given to select the number of the MPI processes to be used. The default value is 4.</p></li>
-<li><p>The whole test should take a few minutes on 4 cores. Please, note that the results obtained are <em>not</em> going to be physically correct. This script only tests if the pairs/fix/compute of the cleaving package run without errors. In order to obtain physically meaningful results, please refer to the <a class="reference internal" href="example.html"><span class="doc std std-doc">examples</span></a>.</p></li>
+<li><p>Run the chosen script with a <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">LAMMPS_BINARY</span></code> argument, where <code class="docutils literal notranslate"><span class="pre">LAMMPS_BINARY</span></code>, which defaults to <code class="docutils literal notranslate"><span class="pre">lmp_mpi</span></code>, is the path of the LAMMPS executable to be tested.</p></li>
+<li><p>An optional argument <code class="docutils literal notranslate"><span class="pre">-n</span></code> can be given to select the number of the MPI processes to be used, which defaults to 4.</p></li>
+<li><p>Both tests should take a few minutes on 4 cores.</p></li>
 </ol>
+<p>Please, note that the results obtained in either case are <em>not</em> going to be physically correct or meaningful (for which we refer to the <a class="reference internal" href="example.html"><span class="doc std std-doc">examples</span></a>). For <code class="docutils literal notranslate"><span class="pre">cleav_run.sh</span></code>, the script only tests if the pairs/fix/compute of the cleaving package run without errors. By contrast, <code class="docutils literal notranslate"><span class="pre">cleav_int.sh</span></code> tests if the cleaving code gives consistent results, and can be used to check if any modifications affects the behaviour in an unwanted way. The final output of the latter test (which is printed at the end of the procedure, but also stored in the <code class="docutils literal notranslate"><span class="pre">test_iRT1/results.dat</span></code> and <code class="docutils literal notranslate"><span class="pre">test_iRT2/results.dat</span></code> files) should be:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#####################################
+Results from iRT1 (solid-vacuum LJ):
+Wells interactions step1: -0.00965234
+Switch-off interactions work step3: -0.66751
+Wells interactions step4: -2.81862
+#####################################
+
+#####################################
+Results from iRT2 (solid-liquid LJ):
+Walls interactions step1: -0.00162756
+Walls interactions step2: -0.231522
+Switch interaction step3: -0.859394
+Walls interactions step4: -0.47436
+#####################################
+</pre></div>
+</div>
 </div>
 </div>
 
