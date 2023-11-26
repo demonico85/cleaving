@@ -1,0 +1,63 @@
+# LAMMPS input script
+
+units                real
+dimension            3
+boundary             p p p
+
+atom_style           full
+
+read_data            H2O.data
+
+group H2O type 1 2 
+
+# ---------------------------- Define variables --------------------------------
+
+variable  eqnts        equal 10     # equilibration number of time-steps
+variable  nts          equal 100     # production number of time-steps
+variable  ts           equal 2      # length of the ts (in lj units)
+variable  cutlj        equal 12        # internal cut-off for BG pair-style
+variable  Tsyst        equal 298.15       # temperature of the system
+variable  cnt          equal 1
+variable  NtsTdamp     equal 100         # Number of ts to damp temperature
+variable  thermoSteps  equal 1000        # Number of ts to write properties on screen
+variable  restartSteps equal 30000       # Number of ts before write restart file
+variable  dumpSteps    equal 10000       # Number of ts before write dump file
+variable  Nevery       equal 100
+variable  Nrepeat      equal 5 
+variable  Nfreq        equal 500
+
+# ------------------------- Interaction ---------------------------------------
+
+bond_style           harmonic
+angle_style          harmonic
+
+
+bond_coeff           *  450  0.9572
+angle_coeff          *  55  104.52
+
+
+comm_modify cutoff 3.5
+                             
+# ------------------------- Run ---------------------------------------
+                 
+# shake to fix bond and angle
+# Run NVT at 298.15K correct every 100 timestep
+timestep             ${ts}
+dump                 mydmp all atom 1000 md.lammpstrj
+fix                  moment all momentum 1 linear 1 1 1 
+
+fix                  myshk H2O shake 1.0e-5 200 0 b 1 a 1 
+fix                  mynvt all nvt temp ${Tsyst} ${Tsyst} ${NtsTdamp} 
+                                  
+# ------------------------------ Loop ---------------------------------------
+
+variable  lam file lambda.dat
+
+label here 
+variable lambda equal ${lam}
+include    in.loop/loop 
+write_data data/PreStep1.${cnt}.data nocoeff
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+next lam
+jump SELF here

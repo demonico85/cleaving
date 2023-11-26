@@ -1,0 +1,82 @@
+# LAMMPS input script
+
+units                real
+dimension            3
+boundary             p p p
+
+atom_style           full
+
+# ---------------------------- Define variables --------------------------------
+#
+
+variable  zw file zwalls.dat
+variable  cnt    equal  1
+variable  delta  equal  0.25
+variable  eps    equal  0.1852
+variable  sigma  equal  3.1589
+variable  crw    equal  2.0^(1.0/6.0)
+variable  eqnts  equal  3000
+variable  nts    equal  25000
+variable  Nevery equal 100
+variable  Nrepeat equal 5
+variable  Nfreq equal 500
+variable  Tsyst  equal  298.15
+variable  Tdump  equal  100
+variable  ts     equal  2
+
+variable  rw       equal  ${sigma}*${crw}
+
+# ----------------------------- Interactions -----------------------------------
+
+bond_style           harmonic
+angle_style          harmonic
+
+
+
+#pair potential
+pair_style           lj/cut/tip4p/cut 1 2 1 1 0.1546 12.0
+
+read_data            H2O_final.data 
+
+
+bond_coeff           1  450  0.9572
+angle_coeff          1  55  104.52
+
+pair_coeff           1 1 ${eps} ${sigma} 
+pair_coeff           2 2 0.0    0.0
+pair_coeff           1 2 0.0    0.0
+
+group                H2O type   1 2
+
+comm_modify cutoff 3.5
+
+variable clwall equal zhi
+
+# ------------------------- Initi Vel  -------------------------------
+
+velocity all create ${Tsyst} 93874090
+velocity all zero linear
+velocity all zero angular
+ 
+
+timestep              ${ts}                                                             #2fs 
+#dump                  mydmp all atom 1000 md.lammpstrj
+thermo                1000
+thermo_style          custom step temp pe press vol lz density
+
+fix                   myshk H2O shake 1.0e-5 200 0 b 1 a 1 
+fix                   mynvt all nvt temp ${Tsyst} ${Tsyst} ${Tdump}
+  
+
+# ----------------------- Moving Walls  ------------------------
+#
+
+run 10000
+
+label here
+include    in.loop/loop
+write_data data/Fstep1.${cnt}.data nocoeff
+variable    cntt equal ${cnt}+1
+variable    cnt  equal ${cntt}
+next zw
+jump SELF here
