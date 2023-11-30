@@ -54,6 +54,8 @@ PairLJCutTIP4PLongCleav::PairLJCutTIP4PLongCleav(LAMMPS *lmp) :
   single_enable = 0;
   respa_enable = 0;
   writedata = 1;
+  pallocation = 0;
+
 
   nmax = 0;
   hneigh = nullptr;
@@ -68,6 +70,7 @@ PairLJCutTIP4PLongCleav::PairLJCutTIP4PLongCleav(LAMMPS *lmp) :
   if(n > 0){
     nextra = n*n+1; // the zero-th position is not considered
     pvector = new double[nextra];
+    pallocation=1;
     }
 }
 
@@ -77,6 +80,7 @@ PairLJCutTIP4PLongCleav::~PairLJCutTIP4PLongCleav()
 {
   memory->destroy(hneigh);
   memory->destroy(newsite);
+  pallocation = 0;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -133,6 +137,11 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
   numneigh = list->numneigh;
   firstneigh = list->firstneigh;
 
+  int ntypes=atom->ntypes;
+
+  for(i=0; i<nextra ; i++){
+    pvector[i] = 0.0;
+}
   // loop over neighbors of my atoms
 
   for (ii = 0; ii < inum; ii++) {
@@ -419,10 +428,9 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
             else {
               table = etable[itable] + fraction*detable[itable];
               ecoul = qtmp*q[j] * table;
-              m=jtype+(itype-1)*n;
+              m=jtype+(itype-1)*ntypes;
               if (factor_coul < 1.0) pvector[m] += ecoul-(1.0-factor_coul)*prefactor;
-              else 
-            	pvector[m] += ecoul;
+              else pvector[m] += ecoul;
             }
             if (factor_coul < 1.0) ecoul -= (1.0-factor_coul)*prefactor;
           } else ecoul = 0.0;
@@ -441,6 +449,12 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
 void PairLJCutTIP4PLongCleav::settings(int narg, char **arg)
 {
   if (narg < 6 || narg > 8) error->all(FLERR,"Illegal pair_style command");
+
+  int n = atom->ntypes;
+if(!pallocation) {nextra = n*n+1; // the zero-th position is not considered
+    pvector = new double[nextra];
+    pallocation = 1;}
+
 
   typeO = utils::inumeric(FLERR,arg[0],false,lmp);
   typeH = utils::inumeric(FLERR,arg[1],false,lmp);
