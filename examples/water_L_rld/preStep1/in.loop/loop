@@ -10,25 +10,19 @@
 print "Working with ${lambda}"
 
 #pair potential
-pair_style           lj/cut/tip4p/long/cleav 1 2 1 1 0.1546 ${lambda} ${cutlj}
-kspace_style         pppm/tip4p 1.0e-4
+kspace_style         pppm/tip4p/cleav 1.0e-4 ${lambda}
 
+#run ${eqnts}
 
-pair_coeff           1 1 0.1852 3.1589
-pair_coeff           2 2 0.0    1.0
-pair_coeff           1 2 0.0    1.0
+variable kSpScal equal elong*${lambda}/lx/ly/2
 
-if "${cnt} == 1" then "compute 1 all cleavpairs lj/cut/tip4p/long/cleav norm 2 z"
-
-run ${eqnts}
-
-fix   f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe c_1 v_lambda file  out/ave.F.${cnt}.out
+fix   f7 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_kSpScal v_lambda file  out/ave.F.${cnt}.out
 
 run  ${nts}
 
 # --------------------------- Unfix --------------------------------------------
 
 
- unfix f7
+#unfix f7
 
 # #%*****************************************************************************%

@@ -12,8 +12,8 @@ group H2O type 1 2
 
 # ---------------------------- Define variables --------------------------------
 
-variable  eqnts        equal 10     # equilibration number of time-steps
-variable  nts          equal 100     # production number of time-steps
+variable  eqnts        equal 20000     # equilibration number of time-steps
+variable  nts          equal 100000     # production number of time-steps
 variable  ts           equal 2      # length of the ts (in lj units)
 variable  cutlj        equal 12        # internal cut-off for BG pair-style
 variable  Tsyst        equal 298.15       # temperature of the system
@@ -22,11 +22,19 @@ variable  NtsTdamp     equal 100         # Number of ts to damp temperature
 variable  thermoSteps  equal 1000        # Number of ts to write properties on screen
 variable  restartSteps equal 30000       # Number of ts before write restart file
 variable  dumpSteps    equal 10000       # Number of ts before write dump file
-variable  Nevery       equal 100
-variable  Nrepeat      equal 5 
-variable  Nfreq        equal 500
+variable  Nevery       equal 500
+variable  Nrepeat      equal 4
+variable  Nfreq        equal 2000 
 
 # ------------------------- Interaction ---------------------------------------
+
+pair_style           lj/cut/tip4p/long 1 2 1 1 0.1546  ${cutlj}
+kspace_style         pppm/tip4p/cleav 1.0e-4 1
+
+
+pair_coeff           1 1 0.1852 3.1589
+pair_coeff           2 2 0.0    1.0
+pair_coeff           1 2 0.0    1.0
 
 bond_style           harmonic
 angle_style          harmonic
@@ -37,13 +45,15 @@ angle_coeff          *  55  104.52
 
 
 comm_modify cutoff 3.5
+
+#compute 1 all cleavpairs lj/cut/tip4p/long/cleav norm 2 z
                              
 # ------------------------- Run ---------------------------------------
                  
 # shake to fix bond and angle
 # Run NVT at 298.15K correct every 100 timestep
 timestep             ${ts}
-dump                 mydmp all atom 1000 md.lammpstrj
+#dump                 mydmp all atom 1000 md.lammpstrj
 fix                  moment all momentum 1 linear 1 1 1 
 
 fix                  myshk H2O shake 1.0e-5 200 0 b 1 a 1 
