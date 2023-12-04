@@ -26,11 +26,12 @@ namespace LAMMPS_NS {
 
 class PairLJCutTIP4PShortCleav : public PairLJCutCoulLong {
  public:
-  PairLJCutTIP4PLongCleav(class LAMMPS *);
-  ~PairLJCutTIP4PLongCleav() override;
+  PairLJCutTIP4PShortCleav(class LAMMPS *);
+  ~PairLJCutTIP4PShortCleav() override;
   void compute(int, int) override;
   void settings(int, char **) override;
   void init_style() override;
+  void coeff(int, char **) override;
   double init_one(int, int) override;
   void write_restart_settings(FILE *fp) override;
   void read_restart_settings(FILE *fp) override;
@@ -38,19 +39,33 @@ class PairLJCutTIP4PShortCleav : public PairLJCutCoulLong {
   double memory_usage() override;
 
  protected:
+ 
+  int natoms,pallocation,ind_dir,npow,ntypes;
+  int *gbox,*giflag;
+  int nchunk, switchcoul,switchlj,dubtypes;
+  double xprd,yprd,zprd,xy,yz,xz,lboxhalf, lambda,lambdaC;
+  double **powlambda, **powDlambda,**lam;
+  double **powlambdaC, **powDlambdaC,**lamC;
+
+  char *idchunk, *idcom;  
+  class ComputeChunkAtom *cchunk;
+  class ComputeCOMChunk *ccom;
+      
   int typeH, typeO;    // atom types of TIP4P water H and O atoms
   int typeA, typeB;    // angle and bond types of TIP4P water
   double alpha;        // geometric constraint parameter for TIP4P
-  
-  int dubtypes;
-  double xprd,yprd,zprd,xy,yz,xz, lambda,lambdaC;
- 
+
+
   int nmax;            // info on off-oxygen charge sites
   int **hneigh;        // 0,1 = indices of 2 H associated with O
                        // 2 = 0 if site loc not yet computed, 1 if yes
   double **newsite;    // locations of charge sites
 
   void compute_newsite(double *, double *, double *, double *);
+  void global_boundary();
+  int find_scaling(int,int,int,int,double *);
+  void allocate() override;  
+  
 };
 
 }    // namespace LAMMPS_NS

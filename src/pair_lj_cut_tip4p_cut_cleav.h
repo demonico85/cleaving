@@ -44,7 +44,7 @@ class PairLJCutTIP4PCutCleav : public Pair {
 
  protected:
 //FILE *fp;
-  int    natoms,pallocation,index,ind_dir,npow,ntypes;
+  int    natoms,pallocation,ind_dir,npow,ntypes;
   int *gbox,*giflag;
     int nchunk, switchcoul,switchlj,dubtypes;
   double xprd,yprd,zprd,xy,yz,xz, lambda,lambdaC;
