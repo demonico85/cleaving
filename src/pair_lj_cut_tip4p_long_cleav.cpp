@@ -17,7 +17,7 @@
    simpler force assignment added by Rolf Isele-Holder (Aachen University)
 ------------------------------------------------------------------------- */
 
-#include "pair_lj_cut_tip4p_short_cleav.h"
+#include "pair_lj_cut_tip4p_long_cleav.h"
 
 #include "compute_chunk_atom.h"
 #include "compute_com_chunk.h"
@@ -48,7 +48,7 @@ using namespace LAMMPS_NS;
 
 /* ---------------------------------------------------------------------- */
 
-PairLJCutTIP4PShortCleav::PairLJCutTIP4PShortCleav(LAMMPS *lmp) :
+PairLJCutTIP4PLongCleav::PairLJCutTIP4PLongCleav(LAMMPS *lmp) :
   PairLJCutCoulLong(lmp)
 {
   tip4pflag = 1;
@@ -67,11 +67,20 @@ PairLJCutTIP4PShortCleav::PairLJCutTIP4PShortCleav(LAMMPS *lmp) :
 
   no_virial_fdotr_compute = 1;
   
-  dubtypes=ntypes*2;
+  ntypes=atom->ntypes;
+  natoms=atom->natoms; //array does start from zero
 
+
+
+  if(natoms == 0){
+      error->all(FLERR,"Pair style must be declared after box generation");
+  }
+  
 
   pallocation = 0;
   natoms=natoms+1;
+  dubtypes=ntypes*2;
+      
   if(ntypes > 0){
     nextra = dubtypes*dubtypes+1; // the zero-th position is not considered
     pvector = new double[nextra];
@@ -86,14 +95,16 @@ PairLJCutTIP4PShortCleav::PairLJCutTIP4PShortCleav(LAMMPS *lmp) :
    xz = domain->xz;
 
   nchunk = 0;  
+  
 }
 
 /* ---------------------------------------------------------------------- */
 
-PairLJCutTIP4PShortCleav::~PairLJCutTIP4PShortCleav()
+PairLJCutTIP4PLongCleav::~PairLJCutTIP4PLongCleav()
 {
   memory->destroy(hneigh);
   memory->destroy(newsite);
+  
   
   if (allocated) {  
     memory->destroy(lam);
@@ -105,14 +116,15 @@ PairLJCutTIP4PShortCleav::~PairLJCutTIP4PShortCleav()
     memory->destroy(powDlambdaC);
     memory->destroy(giflag);
     }
-  
+    
 }
+
 
 /* ----------------------------------------------------------------------
    allocate all arrays
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::allocate()
+void PairLJCutTIP4PLongCleav::allocate()
 {
   allocated = 1;
   int n = atom->ntypes;
@@ -140,13 +152,23 @@ void PairLJCutTIP4PShortCleav::allocate()
   memory->create(powlambdaC,n+1,n+1,"pair:powlambdaC");
   memory->create(powDlambdaC,n+1,n+1,"pair:powDlambdaC");
   memory->create(giflag,natoms,"pair:giflag");  
+  memory->create(gbox,natoms,"pair:gbox");  
   
-  
+
+  ntypes=n;
+  dubtypes=n*2;
+  if(!pallocation){
+    nextra = dubtypes*dubtypes+1; // the zero-th position is not considered
+    pvector = new double[nextra];
+    pallocation = 1;
+    }
+
 }
+
 
 /* ---------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::compute(int eflag, int vflag)
+void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
 {
   int i,j,ii,jj,inum,jnum,itype,jtype,itable,key;
   int n,vlist[6];
@@ -201,11 +223,17 @@ void PairLJCutTIP4PShortCleav::compute(int eflag, int vflag)
   tagint *molecule = atom->molecule;
   int t1, t2, k1, k2, scaling,m;  
   double flam,fDlam;
+  
   global_boundary();
+
 
   for(i=0; i<nextra ; i++){
     pvector[i] = 0.0;
     }
+    
+    
+
+    
 
   // loop over neighbors of my atoms
 
@@ -284,11 +312,15 @@ void PairLJCutTIP4PShortCleav::compute(int eflag, int vflag)
           if(scaling){
               flam = powlambda[itype][jtype];
               fDlam =  powDlambda[itype][jtype];
-            }        
+            }     
+            
+
         
         
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
+        
+//printf("%d %d %d %d %f %f \n LJ %f %f \n ",i,j,itype,jtype,  powlambda[itype][jtype],powDlambda[itype][jtype],cut_ljsq[itype][jtype],forcelj);         
 
         f[i][0] += delx*forcelj;
         f[i][1] += dely*forcelj;
@@ -410,6 +442,8 @@ void PairLJCutTIP4PShortCleav::compute(int eflag, int vflag)
 
 
           cforce = flam*forcecoul * r2inv;
+          
+//printf("%d %d %d %d %f %f \n COUL %f %f %f\n ",i,j,itype,jtype,  powlambda[itype][jtype],powDlambda[itype][jtype],cut_coulsq,cut_coulsqplus,cforce); 
 
           // if i,j are not O atoms, force is applied directly
           // if i or j are O atoms, force is on fictitious atom & partitioned
@@ -560,13 +594,11 @@ void PairLJCutTIP4PShortCleav::compute(int eflag, int vflag)
   }
 }
 
-
-
 /* ----------------------------------------------------------------------
    Global Boundary
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::global_boundary(){
+void PairLJCutTIP4PLongCleav::global_boundary(){
 
 int i,k,m;
 int ibox[3];
@@ -641,7 +673,7 @@ int *ichunk = cchunk->ichunk;
     Find scaling
 ------------------------------------------------------------------------- */
 
-int PairLJCutTIP4PShortCleav::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
+int PairLJCutTIP4PLongCleav::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
 
 
 tagint *tag = atom->tag;
@@ -704,11 +736,13 @@ else
 
 }
 
+
+
 /* ----------------------------------------------------------------------
    global settings
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::settings(int narg, char **arg)
+void PairLJCutTIP4PLongCleav::settings(int narg, char **arg)
 {
   if (narg < 10 || narg > 14) error->all(FLERR,"Illegal pair_style command");
 
@@ -788,12 +822,11 @@ if (ccom && (strcmp(idchunk,ccom->idchunk) != 0))
   }
 }
 
-
 /* ----------------------------------------------------------------------
    init specific to this pair style
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::init_style()
+void PairLJCutTIP4PLongCleav::init_style()
 {
   if (atom->tag_enable == 0)
     error->all(FLERR,"Pair style lj/cut/tip4p/long requires atom IDs");
@@ -825,12 +858,11 @@ void PairLJCutTIP4PShortCleav::init_style()
   }
 }
 
-
 /* ----------------------------------------------------------------------
    set coeffs for one or more type pairs
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::coeff(int narg, char **arg)
+void PairLJCutTIP4PLongCleav::coeff(int narg, char **arg)
 {
   if (narg < 4 || narg > 7)
     error->all(FLERR,"Incorrect args for pair coefficients");
@@ -880,10 +912,10 @@ void PairLJCutTIP4PShortCleav::coeff(int narg, char **arg)
    init for one type pair i,j and corresponding j,i
 ------------------------------------------------------------------------- */
 
-double PairLJCutTIP4PShortCleav::init_one(int i, int j)
+double PairLJCutTIP4PLongCleav::init_one(int i, int j)
 {
   double cut = PairLJCutCoulLong::init_one(i,j);
-  
+
 
   lam[j][i] = lam[i][j];
   powlambda[j][i] = powlambda[i][j];
@@ -893,6 +925,7 @@ double PairLJCutTIP4PShortCleav::init_one(int i, int j)
   powlambdaC[j][i] = powlambdaC[i][j];
   powDlambdaC[j][i] = powDlambdaC[i][j];
 
+
   // check that LJ epsilon = 0.0 for water H
   // set LJ cutoff to 0.0 for any interaction involving water H
   // so LJ term isn't calculated in compute()
@@ -900,12 +933,10 @@ double PairLJCutTIP4PShortCleav::init_one(int i, int j)
   if ((i == typeH && epsilon[i][i] != 0.0) ||
       (j == typeH && epsilon[j][j] != 0.0))
     error->all(FLERR,"Water H epsilon must be 0.0 for "
-               "pair style lj/cut/tip4p/short/cleav");
+               "pair style lj/cut/tip4p/long/cleav");
 
   if (i == typeH || j == typeH)
     cut_ljsq[j][i] = cut_ljsq[i][j] = 0.0;
-  
-
 
   return cut;
 }
@@ -914,7 +945,7 @@ double PairLJCutTIP4PShortCleav::init_one(int i, int j)
   proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::write_restart_settings(FILE *fp)
+void PairLJCutTIP4PLongCleav::write_restart_settings(FILE *fp)
 {
   fwrite(&typeO,sizeof(int),1,fp);
   fwrite(&typeH,sizeof(int),1,fp);
@@ -935,7 +966,7 @@ void PairLJCutTIP4PShortCleav::write_restart_settings(FILE *fp)
   proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::read_restart_settings(FILE *fp)
+void PairLJCutTIP4PLongCleav::read_restart_settings(FILE *fp)
 {
   if (comm->me == 0) {
     utils::sfread(FLERR,&typeO,sizeof(int),1,fp,nullptr,error);
@@ -973,7 +1004,7 @@ void PairLJCutTIP4PShortCleav::read_restart_settings(FILE *fp)
   return it as xM
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PShortCleav::compute_newsite(double *xO, double *xH1,
+void PairLJCutTIP4PLongCleav::compute_newsite(double *xO, double *xH1,
                                          double *xH2, double *xM)
 {
   double delx1 = xH1[0] - xO[0];
@@ -991,7 +1022,7 @@ void PairLJCutTIP4PShortCleav::compute_newsite(double *xO, double *xH1,
 
 /* ---------------------------------------------------------------------- */
 
-void *PairLJCutTIP4PShortCleav::extract(const char *str, int &dim)
+void *PairLJCutTIP4PLongCleav::extract(const char *str, int &dim)
 {
   dim = 0;
   if (strcmp(str,"qdist") == 0) return (void *) &qdist;
@@ -1010,7 +1041,7 @@ void *PairLJCutTIP4PShortCleav::extract(const char *str, int &dim)
    memory usage of hneigh
 ------------------------------------------------------------------------- */
 
-double PairLJCutTIP4PShortCleav::memory_usage()
+double PairLJCutTIP4PLongCleav::memory_usage()
 {
   double bytes = (double)maxeatom * sizeof(double);
   bytes += (double)maxvatom*6 * sizeof(double);
