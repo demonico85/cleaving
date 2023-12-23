@@ -666,9 +666,12 @@ void PairLJCutTIP4PCutCleav::allocate()
   allocated = 1;
   int n = atom->ntypes;
 
-  if(!pallocation) {nextra = n*n+1; // the zero-th position is not considered
+  if(ntypes > 0){
+    dubtypes=n*2;
+    nextra = dubtypes*dubtypes+1; // the zero-th position is not considered
     pvector = new double[nextra];
-    pallocation = 1;}
+    pallocation = 1;
+    }
 
 
   memory->create(setflag,n+1,n+1,"pair:setflag");
