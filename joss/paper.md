@@ -8,7 +8,7 @@ tags:
 authors:
   - name: Nicodemo Di Pasquale^[Corresponding author]
     orcid:  0000-0001-5676-8527
-    affiliation: 1
+    affiliation: "1,5"
   - name: Ruslan Davidchack
     orcid: 0000-0001-9418-5322
     affiliation: 4
@@ -24,6 +24,8 @@ affiliations:
    index: 3
  - name: Department of Mathematics, University of Leicester, United Kingdom
    index: 4
+ - name: *Current affiliation*: Department of Industrial Chemistry, University of Bologna, Italy
+   index: 5
 date: 06 Apr 2023
 bibliography: paper.bib
 ---
@@ -32,7 +34,7 @@ bibliography: paper.bib
 
 The numerical calculation of the properties of the interface between different materials or different phases of the same material has always been an important problem due to the insight it can bring into understanding the mechanisms underlying various interfacial phenomena, but also because of the challenges of measuring such properties experimentally.
 
-While the free energy of liquid-liquid and liquid-vapour interfaces is directly linked to the surface tension, which can be calculated from the anisotropy of the pressure tensor at the interface, the same approach cannot be used when a solid phase is present, since the interface introduces residual stress in the nearby solid which, in turn, changes the interfacial tension relative to the excess free energy [@DiPasquale2020shuttleworth]. As a result, a direct calculation of the free energy change during the formation of an interface from two separate bulk phases is required. While free energy calculation methods in general, and Thermodynamic Integration (TI) in particular, have been widely available in various molecular simulation packages, their use in conjunction with the complex geometry of an interfacial system is quite challenging and therefore much less common. Here we present a package for the calculation of the Interfacial Free Energy (IFE) of solid-vapour, solid-liquid and solid-solid interfaces for the widely used MD package LAMMPS (Large-Scale Atomic/Molecular Massively Parallel Simulator)[@Thompson2022].
+While the free energy of liquid-liquid and liquid-vapour interfaces is directly linked to the surface tension, which can be calculated from the anisotropy of the pressure tensor at the interface, the same approach cannot be used when a solid phase is present, since the interface introduces residual stresses in the nearby solid which, in turn, change the interfacial tension relative to the excess free energy [@DiPasquale2020shuttleworth]. As a result, a direct calculation of the free energy change during the formation of an interface from two separate bulk phases is required. While free energy calculation methods in general, and Thermodynamic Integration (TI) in particular, have been widely available in various molecular simulation packages, their use in conjunction with the complex geometry of an interfacial system is quite challenging and therefore much less common. Here we present a package for the calculation of the Interfacial Free Energy (IFE) of solid-vapour, solid-liquid and solid-solid interfaces for the widely used MD package LAMMPS (Large-Scale Atomic/Molecular Massively Parallel Simulator)[@Thompson2022].
 
 # Statement of need
 
@@ -49,13 +51,12 @@ Direct determination of the IFE from the reversible work of creating an interfac
 
 ![The thermodynamic path used to compute the interfacial free energy between phases $\alpha$ and $\beta$ with the cleaving method\label{fig:cleaving}](Fig/joss.png){ width=30% }
 
-A sketch of the cleaving path to obtain the IFE between two generic phases $\alpha$ and $\beta$ is shown in \autoref{fig:cleaving}. The reversible work in each step can be determined by different free energy computation methods, but those based on thermodynamic integration are the most straightfoward and provide accurate and direct results. With TI methods the free energy difference between two thermodynamic states connected by a transformation path is calculated by integrating the ensemble average of some configuration-dependent function (*e.g.*, the potential energy) with respect to a parameter defining the path from the initial to the final thermodynamic state.
+A sketch of the cleaving path to obtain the IFE between two generic phases $\alpha$ and $\beta$ is shown in \autoref{fig:cleaving}. The reversible work in each step can be determined by different free energy computation methods, but those based on thermodynamic integration are the most straightforward and provide accurate and direct results. With TI methods the free energy difference between two thermodynamic states connected by a transformation path is calculated by integrating the ensemble average of some configuration-dependent function (*e.g.*, the potential energy) with respect to a parameter defining the path from the initial to the final thermodynamic state.
 
 
 To date, the cleaving model, which owes its name to the fact that each bulk phase is "cleaved", *i.e.*, cut at a certain position to create the new interface, has been used to calculate the solid-liquid IFE in hard and soft spheres [@Davidchack00prl;@Davidchack05prl], Lennard-Jones
 [@Davidchack03direct;@DiPasquale2020shuttleworth], TIP4P model water [@Handel08prl;@Davidchack12ice], Embedded-Atom Model (EAM) iron [@Liu2013csm], silver-ethylene glycol [@Qi2016jcp], orcinol-chloroform and orcinol-nitromethane [@addula2020computation], as well as for the calculation of the surface free energy of molecular crystals, such as mannitol [@DiPasquale2022cleaving].  However, due to the rather involved multi-step calculations required by the cleaving method, its use so far has been limited to a few research groups.  Wider adoption of the cleaving approach for the calculation of solid-liquid and solid-solid IFE for different forcefields requires a more convenient simulation interface for the construction of the thermodynamic transformation path and calculation of the reversible work along this path. Within this work, we attempt to fill this need with the CLEAVING package, which is designed to make it more straightforward for LAMMPS users to access the calculation of solid-liquid and solid-solid IFE in a wide variety of systems. Although the package in its current form does not include yet all the different interactions explored in the literature, it allows to reproduce the results in [@Davidchack03direct;@DiPasquale2022cleaving;@DiPasquale2020shuttleworth] and gives all the machinery needed to extend the calculations to more complex interaction models. The package we are presenting makes the addition of a new interaction type a straightforward extension of the code already given here.
 
-To date, the cleaving method, which owes its name to the fact that each bulk phase is "cleaved", *i.e.*, cut at a certain position to create the new interface, has been used to calculate the solid-liquid IFE in hard and soft spheres [@Davidchack00prl;@Davidchack05prl], Lennard-Jones [@Davidchack03direct], TIP4P model water [@Handel08prl;@Davidchack12ice], Embedded-Atom Model (EAM) iron [@Liu2013csm], silver-ethylene glycol [@Qi2016jcp], orcinol-chloroform and orcinol-nitromethane [@addula2020computation], as well as for the calculation of the surface free energy of molecular crystals, such as mannitol [@DiPasquale2022cleaving].  However, due to the rather involved multi-step calculations required by the cleaving method, its use so far has been limited to a few research groups.  Wider adoption of the cleaving approach for the calculation of solid-liquid and solid-solid IFE for different forcefields requires a more convenient simulation interface for the construction of the thermodynamic transformation path and calculation of the reversible work along this path. Here we attempt to fill this need with the CLEAVING package, which is designed to make it more straightforward for LAMMPS users to access the calculation of solid-liquid and solid-solid IFE in a wide variety of systems.
 
 # Functionality
 
@@ -67,7 +68,7 @@ The package includes new definitions of pair potentials not included in LAMMPS, 
 The processing of the interactions to generate the work in step 3 is carried out by the new compute `cleavpairs`, which generates the output file needed for the calculation of the IFE. The cleaving operation is carried out through an external potential, that is, a potential depending on the absolute position of atoms within the simulation box. In the CLEAVING package, there are two external potentials available: the "walls" and the "wells". These two external potentials are two additional fix styles, namely `wallforce` and `wellPforce`. We refer to the documentation for a detailed explanation of their use.
 A new fix style `move/dupl` used in step 3 to switch the interactions between phases in contact is also included.
 
-The new functionalities presented here are extremely general and can be applied to a variety of problems, making this package flexible and generalizable to different systems, thus answering one of the problems in the community, which is the lack of well-maintained codes to carry out interfacial calculations to avoid relying on in-house codes and custom extensions.  
+The new functionalities presented here are extremely general and can be applied to a variety of problems, making this package flexible and generalisable to different systems, thus answering one of the problems in the community, which is the lack of well-maintained codes to carry out interfacial calculations to avoid relying on in-house codes and custom extensions.  
 
 # Acknowledgements
 
