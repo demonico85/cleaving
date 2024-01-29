@@ -24,7 +24,7 @@ affiliations:
    index: 3
  - name: Department of Mathematics, University of Leicester, United Kingdom
    index: 4
- - name: *Current affiliation*: Department of Industrial Chemistry, University of Bologna, Italy
+ - name: (Current affiliation): Department of Industrial Chemistry, University of Bologna, Italy
    index: 5
 date: 06 Apr 2023
 bibliography: paper.bib
