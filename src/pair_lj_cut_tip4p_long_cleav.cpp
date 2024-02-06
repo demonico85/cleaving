@@ -803,8 +803,8 @@ if (ccom && (strcmp(idchunk,ccom->idchunk) != 0))
   switchlj   = 1;
 
   if (narg > 12){ 
-    switchcoul = utils::numeric(FLERR,arg[12],false,lmp);  
-    switchlj = utils::numeric(FLERR,arg[13],false,lmp);
+    switchcoul = utils::inumeric(FLERR,arg[12],false,lmp);  
+    switchlj = utils::inumeric(FLERR,arg[13],false,lmp);
 	}
 
   cut_coulsq = cut_coul * cut_coul;
