@@ -693,7 +693,7 @@ void PairLJCutTIP4PLongCleavTypes::coeff(int narg, char **arg)
   double epsilon_one = utils::numeric(FLERR,arg[2],false,lmp);
   double sigma_one = utils::numeric(FLERR,arg[3],false,lmp);
 
-   int switchC = 1, switchLJ = 1;
+   int switchC = 0, switchLJ = 0;
   
   if (narg > 4 ){
   switchC = utils::inumeric(FLERR,arg[4],false,lmp);  
@@ -713,7 +713,7 @@ void PairLJCutTIP4PLongCleavTypes::coeff(int narg, char **arg)
   for (int i = ilo; i <= ihi; i++) {
     for (int j = MAX(jlo,i); j <= jhi; j++) {
     
-//printf("BBBB %d %d %f %d  \n",i,j);    
+printf("BBBB %d %d %d %d  \n",i,j, switchC,switchLJ);    
     
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;
@@ -756,7 +756,7 @@ double PairLJCutTIP4PLongCleavTypes::init_one(int i, int j)
       scalingC[j][i] = scalingC[i][j] ;
       scalingLJ[j][i] = scalingLJ[i][j] ;     
 
-printf("%d %d %f %f %f %f %d %d\n",i,j,lam[i][j],lamC[i][j],powlambda[i][j],powDlambda[i][j],powlambdaC[i][j],powDlambdaC[i][j],scalingC[i][j] ,scalingLJ[i][j] );
+printf("%d %d %f %f %f %f %f %f %d %d\n",i,j,lam[i][j],lamC[i][j],powlambda[i][j],powDlambda[i][j],powlambdaC[i][j],powDlambdaC[i][j],scalingC[i][j] ,scalingLJ[i][j] );
 
   // check that LJ epsilon = 0.0 for water H
   // set LJ cutoff to 0.0 for any interaction involving water H
