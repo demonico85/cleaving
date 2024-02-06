@@ -79,8 +79,6 @@ arg = earg;
   ids = new char*[nvalues];
   value2index = new int[nvalues];
 
-  printf("NVALUES1 %d \n",nvalues);
-
   for (int i = 0; i < nvalues; i++) {
     if (strncmp(arg[i],"c_",2) == 0 ) {
           if (arg[i][0] == 'c') which[i] = COMPUTE;
@@ -275,24 +273,19 @@ void FixMoveDupl:: collect_displacement(){
           if (! (mask[i] & groupbit)){
               k=tag[i];
               locdisplace[k][m] = compute_array[i][jm1];
-//printf("atomo %d %d %d %d %f  \n",k,m,i,jm1,compute_array[i][jm1]);
                }
           }
     }
 
-// printf ("QUA FIX DIOCANE %d %f %f \n",buff_size,displace[0][0],locdisplace[0][0]);
 
 
 //MPI_Reduce(&locdisplace[0][0],&displace[0][0],buff_size,MPI_DOUBLE,MPI_SUM,0,world);
-//if(me == 0){for (i=1; i<  atom->natoms+1;i++)printf ("QUA FIX DIOCANE %d %f %f %f \n",i,displace[i][0],displace[i][1],displace[i][2]);}
 //MPI_Bcast(&displace[0][0],buff_size,MPI_DOUBLE,0,world);
 
-// if(me == 0){for (i=1; i<  atom->natoms+1;i++)printf ("BROADCAST %d %f %f %f \n",i,displace[i][0],displace[i][1],displace[i][2]);}
 
   MPI_Allreduce(&locdisplace[0][0],&displace[0][0],buff_size,MPI_DOUBLE,MPI_SUM,world);
 
 
-//if(me == 0){for (i=1; i<  atom->natoms+1;i++)fprintf (fpl,"BROADCAST %d %f %f %f \n",i,displace[i][0],displace[i][1],displace[i][2]);}
 
 
 }
@@ -316,13 +309,10 @@ void FixMoveDupl::post_integrate()
   int ndiff;
 
 
-//  fprintf(fpl,"TIMESTEP %d\n\n\n\n\n",update->ntimestep);
-
-//printf("GIIOVANNONA\n");
 
   collect_displacement();
 
-//printf("GIIOVANNONA\n");
+
 
     for (i = 0; i < nlocal; i++){
       if (mask[i] & groupbit) {
@@ -336,12 +326,11 @@ void FixMoveDupl::post_integrate()
           x[i][1] = x[i][1] + displace[k][1]; 
           x[i][2] = x[i][2] + displace[k][2];
 
-// fprintf(fpl,"prima %d %d %f %f %f %f %f %f %f %f %f \n",i,j,xold[0],xold[1],xold[2],displace[k][0],displace[k][1],displace[k][2],x[i][0],x[i][1],x[i][2]);
 
       domain->remap(x[i],image[i]);
 //	  domain->remap_near(x[i],xold);
 
-//fprintf(fpl,"dopo %f %f %f  \n",x[i][0],x[i][1],x[i][2]);
+
         }
     }
 
