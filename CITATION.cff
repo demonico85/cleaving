@@ -1,0 +1,43 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Pasquale
+  given-names: Nicodemo Di
+  orcid: "https://orcid.org/0000-0001-5676-8527"
+- family-names: Davidchack
+  given-names: Ruslan
+  orcid: "https://orcid.org/0000-0001-9418-5322"
+- family-names: Rovigatti
+  given-names: Lorenzo
+  orcid: "https://orcid.org/0000-0001-5017-2829"
+contact:
+- family-names: Pasquale
+  given-names: Nicodemo Di
+  orcid: "https://orcid.org/0000-0001-5676-8527"
+doi: 10.5281/zenodo.10567702
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Pasquale
+    given-names: Nicodemo Di
+    orcid: "https://orcid.org/0000-0001-5676-8527"
+  - family-names: Davidchack
+    given-names: Ruslan
+    orcid: "https://orcid.org/0000-0001-9418-5322"
+  - family-names: Rovigatti
+    given-names: Lorenzo
+    orcid: "https://orcid.org/0000-0001-5017-2829"
+  date-published: 2024-02-07
+  doi: 10.21105/joss.05886
+  issn: 2475-9066
+  issue: 94
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 5886
+  title: "CLEAVING: a LAMMPS package to compute surface free energies"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.05886"
+  volume: 9
+title: "CLEAVING: a LAMMPS package to compute surface free energies"
+
