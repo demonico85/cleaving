@@ -87,13 +87,7 @@ PairLJCutTIP4PLongCleavTypes::PairLJCutTIP4PLongCleavTypes(LAMMPS *lmp) :
     pallocation = 1;
     }
 
-   xprd = domain->xprd;
-   yprd = domain->yprd;
-   zprd = domain->zprd;
-   xy = domain->xy;
-   yz = domain->yz;
-   xz = domain->xz;
-  
+
 }
 
 /* ---------------------------------------------------------------------- */
@@ -221,15 +215,12 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
 
   int t1, t2, scaling,m;  
   double flam,fDlam;
-
+    
 
   for(i=0; i<nextra ; i++){
     pvector[i] = 0.0;
     }
-    
-    
-
-    
+   
 
   // loop over neighbors of my atoms
 
@@ -304,7 +295,7 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
             }     
             
 
-        
+    
         
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
@@ -325,15 +316,15 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
           evdwl *= factor_lj;
           
 
-		  if(scaling){
+	   if(scaling){
                pvector[m] += fDlam * evdwl;
                evdwl *= flam;
                
-                       if (comm->me == 0)   printf("%d %d %d %d S %d \n LJ %f %f %f %f \n ",i,j,itype,jtype,scaling,evdwl,flam,fDlam,pvector[m] );  
+           //            if (comm->me == 0)   printf("%d %d %d %d S %d \n LJ %f %f %f %f \n ",i,j,itype,jtype,scaling,evdwl,flam,fDlam,pvector[m] );  
             }
             
             
-            if (comm->me == 0)   printf("%f\n",evdwl);
+ //           if (evdwl > 100)   printf("%d %d %d %d S %d \n LJ %f %f %f %f \n ",i,j,itype,jtype,scaling,evdwl,flam,fDlam,pvector[m] );  
         } else evdwl = 0.0;
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
@@ -569,7 +560,7 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
 //fprintf(fp,"Scaled %d %d %f %f \n",tag[i],tag[j],ecoul,pvector[m]);
                pvector[m] += fDlam * ecoul;
                ecoul *= flam;
-                                      if (comm->me == 0)   printf("%d %d %d %d SC %d \n C %f %f %f %f \n ",i,j,itype,jtype,scaling,ecoul,flam,fDlam,pvector[m] );  
+//                                      if (comm->me == 0)   printf("%d %d %d %d SC %d \n C %f %f %f %f \n ",i,j,itype,jtype,scaling,ecoul,flam,fDlam,pvector[m] );  
 //fprintf(fp,"Scaled %f %f %f \n",fDlam,ecoul,pvector[m]);
             }
           } else ecoul = 0.0;
@@ -589,7 +580,7 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
 
 void PairLJCutTIP4PLongCleavTypes::settings(int narg, char **arg)
 {
-  if (narg < 9 || narg > 10) error->all(FLERR,"Illegal pair_style command");
+  if (narg < 8 || narg > 9) error->all(FLERR,"Illegal pair_style command");
 
   typeO = utils::inumeric(FLERR,arg[0],false,lmp);
   typeH = utils::inumeric(FLERR,arg[1],false,lmp);
@@ -599,30 +590,13 @@ void PairLJCutTIP4PLongCleavTypes::settings(int narg, char **arg)
 
   lambda = utils::numeric(FLERR,arg[5],false,lmp);
 
-  if(strcmp(arg[6],"x") != 0 && strcmp(arg[6],"y") != 0 && strcmp(arg[6],"z") != 0)
-     error->all(FLERR,"Illegal LJ-BJ wells_command (direction)");
-
-    if(strcmp(arg[6],"x") == 0){
-        ind_dir=0;
-        lboxhalf=xprd/2.0;
-    }
-    else if(strcmp(arg[6],"y") == 0){
-        ind_dir=1;
-        lboxhalf=yprd/2.0;
-    }
-    else if(strcmp(arg[6],"z") == 0){
-        ind_dir=2;
-        lboxhalf=zprd/2.0;
-    }
-
-
-    npow =  utils::numeric(FLERR,arg[7],false,lmp);
+    npow =  utils::numeric(FLERR,arg[6],false,lmp);
 
 
 
-  cut_lj_global = utils::numeric(FLERR,arg[8],false,lmp);
+  cut_lj_global = utils::numeric(FLERR,arg[7],false,lmp);
   cut_coul = cut_lj_global;
-  if (narg > 9)  cut_coul = utils::numeric(FLERR,arg[9],false,lmp);
+  if (narg > 8)  cut_coul = utils::numeric(FLERR,arg[8],false,lmp);
 
 
   cut_coulsq = cut_coul * cut_coul;
@@ -700,20 +674,20 @@ void PairLJCutTIP4PLongCleavTypes::coeff(int narg, char **arg)
   switchLJ = utils::inumeric(FLERR,arg[5],false,lmp);    
  	} 
   double l = lambda;
-  if (narg == 7) l = utils::numeric(FLERR,arg[6],false,lmp);
+  if (narg > 6) l = utils::numeric(FLERR,arg[6],false,lmp);
+ 
   
   lambdaC = lambda;
-  if (narg == 8)  lambdaC = utils::numeric(FLERR,arg[7],false,lmp);
+  if (narg > 7)  lambdaC = utils::numeric(FLERR,arg[7],false,lmp);
  
-
+ 
   double cut_lj_one = cut_lj_global;
   if (narg == 9) cut_lj_one = utils::numeric(FLERR,arg[6],false,lmp);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
     for (int j = MAX(jlo,i); j <= jhi; j++) {
-    
-printf("BBBB %d %d %d %d  \n",i,j, switchC,switchLJ);    
+   
     
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;
@@ -755,8 +729,6 @@ double PairLJCutTIP4PLongCleavTypes::init_one(int i, int j)
 
       scalingC[j][i] = scalingC[i][j] ;
       scalingLJ[j][i] = scalingLJ[i][j] ;     
-
-printf("%d %d %f %f %f %f %f %f %d %d\n",i,j,lam[i][j],lamC[i][j],powlambda[i][j],powDlambda[i][j],powlambdaC[i][j],powDlambdaC[i][j],scalingC[i][j] ,scalingLJ[i][j] );
 
   // check that LJ epsilon = 0.0 for water H
   // set LJ cutoff to 0.0 for any interaction involving water H
