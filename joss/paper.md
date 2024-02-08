@@ -6,7 +6,9 @@ tags:
   - Molecular simulations
   - Phase Transitions
 authors:
-  - name: Nicodemo Di Pasquale^[Corresponding author]
+  - given-name: Nicodemo^[Corresponding author]
+    non-dropping-particle: Di
+    surname: Pasquale
     orcid:  0000-0001-5676-8527
     affiliation: "1,5"
   - name: Ruslan Davidchack
