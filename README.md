@@ -1,5 +1,7 @@
 # CLEAVING
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.05886/status.svg)](https://doi.org/10.21105/joss.05886)
+
 The LAMMPS package CLEAVING contains all the modified potentials and additional computes/fixes needed by the cleaving model to use Thermodynamic Integration to calculate the Surface Free Energy of a given system.
 
 This package is presented as part of the consortium Simulation Interfacial Free Energy Techniques (SIFT) which include the packages:
@@ -28,3 +30,11 @@ NOTE: The repository contains a directory `/utils` which includes a miscellanea 
 If you want to add functionalities (or fix issues) to CLEAVING, you are more than welcome to do so. Feel free to fork the repo and open a pull request: we will do our best to review it. Note that if we accept your changes you will be asked to update the documentation to reflect what you have done.
 
 If you have any questions, find a bug or an issue or want to propose a new feature, please do so by creating a [new issue](https://github.com/demonico85/cleaving/issues/new/choose). Pick the issue template that makes the most sense and edit it to add as much detail as possible.
+
+## Citing CLEAVING
+
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.05886/status.svg)](https://doi.org/10.21105/joss.05886)
+
+Please cite the following paper for any work that uses the CLEAVING package:
+
+* Pasquale et al., (2024). *CLEAVING: a LAMMPS package to compute surface free energies*. Journal of Open Source Software, 9(94), 5886, [https://doi.org/10.21105/joss.05886](https://doi.org/10.21105/joss.05886)
