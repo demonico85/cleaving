@@ -1026,7 +1026,7 @@ int *ichunk = cchunk->ichunk;
          k=tag[i];
 
          
-         if(com[m][ind_dir] > posbordertype )loc_iflag[k]=1;
+         if(com[m][ind_dir] > posbordertypes )loc_iflag[k]=1;
 
         ibox[0] = (image[i] & IMGMASK) - IMGMAX;
         ibox[1] = (image[i] >> IMGBITS & IMGMASK) - IMGMAX;
@@ -1155,18 +1155,12 @@ void PairLJCutTIP4PLongCleavOpt::settings(int narg, char **arg)
   if(strcmp(arg[6],"x") != 0 && strcmp(arg[6],"y") != 0 && strcmp(arg[6],"z") != 0)
      error->all(FLERR,"Illegal LJ-BJ wells_command (direction)");
 
-    if(strcmp(arg[6],"x") == 0){       
+    if(strcmp(arg[6],"x") == 0)  
         ind_dir=0;
-        posbordertype=cleavwall+xprd/2.0+domain->boxlo[0];
-        if (posbordertype > domain->boxhi[0]) posbordertype=posbordertype-xprd;}
-    else if(strcmp(arg[6],"y") == 0){ 
+    else if(strcmp(arg[6],"y") == 0)
         ind_dir=1;
-        posbordertype=cleavwall+yprd/2.0+domain->boxlo[1];
-        if (posbordertype > domain->boxhi[1]) posbordertype=posbordertype-yprd;}
-    else if(strcmp(arg[6],"z") == 0){  
+    else if(strcmp(arg[6],"z") == 0) 
         ind_dir=2;
-        posbordertype=cleavwall+zprd/2.0+domain->boxlo[2];
-        if (posbordertype > domain->boxhi[2]) posbordertype=posbordertype-zprd;}
 
     npow =  utils::numeric(FLERR,arg[7],false,lmp);
     idchunk = utils::strdup(arg[8]);
@@ -1190,7 +1184,7 @@ if (ccom && (strcmp(idchunk,ccom->idchunk) != 0))
          error->all(FLERR,"Fix spring/chunk chunk ID {} not the same as compute com/chunk chunk ID {}", idchunk, ccom->idchunk);
 
 
- cleavwall = utils::numeric(FLERR,arg[10],false,lmp);
+ posbordertypes = utils::numeric(FLERR,arg[10],false,lmp);
 
   cut_lj_global = utils::numeric(FLERR,arg[11],false,lmp);
   cut_coul = cut_lj_global;
