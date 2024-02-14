@@ -13,21 +13,21 @@
 
 #ifdef PAIR_CLASS
 // clang-format off
-PairStyle(lj/cut/tip4p/long/cleav,PairLJCutTIP4PLongCleav);
+PairStyle(lj/cut/tip4p/long/cleav/opt,PairLJCutTIP4PLongCleavOpt);
 // clang-format on
 #else
 
-#ifndef LMP_PAIR_LJ_CUT_TIP4P_LONG_CLEAV_H
-#define LMP_PAIR_LJ_CUT_TIP4P_LONG_CLEAV_H
+#ifndef LMP_PAIR_LJ_CUT_TIP4P_LONG_CLEAV_OPT_H
+#define LMP_PAIR_LJ_CUT_TIP4P_LONG_CLEAV_OPT_H
 
 #include "pair_lj_cut_coul_long.h"
 
 namespace LAMMPS_NS {
 
-class PairLJCutTIP4PLongCleav : public PairLJCutCoulLong {
+class PairLJCutTIP4PLongCleavOpt : public PairLJCutCoulLong {
  public:
-  PairLJCutTIP4PLongCleav(class LAMMPS *);
-  ~PairLJCutTIP4PLongCleav() override;
+  PairLJCutTIP4PLongCleavOpt(class LAMMPS *);
+  ~PairLJCutTIP4PLongCleavOpt() override;
   void compute(int, int) override;
   void settings(int, char **) override;
   void init_style() override;
@@ -40,10 +40,13 @@ class PairLJCutTIP4PLongCleav : public PairLJCutCoulLong {
 
  protected:
  
+   void computeLJ(int, int);
+   void computeC(int, int);
+ 
   int natoms,pallocation,ind_dir,npow,ntypes;
   int *gbox,*giflag;
   int nchunk, switchcoul,switchlj,dubtypes;
-  double xprd,yprd,zprd,xy,yz,xz,posbordertype,cleavwall, lambda,lambdaC;
+  double xprd,yprd,zprd,xy,yz,xz,posbordertype,cleavwall, lambda,lambdaC, minlj_cut_off_sq;
   double **powlambda, **powDlambda,**lam;
   double **powlambdaC, **powDlambdaC,**lamC;
 
