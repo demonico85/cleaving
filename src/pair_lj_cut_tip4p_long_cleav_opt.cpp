@@ -173,8 +173,7 @@ void PairLJCutTIP4PLongCleavOpt::compute(int eflag, int vflag)
 {
 
   double cut_coulsqplus = (cut_coul+2.0*qdist) * (cut_coul+2.0*qdist);
-  
-  printf("CUTOFF %f %f \n",minlj_cut_off_sq,cut_coulsqplus);
+
 
 if(minlj_cut_off_sq < cut_coulsqplus) computeLJ(eflag,vflag);
 else computeC(eflag,vflag);
