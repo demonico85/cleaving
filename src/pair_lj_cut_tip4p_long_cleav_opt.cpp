@@ -173,9 +173,11 @@ void PairLJCutTIP4PLongCleavOpt::compute(int eflag, int vflag)
 {
 
   double cut_coulsqplus = (cut_coul+2.0*qdist) * (cut_coul+2.0*qdist);
+  
+  printf("CUTOFF %f %f \n",minlj_cut_off_sq,cut_coulsqplus);
 
-if(minlj_cut_off_sq < cut_coulsqplus) computeC(eflag,vflag);
-else computeLJ(eflag,vflag);
+if(minlj_cut_off_sq < cut_coulsqplus) computeLJ(eflag,vflag);
+else computeC(eflag,vflag);
 
 
 
@@ -304,7 +306,14 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
       delz = ztmp - x[j][2];
       rsq = delx*delx + dely*dely + delz*delz;
       jtype = type[j];
-
+      scaling=0;
+      flam = 1.0;
+      fDlam = 1.0;
+      k1=molecule[i];
+      k2=molecule[j];
+      t1=tag[i];
+      t2=tag[j];
+      
       // LJ interaction based on true rsq
 
       if (rsq < cut_ljsq[itype][jtype]) {
@@ -312,17 +321,10 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
         r6inv = r2inv*r2inv*r2inv;
         
         
-        scaling=0;
-         k1=molecule[i];
-         k2=molecule[j];
-         t1=tag[i];
-         t2=tag[j];
          if (switchlj){
          	if(k1 != k2)
                 	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
 			}
-          flam = 1.0;
-          fDlam = 1.0;
 
           if(scaling){
               flam = powlambda[itype][jtype];
@@ -429,6 +431,20 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
               prefactor = qtmp*q[j] * table;
               forcecoul -= (1.0-factor_coul)*prefactor;
             }
+          }
+          
+          
+          if (rsq >= cut_ljsq[itype][jtype]) {
+   	       if (switchlj){
+         	if(k1 != k2)
+                	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
+			}
+
+          	if(scaling){
+              flam = powlambda[itype][jtype];
+              fDlam =  powDlambda[itype][jtype];
+            }              
+          
           }
 
 
@@ -707,6 +723,15 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
       delz = ztmp - x[j][2];
       rsq = delx*delx + dely*dely + delz*delz;
       jtype = type[j];
+    
+      scaling=0;
+      k1=molecule[i];
+      k2=molecule[j];
+      t1=tag[i];
+      t2=tag[j];
+      flam = 1.0;
+      fDlam = 1.0;      
+      
 
       if (rsq < cut_coulsqplus) {
         if (itype == typeO || jtype == typeO) {
@@ -780,18 +805,12 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
 /* This is a repetition of what we wrote for the LJ part, but it is needed 
  * if coul_cut_off > lj_cut_off then we are not calculating the scaling for some pairs*/
 
-         scaling=0;
-         k1=molecule[i];
-         k2=molecule[j];
-         t1=tag[i];
-         t2=tag[j];
+
          if (switchcoul){
          	if(k1 != k2)
                 	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
 	      }
 	      
-          flam = 1.0;
-          fDlam = 1.0;
 
 // It can be avoided if we enforce coul_cut_off <= lj_cut_off
 
@@ -957,7 +976,18 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
       if (rsq < cut_ljsq[itype][jtype]) {
         r2inv = 1.0/rsq;
         r6inv = r2inv*r2inv*r2inv;   
-                   
+
+        if (rsq >= cut_coulsqplus) {                   
+         if (switchlj){
+         	if(k1 != k2)
+                	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
+			}
+
+          if(scaling){
+              flam = powlambda[itype][jtype];
+              fDlam =  powDlambda[itype][jtype];
+            }     
+        }
         
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
@@ -1277,7 +1307,7 @@ void PairLJCutTIP4PLongCleavOpt::coeff(int narg, char **arg)
   double cut_lj_one = cut_lj_global;
   if (narg == 7) cut_lj_one = utils::numeric(FLERR,arg[6],false,lmp);
   
-  if(minlj_cut_off_sq < cut_lj_global*cut_lj_global) minlj_cut_off_sq=cut_lj_global*cut_lj_global;
+  if(cut_lj_global*cut_lj_global < minlj_cut_off_sq) minlj_cut_off_sq=cut_lj_global*cut_lj_global;
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
