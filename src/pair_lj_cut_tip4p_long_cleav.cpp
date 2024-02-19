@@ -314,7 +314,8 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
             
 //printf("%d %d %d %d %d %d \n ",i,j,itype,jtype, scaling, switchlj);              
 
-        
+               if (tag[i] == 2092 && tag[j] == 1033 )printf("LJ %d %d %d  %f %f %d \n ",scaling,giflag[t1],giflag[t2], rsq,cut_ljsq[itype][jtype],switchlj ); 
+     
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
         
@@ -422,15 +423,13 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
          k2=molecule[j];
          t1=tag[i];
          t2=tag[j];
-         
+                  
          if (switchcoul){
          	if(k1 != k2)
                 	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
 	      }
 	      
-	                    if (rsq >= cut_ljsq[itype][jtype]) {    
-          printf("%d %d %d %d %d %f %f \n \n ",tag[i],tag[j],itype,jtype, scaling, factor_coul, forcecoul); 
-          	  }    
+  
           flam = 1.0;
           fDlam = 1.0;
 

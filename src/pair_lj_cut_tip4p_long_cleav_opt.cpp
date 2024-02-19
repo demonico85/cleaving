@@ -174,9 +174,8 @@ void PairLJCutTIP4PLongCleavOpt::compute(int eflag, int vflag)
 
   double cut_coulsqplus = (cut_coul+2.0*qdist) * (cut_coul+2.0*qdist);
 
-printf("SELECTION %f %f\n",minlj_cut_off_sq, cut_coulsqplus);
-if(minlj_cut_off_sq < cut_coulsqplus){printf ("computeLJ %f \n",posbordertypes);  computeLJ(eflag,vflag);}
-else {printf ("computeC\n"); computeC(eflag,vflag);}
+if(minlj_cut_off_sq < cut_coulsqplus)  computeLJ(eflag,vflag);
+else computeC(eflag,vflag);
 
 
 
@@ -191,7 +190,7 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
   int iH1,iH2,jH1,jH2;
   double qtmp,xtmp,ytmp,ztmp,delx,dely,delz,evdwl,ecoul;
   double fraction,table;
-  double r,r2inv,r6inv,forcecoul,forcelj,cforce;
+  double r,r2inv,r6inv,forcecoul,forcelj,cforce,truersq;
   double factor_coul,factor_lj;
   double grij,expm2,prefactor,t,erfc;
   double fO[3],fH[3],fd[3],v[6];
@@ -312,6 +311,9 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
       t1=tag[i];
       t2=tag[j];
       
+             
+       truersq=rsq; // in checking if scaling we must use the "real" rsq not the one modified for the 4th site in TIP4P
+      
       // LJ interaction based on true rsq
 
       if (rsq < cut_ljsq[itype][jtype]) {
@@ -329,8 +331,7 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
               fDlam =  powDlambda[itype][jtype];
             }     
             
-
-        
+      
         
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
@@ -433,7 +434,7 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
           }
           
           
-         if (rsq >= cut_ljsq[itype][jtype] || ! switchlj) {
+         if (truersq >= cut_ljsq[itype][jtype] || ! switchlj) {
    	       if (switchcoul){
          	if(k1 != k2)
                 	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
@@ -443,9 +444,7 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
               flam = powlambda[itype][jtype];
               fDlam =  powDlambda[itype][jtype];
             }              
-          printf("%d %d %d %d %d %f %f \n \n ",tag[i],tag[j],itype,jtype, scaling, factor_coul, forcecoul); 
           }
-
 
           cforce = flam*forcecoul * r2inv;
           
@@ -609,7 +608,7 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
   int iH1,iH2,jH1,jH2;
   double qtmp,xtmp,ytmp,ztmp,delx,dely,delz,evdwl,ecoul;
   double fraction,table;
-  double r,r2inv,r6inv,forcecoul,forcelj,cforce;
+  double r,r2inv,r6inv,forcecoul,forcelj,cforce,truersq;
   double factor_coul,factor_lj;
   double grij,expm2,prefactor,t,erfc;
   double fO[3],fH[3],fd[3],v[6];
@@ -731,6 +730,8 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
       t2=tag[j];
       flam = 1.0;
       fDlam = 1.0;      
+      
+      truersq=rsq;
       
 
       if (rsq < cut_coulsqplus) {
@@ -963,7 +964,6 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
 //fprintf(fp,"Scaled %d %d %f %f \n",tag[i],tag[j],ecoul,pvector[m]);
                pvector[m] += fDlam * ecoul;
                ecoul *= flam;
-printf("C ScaledC %f %f %f \n",fDlam,ecoul,pvector[m]);
             }
           } else ecoul = 0.0;
 
@@ -972,6 +972,8 @@ printf("C ScaledC %f %f %f \n",fDlam,ecoul,pvector[m]);
       }
       
             // LJ interaction based on true rsq
+            
+      rsq=truersq;
 
       if (rsq < cut_ljsq[itype][jtype]) {
         r2inv = 1.0/rsq;
@@ -1008,7 +1010,6 @@ printf("C ScaledC %f %f %f \n",fDlam,ecoul,pvector[m]);
           evdwl *= factor_lj;
 		  if(scaling){
                pvector[m] += fDlam * evdwl;
-         printf("LJ ScaledC %f %f %f \n",fDlam,evdwl,pvector[m]);
                evdwl *= flam;
             }
         } else evdwl = 0.0;
