@@ -174,9 +174,9 @@ void PairLJCutTIP4PLongCleavOpt::compute(int eflag, int vflag)
 
   double cut_coulsqplus = (cut_coul+2.0*qdist) * (cut_coul+2.0*qdist);
 
-
-if(minlj_cut_off_sq < cut_coulsqplus) computeLJ(eflag,vflag);
-else computeC(eflag,vflag);
+printf("SELECTION %f %f\n",minlj_cut_off_sq, cut_coulsqplus);
+if(minlj_cut_off_sq < cut_coulsqplus){printf ("computeLJ %f \n",posbordertypes);  computeLJ(eflag,vflag);}
+else {printf ("computeC\n"); computeC(eflag,vflag);}
 
 
 
@@ -246,7 +246,6 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
   for(i=0; i<nextra ; i++){
     pvector[i] = 0.0;
     }
-    
     
 
     
@@ -336,7 +335,7 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
         
-//printf("%d %d %d %d %f %f \n LJ %f %f \n ",i,j,itype,jtype,  powlambda[itype][jtype],powDlambda[itype][jtype],cut_ljsq[itype][jtype],forcelj);         
+//printf("%d %d %d %d %d %d \n ",i,j,itype,jtype, scaling, switchlj);         
 
         f[i][0] += delx*forcelj;
         f[i][1] += dely*forcelj;
@@ -350,9 +349,10 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
           evdwl = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) -
             offset[itype][jtype];
           evdwl *= factor_lj;
-		  if(scaling){
+	if(scaling){
                pvector[m] += fDlam * evdwl;
                evdwl *= flam;
+ //              printf("LJ ScaledLJ %f %f %f \n",fDlam,evdwl,pvector[m]);
             }
         } else evdwl = 0.0;
 
@@ -433,8 +433,8 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
           }
           
           
-          if (rsq >= cut_ljsq[itype][jtype]) {
-   	       if (switchlj){
+         if (rsq >= cut_ljsq[itype][jtype] || ! switchlj) {
+   	       if (switchcoul){
          	if(k1 != k2)
                 	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
 			}
@@ -443,7 +443,7 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
               flam = powlambda[itype][jtype];
               fDlam =  powDlambda[itype][jtype];
             }              
-          
+          printf("%d %d %d %d %d %f %f \n \n ",tag[i],tag[j],itype,jtype, scaling, factor_coul, forcecoul); 
           }
 
 
@@ -589,6 +589,7 @@ void PairLJCutTIP4PLongCleavOpt::computeLJ(int eflag, int vflag)
 //fprintf(fp,"Scaled %d %d %f %f \n",tag[i],tag[j],ecoul,pvector[m]);
                pvector[m] += fDlam * ecoul;
                ecoul *= flam;
+//printf("C ScaledLJ %f %f %f \n",fDlam,ecoul,pvector[m]);               
 //fprintf(fp,"Scaled %f %f %f \n",fDlam,ecoul,pvector[m]);
             }
           } else ecoul = 0.0;
@@ -962,7 +963,7 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
 //fprintf(fp,"Scaled %d %d %f %f \n",tag[i],tag[j],ecoul,pvector[m]);
                pvector[m] += fDlam * ecoul;
                ecoul *= flam;
-//fprintf(fp,"Scaled %f %f %f \n",fDlam,ecoul,pvector[m]);
+printf("C ScaledC %f %f %f \n",fDlam,ecoul,pvector[m]);
             }
           } else ecoul = 0.0;
 
@@ -976,7 +977,7 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
         r2inv = 1.0/rsq;
         r6inv = r2inv*r2inv*r2inv;   
 
-        if (rsq >= cut_coulsqplus) {                   
+        if (rsq >= cut_coulsqplus  || ! switchcoul) {                   
          if (switchlj){
          	if(k1 != k2)
                 	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
@@ -1007,6 +1008,7 @@ void PairLJCutTIP4PLongCleavOpt::computeC(int eflag, int vflag)
           evdwl *= factor_lj;
 		  if(scaling){
                pvector[m] += fDlam * evdwl;
+         printf("LJ ScaledC %f %f %f \n",fDlam,evdwl,pvector[m]);
                evdwl *= flam;
             }
         } else evdwl = 0.0;

@@ -43,7 +43,7 @@ class PairLJCutTIP4PLongCleav : public PairLJCutCoulLong {
   int natoms,pallocation,ind_dir,npow,ntypes;
   int *gbox,*giflag;
   int nchunk, switchcoul,switchlj,dubtypes;
-  double xprd,yprd,zprd,xy,yz,xz,posbordertype,cleavwall, lambda,lambdaC;
+  double xprd,yprd,zprd,xy,yz,xz,posbordertype, lambda,lambdaC;
   double **powlambda, **powDlambda,**lam;
   double **powlambdaC, **powDlambdaC,**lamC;
 

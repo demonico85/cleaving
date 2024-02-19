@@ -233,8 +233,6 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
     
     
 
-    
-
   // loop over neighbors of my atoms
 
   for (ii = 0; ii < inum; ii++) {
@@ -314,8 +312,8 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
               fDlam =  powDlambda[itype][jtype];
             }     
             
+//printf("%d %d %d %d %d %d \n ",i,j,itype,jtype, scaling, switchlj);              
 
-        
         
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
@@ -424,11 +422,15 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
          k2=molecule[j];
          t1=tag[i];
          t2=tag[j];
+         
          if (switchcoul){
          	if(k1 != k2)
                 	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
 	      }
 	      
+	                    if (rsq >= cut_ljsq[itype][jtype]) {    
+          printf("%d %d %d %d %d %f %f \n \n ",tag[i],tag[j],itype,jtype, scaling, factor_coul, forcecoul); 
+          	  }    
           flam = 1.0;
           fDlam = 1.0;
 
@@ -757,18 +759,12 @@ void PairLJCutTIP4PLongCleav::settings(int narg, char **arg)
   if(strcmp(arg[6],"x") != 0 && strcmp(arg[6],"y") != 0 && strcmp(arg[6],"z") != 0)
      error->all(FLERR,"Illegal LJ-BJ wells_command (direction)");
 
-    if(strcmp(arg[6],"x") == 0){       
+    if(strcmp(arg[6],"x") == 0)   
         ind_dir=0;
-        posbordertype=cleavwall+xprd/2.0+domain->boxlo[0];
-        if (posbordertype > domain->boxhi[0]) posbordertype=posbordertype-xprd;}
-    else if(strcmp(arg[6],"y") == 0){ 
+    else if(strcmp(arg[6],"y") == 0)
         ind_dir=1;
-        posbordertype=cleavwall+yprd/2.0+domain->boxlo[1];
-        if (posbordertype > domain->boxhi[1]) posbordertype=posbordertype-yprd;}
-    else if(strcmp(arg[6],"z") == 0){  
+    else if(strcmp(arg[6],"z") == 0) 
         ind_dir=2;
-        posbordertype=cleavwall+zprd/2.0+domain->boxlo[2];
-        if (posbordertype > domain->boxhi[2]) posbordertype=posbordertype-zprd;}
 
     npow =  utils::numeric(FLERR,arg[7],false,lmp);
     idchunk = utils::strdup(arg[8]);
@@ -792,7 +788,7 @@ if (ccom && (strcmp(idchunk,ccom->idchunk) != 0))
          error->all(FLERR,"Fix spring/chunk chunk ID {} not the same as compute com/chunk chunk ID {}", idchunk, ccom->idchunk);
 
 
- cleavwall = utils::numeric(FLERR,arg[10],false,lmp);
+ posbordertype = utils::numeric(FLERR,arg[10],false,lmp);
 
   cut_lj_global = utils::numeric(FLERR,arg[11],false,lmp);
   cut_coul = cut_lj_global;
