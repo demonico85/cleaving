@@ -313,8 +313,6 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
             }     
             
 //printf("%d %d %d %d %d %d \n ",i,j,itype,jtype, scaling, switchlj);              
-
-               if (tag[i] == 2092 && tag[j] == 1033 )printf("LJ %d %d %d  %f %f %d \n ",scaling,giflag[t1],giflag[t2], rsq,cut_ljsq[itype][jtype],switchlj ); 
      
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
