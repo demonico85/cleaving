@@ -43,8 +43,8 @@ class PairLJCutTIP4PLongCleav : public PairLJCutCoulLong {
   int natoms,pallocation,ind_dir,npow,ntypes;
   int *gbox,*giflag;
   int nchunk, switchcoul,switchlj,dubtypes;
-  double xprd,yprd,zprd,xy,yz,xz,posbordertype, lambda,lambdaC;
-  double **powlambda, **powDlambda,**lam;
+  double xprd,yprd,zprd,xy,yz,xz,posbordertype, lambda,lambdaC,halfbox;
+  double **powlambda, **powDlambda,**lam,*gcom;
   double **powlambdaC, **powDlambdaC,**lamC;
 
   char *idchunk, *idcom;  
@@ -66,7 +66,8 @@ class PairLJCutTIP4PLongCleav : public PairLJCutCoulLong {
   
   
   void global_boundary();
-  int find_scaling(int,int,int,int,double *);
+  int find_scaling(int,int,double, double);
+//  int find_scaling(int,int,int,int,double, double,double);
   void allocate() override;  
   
 };

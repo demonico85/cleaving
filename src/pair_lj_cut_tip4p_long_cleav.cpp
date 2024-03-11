@@ -90,6 +90,8 @@ PairLJCutTIP4PLongCleav::PairLJCutTIP4PLongCleav(LAMMPS *lmp) :
    xprd = domain->xprd;
    yprd = domain->yprd;
    zprd = domain->zprd;
+   
+   
    xy = domain->xy;
    yz = domain->yz;
    xz = domain->xz;
@@ -153,7 +155,7 @@ void PairLJCutTIP4PLongCleav::allocate()
   memory->create(powDlambdaC,n+1,n+1,"pair:powDlambdaC");
   memory->create(giflag,natoms,"pair:giflag");  
   memory->create(gbox,natoms,"pair:gbox");  
-  
+  memory->create(gcom,natoms,"pair:gcom");    
 
   ntypes=n;
   dubtypes=n*2;
@@ -287,6 +289,8 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
       delz = ztmp - x[j][2];
       rsq = delx*delx + dely*dely + delz*delz;
       jtype = type[j];
+      
+      
 
       // LJ interaction based on true rsq
 
@@ -302,7 +306,7 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
          t2=tag[j];
          if (switchlj){
          	if(k1 != k2)
-                	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
+                	scaling = find_scaling(giflag[t1],giflag[t2],x[j][ind_dir],gcom[t2] );
 			}
           flam = 1.0;
           fDlam = 1.0;
@@ -312,7 +316,6 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
               fDlam =  powDlambda[itype][jtype];
             }     
             
-//printf("%d %d %d %d %d %d \n ",i,j,itype,jtype, scaling, switchlj);              
      
         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
         forcelj *= flam * factor_lj * r2inv;
@@ -424,7 +427,7 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
                   
          if (switchcoul){
          	if(k1 != k2)
-                	scaling = find_scaling(giflag[t1],giflag[t2],i,j,x[j]);
+                	scaling = find_scaling(giflag[t1],giflag[t2],x[j][ind_dir],gcom[t2]);
 	      }
 	      
   
@@ -603,6 +606,7 @@ int i,k,m;
 int ibox[3];
 int nlocal = atom->nlocal;
 int loc_box[natoms],loc_iflag[natoms];
+double loc_com[natoms];
 double xx[3];
 double **x = atom->x;
 
@@ -619,6 +623,7 @@ int *ichunk = cchunk->ichunk;
      for(i=0; i<natoms; i++){
         loc_box[i]=0;
         loc_iflag[i]=0;
+        loc_com[i]=0;
     }
 
 
@@ -628,6 +633,8 @@ int *ichunk = cchunk->ichunk;
 
          
          if(com[m][ind_dir] > posbordertype )loc_iflag[k]=1;
+         
+         loc_com[k]=com[m][ind_dir];
 
         ibox[0] = (image[i] & IMGMASK) - IMGMAX;
         ibox[1] = (image[i] >> IMGBITS & IMGMASK) - IMGMAX;
@@ -657,20 +664,21 @@ int *ichunk = cchunk->ichunk;
 
         loc_box[k]=ibox[ind_dir];
 
-//fprintf(fp,"GB %d %d %f %d %d \n",k,i,x[i][2],loc_iflag[k],loc_box[k]);
+//printf("GB %d %d %f %d %d \n",k,i,x[i][2],loc_iflag[k],loc_box[k]);
 
         }
 
 
  MPI_Allreduce(&loc_box[0],&gbox[0],natoms,MPI_INT,MPI_SUM,world);
  MPI_Allreduce(&loc_iflag[0],&giflag[0],natoms,MPI_INT,MPI_SUM,world);
+ MPI_Allreduce(&loc_com[0],&gcom[0],natoms,MPI_DOUBLE,MPI_SUM,world);
 
 }
 
 
 /* ----------------------------------------------------------------------
     Find scaling
-------------------------------------------------------------------------- */
+------------------------------------------------------------------------- 
 
 int PairLJCutTIP4PLongCleav::find_scaling(int imvec, int jmvec, int i, int j,double *xj){
 
@@ -679,7 +687,6 @@ tagint *tag = atom->tag;
 
 int nlocal = atom->nlocal;
 int k1,k2,ipbc,jpbc,ghost;
-double lamda[3],xx[3];
 
 ghost=1;
 k1=tag[i];
@@ -708,18 +715,13 @@ else if (ipbc == 0 && jpbc != 0){
 else if (ipbc == 0 && jpbc == 0){
      if(imvec != jmvec){
        if(ghost){
-
-           xx[0] = xj[0];
-           xx[1] = xj[1];
-           xx[2] = xj[2];
-           domain->x2lamda(xx,lamda);
-           if( lamda[ind_dir] < 0 || lamda[ind_dir] > 1.0 )
+           if(xj[ind_dir] < domain->boxlo[ind_dir] || xj[ind_dir] > domain->boxhi[ind_dir])
               return 1;
            else
               return 0;
         }
         else
-           return 0;
+           return 1;
         }
      else
        return 0;
@@ -731,10 +733,64 @@ else if(ipbc !=0 && jpbc != 0 ){
         return 0;
     }
 else
-  return -1001;
+  {error->all(FLERR,"unrecognized scaling option");
+  return -1001;}
 
 }
 
+
+*/
+
+/* ----------------------------------------------------------------------
+    Find scaling
+------------------------------------------------------------------------- */
+
+//int PairLJCutTIP4PLongCleav::find_scaling(int imvec, int jmvec, int i, int j,double xj, double xi, double comj){
+
+int PairLJCutTIP4PLongCleav::find_scaling(int imvec, int jmvec,double xj, double comj){
+
+
+double delta;
+
+
+
+
+
+
+  delta=xj-comj;
+  delta=delta*delta;
+  
+  if(delta > halfbox){
+  	if(jmvec == 1)jmvec=0;
+  	else jmvec = 1;
+	}
+	
+	
+	
+     if(imvec != jmvec)
+	return 1;
+     else
+	return 0;
+}
+
+
+/*
+
+        if(ipbc == jpbc)
+           return 0;
+        else
+           if(imvec == 0){
+           	if(xj < clwall && xi < posbordertype) 
+           	    return 1;
+           	else
+           	    return 0;
+           	 }
+           else{
+           	if(xj > clwall && xi > posbordertype) 
+           	    return 1;
+           	else
+           	    return 0;     
+*/
 
 
 /* ----------------------------------------------------------------------
@@ -756,12 +812,18 @@ void PairLJCutTIP4PLongCleav::settings(int narg, char **arg)
   if(strcmp(arg[6],"x") != 0 && strcmp(arg[6],"y") != 0 && strcmp(arg[6],"z") != 0)
      error->all(FLERR,"Illegal LJ-BJ wells_command (direction)");
 
-    if(strcmp(arg[6],"x") == 0)   
+    if(strcmp(arg[6],"x") == 0){ 
         ind_dir=0;
-    else if(strcmp(arg[6],"y") == 0)
+        halfbox = (xprd/2.0)*(xprd/2.0);	
+        }        
+    else if(strcmp(arg[6],"y") == 0){
         ind_dir=1;
-    else if(strcmp(arg[6],"z") == 0) 
+        halfbox = (yprd/2.0)*(yprd/2.0);	
+        }
+    else if(strcmp(arg[6],"z") == 0){ 
         ind_dir=2;
+        halfbox = (zprd/2.0)*(zprd/2.0);	
+        }
 
     npow =  utils::numeric(FLERR,arg[7],false,lmp);
     idchunk = utils::strdup(arg[8]);
