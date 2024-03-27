@@ -179,15 +179,16 @@
 <h1>fix wallforce<a class="headerlink" href="#fix-wallforce" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="syntax">
 <h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fix</span> <span class="n">ID</span> <span class="n">group_ID</span> <span class="n">wallforce</span> <span class="n">eps</span> <span class="n">sigma</span> <span class="n">zw</span> <span class="n">delta</span> <span class="n">rw</span> <span class="n">file</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span> 
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fix</span> <span class="n">ID</span> <span class="n">group_ID</span> <span class="n">wallforce</span> <span class="n">eps</span> <span class="n">sigma</span> <span class="n">zw</span> <span class="n">delta</span> <span class="n">rw</span> <span class="n">cleavplane</span> <span class="n">file</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span> 
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">eps</span></code>   = (energy units)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sigma</span></code> = (distance units)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">zw</span></code>    = position of the walls respect to the cleaving plane</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">delta</span></code> = width of the interpolation region in the m function</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rw</span></code>    = cut-off of the LJ potential</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eps</span></code>        = (energy units)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigma</span></code>      = (distance units)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zw</span></code>         = position of the walls respect to the cleaving plane</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delta</span></code>      = width of the interpolation region in the m function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rw</span></code>         = cut-off of the LJ potential</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cleavplane</span></code> = position of the cleaving plane</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> = external file which contains the position of the walls</p></li>
 </ul>
 </div>
@@ -231,20 +232,24 @@ In the cleaving procedure, the strength of the interactions sites is varied duri
 </div>
 <p>where <span class="math notranslate nohighlight">\(N_1\)</span> is the total number of walls on one side of the cleaving plane, whereas  <span class="math notranslate nohighlight">\(N_2\)</span> is the total number of walls on opposite side of the cleaving plane. Here is an example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">132</span>
-  <span class="mf">0.28595722359534864</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">16.343816675003122</span>
-  <span class="mf">0.85787167078604587</span>        <span class="mf">1.1556823601364479</span>        <span class="mf">16.343816675003122</span>
-   <span class="mf">1.4297861179767433</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">16.3438166750031</span>
+  <span class="mf">0.28595722359534864</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">0.0</span>
+  <span class="mf">0.85787167078604587</span>        <span class="mf">1.1556823601364479</span>        <span class="mf">0.0</span>
+   <span class="mf">1.4297861179767433</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">0.0</span>
 <span class="o">...</span>
-   <span class="mf">12.296160614599994</span>        <span class="mf">10.401141241228032</span>        <span class="mf">17.277749056431873</span>
-   <span class="mf">11.724246167409296</span>        <span class="mf">11.391726121344988</span>        <span class="mf">17.277749056431873</span>
+   <span class="mf">12.296160614599994</span>        <span class="mf">10.401141241228032</span>        <span class="o">-</span><span class="mf">0.57191</span>
+   <span class="mf">11.724246167409296</span>        <span class="mf">11.391726121344988</span>        <span class="o">-</span><span class="mf">0.57191</span>
 <span class="mi">132</span>
-  <span class="mf">0.28595722359534864</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">16.343816675003122</span>
-  <span class="mf">0.85787167078604587</span>        <span class="mf">1.1556823601364479</span>        <span class="mf">16.343816675003122</span>
-   <span class="mf">1.4297861179767433</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">16.3438166750031</span>
+  <span class="mf">0.28595722359534864</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">0.0</span>
+  <span class="mf">0.85787167078604587</span>        <span class="mf">1.1556823601364479</span>        <span class="mf">0.0</span>
+   <span class="mf">1.4297861179767433</span>       <span class="mf">0.16509748001949254</span>        <span class="mf">0.0</span>
 <span class="o">...</span>
-   <span class="mf">12.296160614599994</span>        <span class="mf">10.401141241228032</span>        <span class="mf">17.277749056431873</span>
-   <span class="mf">11.724246167409296</span>        <span class="mf">11.391726121344988</span>        <span class="mf">17.277749056431873</span>
+   <span class="mf">12.296160614599994</span>        <span class="mf">10.401141241228032</span>        <span class="o">-</span><span class="mf">0.57191</span>
+   <span class="mf">11.724246167409296</span>        <span class="mf">11.391726121344988</span>        <span class="o">-</span><span class="mf">0.57191</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The z-coordinate of the interaction positions of the cleaving wall in the file must be given with respect to the position of the cleaving plane. That is to say, in the case of a single cleaving wall for each side of the cleaving plane, the z-coordinate will be zero for all the interaction points. The fix will then determine the (z-)position of the interaction points as: position of the cleaving plane (specified in the input ‘’cleavplane’’<span class="math notranslate nohighlight">\(\pm\)</span> minus <span class="math notranslate nohighlight">\(zw\)</span></p>
 </div>
 <div class="docutils container" id="id3">
 <dl class="footnote brackets">

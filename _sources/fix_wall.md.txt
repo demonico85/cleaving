@@ -3,14 +3,15 @@
 ## Syntax
 
 ```
-fix ID group_ID wallforce eps sigma zw delta rw file <filename> 
+fix ID group_ID wallforce eps sigma zw delta rw cleavplane file <filename> 
 ```
 
-* `eps`   = (energy units)
-* `sigma` = (distance units)
-* `zw`    = position of the walls respect to the cleaving plane
-* `delta` = width of the interpolation region in the m function
-* `rw`    = cut-off of the LJ potential
+* `eps`        = (energy units)
+* `sigma`      = (distance units)
+* `zw`         = position of the walls respect to the cleaving plane
+* `delta`      = width of the interpolation region in the m function
+* `rw`         = cut-off of the LJ potential
+* `cleavplane` = position of the cleaving plane
 * `<filename>` = external file which contains the position of the walls
 
 ## Description
@@ -62,21 +63,25 @@ where $N_1$ is the total number of walls on one side of the cleaving plane, wher
 
 ```
 132
-  0.28595722359534864       0.16509748001949254        16.343816675003122
-  0.85787167078604587        1.1556823601364479        16.343816675003122
-   1.4297861179767433       0.16509748001949254        16.3438166750031
+  0.28595722359534864       0.16509748001949254        0.0
+  0.85787167078604587        1.1556823601364479        0.0
+   1.4297861179767433       0.16509748001949254        0.0
 ...
-   12.296160614599994        10.401141241228032        17.277749056431873
-   11.724246167409296        11.391726121344988        17.277749056431873
+   12.296160614599994        10.401141241228032        -0.57191
+   11.724246167409296        11.391726121344988        -0.57191
 132
-  0.28595722359534864       0.16509748001949254        16.343816675003122
-  0.85787167078604587        1.1556823601364479        16.343816675003122
-   1.4297861179767433       0.16509748001949254        16.3438166750031
+  0.28595722359534864       0.16509748001949254        0.0
+  0.85787167078604587        1.1556823601364479        0.0
+   1.4297861179767433       0.16509748001949254        0.0
 ...
-   12.296160614599994        10.401141241228032        17.277749056431873
-   11.724246167409296        11.391726121344988        17.277749056431873
+   12.296160614599994        10.401141241228032        -0.57191
+   11.724246167409296        11.391726121344988        -0.57191
 ```
 
+
+````{note}
+The z-coordinate of the interaction positions of the cleaving wall in the file must be given with respect to the position of the cleaving plane. That is to say, in the case of a single cleaving wall for each side of the cleaving plane, the z-coordinate will be zero for all the interaction points. The fix will then determine the (z-)position of the interaction points as: position of the cleaving plane (specified in the input ''cleavplane''$\pm$ minus $zw$
+````
 
 ```{footbibliography}
 
