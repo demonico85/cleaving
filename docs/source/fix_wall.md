@@ -79,7 +79,9 @@ where $N_1$ is the total number of walls on one side of the cleaving plane, wher
 ```
 
 
-
+````{note}
+The z-coordinate of the interaction positions of the cleaving wall in the file must be given with respect to the position of the cleaving plane. That is to say, in the case of a single cleaving wall for each side of the cleaving plane, the z-coordinate will be zero for all the interaction points. The fix will then determine the (z-)position of the interaction points as: position of the cleaving plane (specified in the input ''cleavplane''$\pm$ minus $zw$
+````
 
 ```{footbibliography}
 
