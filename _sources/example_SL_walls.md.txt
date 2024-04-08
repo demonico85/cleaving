@@ -461,7 +461,7 @@ The profile of the work obtained as function of $z_w$ is represented in the next
 
 In order to calculate the work performed in Step 3:
  
-    1. Enter in the dir `./step3/out/`
+    1. Enter in the dir `./step3/dat/`
     2. Call the program `../../utils/a.out`
     3. Call the script `../../utils/work.sh F`
     4. Copy the file `F-work.dat` in the folder `./results/` by changing its name to `step3_work.dat`
