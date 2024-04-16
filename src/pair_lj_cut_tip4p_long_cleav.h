@@ -66,7 +66,7 @@ class PairLJCutTIP4PLongCleav : public PairLJCutCoulLong {
   
   
   void global_boundary();
-  int find_scaling(int,int,double, double);
+  int find_scaling(int,int,double, double, double, double);
 //  int find_scaling(int,int,int,int,double, double,double);
   void allocate() override;  
   

@@ -306,7 +306,7 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
          t2=tag[j];
          if (switchlj){
          	if(k1 != k2)
-                	scaling = find_scaling(giflag[t1],giflag[t2],x[j][ind_dir],gcom[t2] );
+                	scaling = find_scaling(giflag[t1],giflag[t2],x[i][ind_dir],x[j][ind_dir],gcom[t1],gcom[t2]);
 			}
           flam = 1.0;
           fDlam = 1.0;
@@ -427,7 +427,7 @@ void PairLJCutTIP4PLongCleav::compute(int eflag, int vflag)
                   
          if (switchcoul){
          	if(k1 != k2)
-                	scaling = find_scaling(giflag[t1],giflag[t2],x[j][ind_dir],gcom[t2]);
+                	scaling = find_scaling(giflag[t1],giflag[t2],x[i][ind_dir],x[j][ind_dir],gcom[t1],gcom[t2]);
 	      }
 	      
   
@@ -747,7 +747,7 @@ else
 
 //int PairLJCutTIP4PLongCleav::find_scaling(int imvec, int jmvec, int i, int j,double xj, double xi, double comj){
 
-int PairLJCutTIP4PLongCleav::find_scaling(int imvec, int jmvec,double xj, double comj){
+int PairLJCutTIP4PLongCleav::find_scaling(int imvec, int jmvec,double xi, double xj, double comi, double comj){
 
 
 double delta;
@@ -765,6 +765,15 @@ double delta;
   	else jmvec = 1;
 	}
 	
+	
+  delta=xi-comi;
+  delta=delta*delta;
+  
+  if(delta > halfbox){
+  	if(imvec == 1)imvec=0;
+  	else imvec = 1;
+	}	
+		
 	
 	
      if(imvec != jmvec)
