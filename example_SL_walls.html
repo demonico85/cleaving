@@ -396,7 +396,8 @@ pair_coeff   2 3  ${epslj} ${siglj}   1.0 1.0
 <li><p>Prepare a walls file. Here we will use the <code class="docutils literal notranslate"><span class="pre">/examples/lj_systems/fcc111-T1-walls.lmp</span></code> file, which should be copied to the current folder.</p></li>
 <li><p>Add the command for the walls, together with the definition of the variables that sets the parameters specifying the walls characteristics:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable  clwall   equal 16.81
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>variable  clwall1   equal 16.81
+variable  clwall2   equal 48.53
 variable  sigma    equal  1.0
 variable  eps      equal  1.0
 variable  crw      equal  2.0^(1.0/6.0)
@@ -405,10 +406,11 @@ variable  delta    equal  0.25
 variable  i        equal 1
 variable  zwf equal 0.62
 
-fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall1} file fcc111-T1-walls.lmp
+fix f3 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp
 </pre></div>
 </div>
-<p>In this step the position of the walls is fixed and equal to the final position <span class="math notranslate nohighlight">\(z_{w,f}\)</span> defined for <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a> and <a class="reference internal" href="#step-2"><span class="std std-doc">Step 2</span></a>.</p>
+<p>In this step the position of the walls is fixed and equal to the final position <span class="math notranslate nohighlight">\(z_{w,f}\)</span> defined for <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a> and <a class="reference internal" href="#step-2"><span class="std std-doc">Step 2</span></a>. Note that now we need to duplicate the command for the cleaving walls because we have two set of walls for two different positions of the cleaving plane (refer to the previous Figure). The position of the first set of cleaving walls (variable <code class="docutils literal notranslate"><span class="pre">clwall1</span></code> for fix ID <code class="docutils literal notranslate"><span class="pre">f2</span></code>) is the same as specified in <a class="reference internal" href="#step-1"><span class="std std-doc">Step 1</span></a> and <a class="reference internal" href="#step-2"><span class="std std-doc">Step 2</span></a>. The position of the second set of cleaving walls (variable <code class="docutils literal notranslate"><span class="pre">clwall2</span></code> for fix ID <code class="docutils literal notranslate"><span class="pre">f3</span></code>) is given by <code class="docutils literal notranslate"><span class="pre">clwall1</span> <span class="pre">+</span> <span class="pre">lzliq</span></code> where <code class="docutils literal notranslate"><span class="pre">lzliq</span></code> is the size of the z direction of the box for the liquid phase.</p>
 <ol class="arabic simple" start="12">
 <li><p>In the simulations we will be running, interactions are calculated among all pairs of atoms (modified as explained in sub-steps 5-6-12). However, the equations of motion are integrated only for the real atoms (<em>i.e.</em>, the ones defined in the group <code class="docutils literal notranslate"><span class="pre">real</span></code>, see sub-step 4). Once the new position is calculated, we need to move the duplicate atoms of the same quantity, in order to match the position of the corresponding real atoms. This is done through the new compute <code class="docutils literal notranslate"><span class="pre">compute</span> <span class="pre">cc1</span> <span class="pre">real</span> <span class="pre">displace/atom_cleav</span></code> and new fix <code class="docutils literal notranslate"><span class="pre">fix</span> <span class="pre">Nf1</span>&#160; <span class="pre">dupl</span> <span class="pre">move/dupl</span> <span class="pre">c_cc1[*]</span></code>, which need to be added to the input file. The meaning of the parameters is reported in the <a class="reference internal" href="compute_displace.html"><span class="doc std std-doc">description</span></a> of the compute style and the <a class="reference internal" href="fix_move_duplicate.html"><span class="doc std std-doc">description</span></a> of the fix style.</p></li>
 <li><p>The actual switching off is obtained through another loop which increases the size of the box. In this loop the solid-solid interactions across the cleaving plane are switched-off, whereas the solid-liquid interactions across the cleaving plane are switched on. Add the following loop to the end of the LAMMPS script file:</p></li>
@@ -533,7 +535,8 @@ variable Nrepeat equal 5
 variable Nfreq   equal 500
 
 variable  zw file  zwall_back_111_T1.dat
-variable  clwall   equal 16.81
+variable  clwall1   equal 16.81
+variable  clwall2   equal 48.52
 variable  sigma    equal  1.0
 variable  eps      equal  1.0
 variable  crw      equal  2.0^(1.0/6.0)
@@ -544,16 +547,20 @@ variable  i        equal 1
 label here
 
 variable    zwalls equal ${zw}
-fix f2 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+fix f2 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall1} file fcc111-T1-walls.lmp
+fix f3 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp
+variable totW   equal &quot;f_f2 + f_f3&quot;
+
 print       &quot;Wall Position ${zwalls}&quot;
 
 run   ${eqnts}
 fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwalls f_f2  file  out/ave.F.${i}.out
 run  ${nts}
 
-
+unfix f2
+unfix f3
 unfix f5
-unfix totW
+
 
 write_data data/Fstep4.${i}.data nocoeff
 variable    cntt equal ${i}+1
