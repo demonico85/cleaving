@@ -254,7 +254,8 @@ velocity real zero angular
 11. Add the command for the walls, together with the definition of the variables that sets the parameters specifying the walls characteristics:
 
 ```
-variable  clwall   equal 16.81
+variable  clwall1   equal 16.81
+variable  clwall2   equal 48.53
 variable  sigma    equal  1.0
 variable  eps      equal  1.0
 variable  crw      equal  2.0^(1.0/6.0)
@@ -263,10 +264,11 @@ variable  delta    equal  0.25
 variable  i        equal 1
 variable  zwf equal 0.62
 
-fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+fix f2 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall1} file fcc111-T1-walls.lmp
+fix f3 all wallforce ${eps} ${sigma} ${zwf} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp
 ```
 
-In this step the position of the walls is fixed and equal to the final position $z_{w,f}$ defined for [Step 1](#step-1) and [Step 2](#step-2).
+In this step the position of the walls is fixed and equal to the final position $z_{w,f}$ defined for [Step 1](#step-1) and [Step 2](#step-2). Note that now we need to duplicate the command for the cleaving walls because we have two set of walls for two different positions of the cleaving plane (refer to the previous Figure). The position of the first set of cleaving walls (variable `clwall1` for fix ID `f2`) is the same as specified in [Step 1](#step-1) and [Step 2](#step-2). The position of the second set of cleaving walls (variable `clwall2` for fix ID `f3`) is given by `clwall1 + lzliq` where `lzliq` is the size of the z direction of the box for the liquid phase.  
 
 12. In the simulations we will be running, interactions are calculated among all pairs of atoms (modified as explained in sub-steps 5-6-12). However, the equations of motion are integrated only for the real atoms (*i.e.*, the ones defined in the group `real`, see sub-step 4). Once the new position is calculated, we need to move the duplicate atoms of the same quantity, in order to match the position of the corresponding real atoms. This is done through the new compute `compute cc1 real displace/atom_cleav` and new fix `fix Nf1  dupl move/dupl c_cc1[*]`, which need to be added to the input file. The meaning of the parameters is reported in the [description](compute_displace.md) of the compute style and the [description](fix_move_duplicate.md) of the fix style.
 
@@ -397,7 +399,8 @@ variable Nrepeat equal 5
 variable Nfreq   equal 500
 
 variable  zw file  zwall_back_111_T1.dat
-variable  clwall   equal 16.81
+variable  clwall1   equal 16.81
+variable  clwall2   equal 48.52
 variable  sigma    equal  1.0
 variable  eps      equal  1.0
 variable  crw      equal  2.0^(1.0/6.0)
@@ -408,16 +411,20 @@ variable  i        equal 1
 label here
 
 variable    zwalls equal ${zw}
-fix f2 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall} file fcc111-T1-walls.lmp
+fix f2 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall1} file fcc111-T1-walls.lmp
+fix f3 all wallforce ${eps} ${sigma} ${zwalls} ${delta} ${rw} ${clwall2} file fcc111-T1-walls.lmp
+variable totW   equal "f_f2 + f_f3"
+
 print       "Wall Position ${zwalls}"
 
 run   ${eqnts}
-fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwalls f_f2  file  out/ave.F.${i}.out
+fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwalls v_totW  file  out/ave.F.${i}.out
 run  ${nts}
 
 
+unfix f2
+unfix f3
 unfix f5
-unfix totW
 
 write_data data/Fstep4.${i}.data nocoeff
 variable    cntt equal ${i}+1
