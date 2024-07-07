@@ -17,7 +17,7 @@
    simpler force assignment added by Rolf Isele-Holder (Aachen University)
 ------------------------------------------------------------------------- */
 
-#include "pair_lj_cut_tip4p_long_cleav_types.h"
+#include "pair_lj_cut_tip4p_long_cleav_types_splitlj.h"
 
 #include "compute_chunk_atom.h"
 #include "compute_com_chunk.h"
@@ -48,7 +48,7 @@ using namespace LAMMPS_NS;
 
 /* ---------------------------------------------------------------------- */
 
-PairLJCutTIP4PLongCleavTypes::PairLJCutTIP4PLongCleavTypes(LAMMPS *lmp) :
+PairLJCutTIP4PLongCleavTypesSplitLJ::PairLJCutTIP4PLongCleavTypesSplitLJ(LAMMPS *lmp) :
   PairLJCutCoulLong(lmp)
 {
   tip4pflag = 1;
@@ -92,7 +92,7 @@ PairLJCutTIP4PLongCleavTypes::PairLJCutTIP4PLongCleavTypes(LAMMPS *lmp) :
 
 /* ---------------------------------------------------------------------- */
 
-PairLJCutTIP4PLongCleavTypes::~PairLJCutTIP4PLongCleavTypes()
+PairLJCutTIP4PLongCleavTypesSplitLJ::~PairLJCutTIP4PLongCleavTypesSplitLJ()
 {
   memory->destroy(hneigh);
   memory->destroy(newsite);
@@ -100,13 +100,18 @@ PairLJCutTIP4PLongCleavTypes::~PairLJCutTIP4PLongCleavTypes()
   
   if (allocated) {  
     memory->destroy(lam);
-    memory->destroy(powlambda);
-    memory->destroy(powDlambda);
+    memory->destroy(powlambdaLJb);
+    memory->destroy(powDlambdaLJb);
+    memory->destroy(powlambdaLJa);
+    memory->destroy(powDlambdaLJa);
     memory->destroy(scalingC);
     memory->destroy(lamC);
     memory->destroy(powlambdaC);
     memory->destroy(powDlambdaC);
     memory->destroy(scalingLJ);
+    memory->destroy(SCoffset);
+    memory->destroy(SCDoffset);
+    memory->destroy(unSCoffset);
     }
     
 }
@@ -116,7 +121,7 @@ PairLJCutTIP4PLongCleavTypes::~PairLJCutTIP4PLongCleavTypes()
    allocate all arrays
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PLongCleavTypes::allocate()
+void PairLJCutTIP4PLongCleavTypesSplitLJ::allocate()
 {
   allocated = 1;
   int n = atom->ntypes;
@@ -138,14 +143,18 @@ void PairLJCutTIP4PLongCleavTypes::allocate()
   memory->create(lj4,n+1,n+1,"pair:lj4");
   memory->create(offset,n+1,n+1,"pair:offset");
   memory->create(lam,n+1,n+1,"pair:lambda");
-  memory->create(powlambda,n+1,n+1,"pair:powlambda");
-  memory->create(powDlambda,n+1,n+1,"pair:powDlambda");
+  memory->create(powlambdaLJa,n+1,n+1,"pair:powlambdaLJa");
+  memory->create(powDlambdaLJa,n+1,n+1,"pair:powDlambdaLJa");
+  memory->create(powlambdaLJb,n+1,n+1,"pair:powlambdaLJb");
+  memory->create(powDlambdaLJb,n+1,n+1,"pair:powDlambdaLJb");
   memory->create(lamC,n+1,n+1,"pair:lambdaC");
   memory->create(powlambdaC,n+1,n+1,"pair:powlambdaC");
   memory->create(powDlambdaC,n+1,n+1,"pair:powDlambdaC");
   memory->create(scalingC,n+1,n+1,"pair:powlambdaC");
   memory->create(scalingLJ,n+1,n+1,"pair:powDlambdaC");  
-  
+  memory->create(SCoffset,n+1,n+1,"pair:SCoffset");
+  memory->create(SCDoffset,n+1,n+1,"pair:SCoffset");
+  memory->create(unSCoffset,n+1,n+1,"pair:unSCoffset");  
 
   ntypes=n;
   dubtypes=n*2;
@@ -160,7 +169,7 @@ void PairLJCutTIP4PLongCleavTypes::allocate()
 
 /* ---------------------------------------------------------------------- */
 
-void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
+void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
 {
   int i,j,ii,jj,inum,jnum,itype,jtype,itable,key;
   int n,vlist[6];
@@ -214,7 +223,7 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
   
 
   int t1, t2, scaling,m;  
-  double flam,fDlam;
+  double flamA,fDlamA,flamB,fDlamB;
     
 
   for(i=0; i<nextra ; i++){
@@ -284,23 +293,29 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
         r6inv = r2inv*r2inv*r2inv;
         
         
-          flam = 1.0;
-          fDlam = 1.0;
+          flamA  = 1.0;
+          fDlamA = 1.0;
+          flamB  = 1.0;
+          fDlamB = 1.0;
           
           scaling = scalingLJ[itype][jtype];
 
           if(scaling){
-              flam = powlambda[itype][jtype];
-              fDlam =  powDlambda[itype][jtype];
+              flamA  = powlambdaLJa[itype][jtype];
+              fDlamA =  powDlambdaLJa[itype][jtype];
+              flamB  = powlambdaLJb[itype][jtype];
+              fDlamB =  powDlambdaLJb[itype][jtype];              
             }     
             
 
     
+        forcelj = r6inv * (flamA*lj1[itype][jtype]*r6inv - flamB*lj2[itype][jtype]);
+        forcelj *= factor_lj * r2inv;
+                
+//        forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
+//        forcelj *= flamA * factor_lj * r2inv;
         
-        forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
-        forcelj *= flam * factor_lj * r2inv;
- 
-// if (comm->me == 0)   printf("%d %d %d %d %f %f \n LJ %f %f \n ",i,j,itype,jtype,  powlambda[itype][jtype],powDlambda[itype][jtype],cut_ljsq[itype][jtype],forcelj);         
+// if (comm->me == 0)   printf("%d %d %d %d %f %f \n LJ %f \n ",i,j,itype,jtype, flamA,flamB,forcelj);         
 
         f[i][0] += delx*forcelj;
         f[i][1] += dely*forcelj;
@@ -309,23 +324,24 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
         f[j][1] -= dely*forcelj;
         f[j][2] -= delz*forcelj;
 
-        if (eflag) {
-          m=jtype+(itype-1)*dubtypes;
-          evdwl = r6inv*(lj3[itype][jtype]*r6inv-lj4[itype][jtype]) -
-            offset[itype][jtype];
-          evdwl *= factor_lj;
-          
+ 
 
-	   if(scaling){
-               pvector[m] += fDlam * evdwl;
-               evdwl *= flam;
-               
-           //            if (comm->me == 0)   printf("%d %d %d %d S %d \n LJ %f %f %f %f \n ",i,j,itype,jtype,scaling,evdwl,flam,fDlam,pvector[m] );  
-            }
-            
-            
- //           if (evdwl > 100)   printf("%d %d %d %d S %d \n LJ %f %f %f %f \n ",i,j,itype,jtype,scaling,evdwl,flam,fDlam,pvector[m] );  
+ 
+        if (eflag) {        
+	      if(scaling){
+	        m=jtype+(itype-1)*dubtypes;  
+            pvector[m] += r6inv*(fDlamA * lj3[itype][jtype]*r6inv- fDlamB * lj4[itype][jtype]) -
+            	SCDoffset[itype][jtype];
+            evdwl = r6inv*(flamA * lj3[itype][jtype] * r6inv- flamB * lj4[itype][jtype]) -
+            	SCoffset[itype][jtype];
+                        }
+            else{                 
+        		evdwl = r6inv*( lj3[itype][jtype] * r6inv - lj4[itype][jtype]) -
+            		unSCoffset[itype][jtype];
+            	evdwl *= factor_lj;	          
+			}
         } else evdwl = 0.0;
+
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
                              evdwl,0.0,forcelj,delx,dely,delz);
@@ -407,19 +423,19 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
  * if coul_cut_off > lj_cut_off then we are not calculating the scaling for some pairs*/
 
         
-          flam = 1.0;
-          fDlam = 1.0;
+          flamA = 1.0;
+          fDlamA = 1.0;
           
           scaling = scalingC[itype][jtype];
 
           if(scaling){
-              flam = powlambdaC[itype][jtype];
-              fDlam =  powDlambdaC[itype][jtype];
+              flamA = powlambdaC[itype][jtype];
+              fDlamA =  powDlambdaC[itype][jtype];
             }     
             
 
 
-          cforce = flam*forcecoul * r2inv;
+          cforce = flamA*forcecoul * r2inv;
  // if (comm->me == 0)  printf("%d %d %d %d %f %f \n COUL %f %f %f\n ",i,j,itype,jtype,  powlambda[itype][jtype],powDlambda[itype][jtype],cut_coulsq,cut_coulsqplus,cforce); 
 
           // if i,j are not O atoms, force is applied directly
@@ -558,8 +574,8 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
             if (factor_coul < 1.0) ecoul -= (1.0-factor_coul)*prefactor;
             if(scaling){
 //fprintf(fp,"Scaled %d %d %f %f \n",tag[i],tag[j],ecoul,pvector[m]);
-               pvector[m] += fDlam * ecoul;
-               ecoul *= flam;
+               pvector[m] += fDlamA * ecoul;
+               ecoul *= flamA;
 //                                      if (comm->me == 0)   printf("%d %d %d %d SC %d \n C %f %f %f %f \n ",i,j,itype,jtype,scaling,ecoul,flam,fDlam,pvector[m] );  
 //fprintf(fp,"Scaled %f %f %f \n",fDlam,ecoul,pvector[m]);
             }
@@ -578,9 +594,10 @@ void PairLJCutTIP4PLongCleavTypes::compute(int eflag, int vflag)
    global settings
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PLongCleavTypes::settings(int narg, char **arg)
+void PairLJCutTIP4PLongCleavTypesSplitLJ::settings(int narg, char **arg)
 {
-  if (narg < 8 || narg > 9) error->all(FLERR,"Illegal pair_style command");
+  if (narg < 8 || narg > 11)  error->all(FLERR,"Illegal pair_style command");
+  
 
   typeO = utils::inumeric(FLERR,arg[0],false,lmp);
   typeH = utils::inumeric(FLERR,arg[1],false,lmp);
@@ -590,18 +607,20 @@ void PairLJCutTIP4PLongCleavTypes::settings(int narg, char **arg)
 
   lambda = utils::numeric(FLERR,arg[5],false,lmp);
 
-    npow =  utils::numeric(FLERR,arg[6],false,lmp);
+    npowlja =  utils::numeric(FLERR,arg[6],false,lmp);
+    npowljb =  utils::numeric(FLERR,arg[7],false,lmp);
+    npowc   =  utils::numeric(FLERR,arg[8],false,lmp);
 
 
 
-  cut_lj_global = utils::numeric(FLERR,arg[7],false,lmp);
+  cut_lj_global = utils::numeric(FLERR,arg[9],false,lmp);
   cut_coul = cut_lj_global;
-  if (narg > 8)  cut_coul = utils::numeric(FLERR,arg[8],false,lmp);
+  if (narg > 10)  cut_coul = utils::numeric(FLERR,arg[10],false,lmp);
 
 
   cut_coulsq = cut_coul * cut_coul;
 
-//printf("ALLOCATED %d\n",allocated); 
+//printf("ALLOCATED %d %d %d \n",npowlja ,npowljb,npowc); 
 
   if (allocated) {
     int i,j;
@@ -618,7 +637,7 @@ void PairLJCutTIP4PLongCleavTypes::settings(int narg, char **arg)
    init specific to this pair style
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PLongCleavTypes::init_style()
+void PairLJCutTIP4PLongCleavTypesSplitLJ::init_style()
 {
   if (atom->tag_enable == 0)
     error->all(FLERR,"Pair style lj/cut/tip4p/long requires atom IDs");
@@ -647,6 +666,7 @@ void PairLJCutTIP4PLongCleavTypes::init_style()
       error->warning(FLERR, "Increasing communication cutoff to {:.8} for TIP4P pair style",
                      mincut);
     comm->cutghostuser = mincut;
+    printf("\n\n CHECKCOULOMB %f %f %f %f \n\n",cut_coul,qdist,blen, neighbor->skin);
   }
 }
 
@@ -654,7 +674,7 @@ void PairLJCutTIP4PLongCleavTypes::init_style()
    set coeffs for one or more type pairs
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PLongCleavTypes::coeff(int narg, char **arg)
+void PairLJCutTIP4PLongCleavTypesSplitLJ::coeff(int narg, char **arg)
 {
   if (narg < 4 || narg > 9)
     error->all(FLERR,"Incorrect args for pair coefficients");
@@ -694,10 +714,12 @@ void PairLJCutTIP4PLongCleavTypes::coeff(int narg, char **arg)
       cut_lj[i][j] = cut_lj_one;
       lam[i][j] = l;
       lamC[i][j] = lambdaC;
-      powlambda[i][j] = pow(l,npow);
-      powDlambda[i][j] = npow*pow(l,npow-1.0);
-      powlambdaC[i][j] = pow(lambdaC,npow);
-      powDlambdaC[i][j] = npow*pow(lambdaC,npow-1.0);
+      powlambdaLJb[i][j] = pow(l,npowljb);
+      powDlambdaLJb[i][j] = npowljb*pow(l,npowljb-1.0);
+      powlambdaLJa[i][j] = pow(l,npowlja);
+      powDlambdaLJa[i][j] = npowlja*pow(l,npowlja-1.0);
+      powlambdaC[i][j] = pow(lambdaC,npowc);
+      powDlambdaC[i][j] = npowc*pow(lambdaC,npowc-1.0);
       scalingC[i][j] = switchC;
       scalingLJ[i][j] = switchLJ;      
       setflag[i][j] = 1;
@@ -713,13 +735,16 @@ void PairLJCutTIP4PLongCleavTypes::coeff(int narg, char **arg)
    init for one type pair i,j and corresponding j,i
 ------------------------------------------------------------------------- */
 
-double PairLJCutTIP4PLongCleavTypes::init_one(int i, int j)
+double PairLJCutTIP4PLongCleavTypesSplitLJ::init_one(int i, int j)
 {  double cut = PairLJCutCoulLong::init_one(i,j);
 
 
   lam[j][i] = lam[i][j];
-  powlambda[j][i] = powlambda[i][j];
-  powDlambda[j][i] = powDlambda[i][j];
+  
+  powlambdaLJa[j][i] = powlambdaLJa[i][j];
+  powDlambdaLJa[j][i] = powDlambdaLJa[i][j];
+  powlambdaLJb[j][i] = powlambdaLJb[i][j];
+  powDlambdaLJb[j][i] = powDlambdaLJb[i][j];
 
   lamC[j][i] = lamC[i][j];
   powlambdaC[j][i] = powlambdaC[i][j];
@@ -729,8 +754,22 @@ double PairLJCutTIP4PLongCleavTypes::init_one(int i, int j)
       scalingC[j][i] = scalingC[i][j] ;
       scalingLJ[j][i] = scalingLJ[i][j] ;     
 
-
-
+  if (offset_flag && (cut_lj[i][j] > 0.0)) {
+    double ratio = sigma[i][j] / cut_lj[i][j];
+    SCoffset[i][j] = 4.0 * epsilon[i][j] * (powlambdaLJa[j][i] * pow(ratio, 12.0) - powlambdaLJb[j][i] * pow(ratio, 6.0));
+    SCDoffset[i][j] = 4.0 * epsilon[i][j] * (powDlambdaLJa[j][i] * pow(ratio, 12.0) - powDlambdaLJb[j][i] * pow(ratio, 6.0));
+    unSCoffset[i][j] = 4.0 * epsilon[i][j] * (pow(ratio, 12.0) - pow(ratio, 6.0));    
+  } else{
+	unSCoffset[i][j] = 0.0;  
+    SCoffset[i][j] = 0.0;
+    SCDoffset[i][j] = 0.0;
+    	}
+    	
+//    	printf("%d %d %f %f %f %f %f %f %f\n",i,j,powlambdaLJa[i][j],powDlambdaLJa[i][j],powlambdaLJb[i][j],powDlambdaLJb[i][j],unSCoffset[i][j] ,SCoffset[i][j],SCDoffset[i][j] );
+    
+      SCoffset[j][i] = SCoffset[i][j];
+      SCDoffset[j][i] = SCoffset[i][j];
+      unSCoffset[j][i] = unSCoffset[i][j];
 
   // check that LJ epsilon = 0.0 for water H
   // set LJ cutoff to 0.0 for any interaction involving water H
@@ -751,7 +790,7 @@ double PairLJCutTIP4PLongCleavTypes::init_one(int i, int j)
   proc 0 writes to restart file
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PLongCleavTypes::write_restart_settings(FILE *fp)
+void PairLJCutTIP4PLongCleavTypesSplitLJ::write_restart_settings(FILE *fp)
 {
   fwrite(&typeO,sizeof(int),1,fp);
   fwrite(&typeH,sizeof(int),1,fp);
@@ -772,7 +811,7 @@ void PairLJCutTIP4PLongCleavTypes::write_restart_settings(FILE *fp)
   proc 0 reads from restart file, bcasts
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PLongCleavTypes::read_restart_settings(FILE *fp)
+void PairLJCutTIP4PLongCleavTypesSplitLJ::read_restart_settings(FILE *fp)
 {
   if (comm->me == 0) {
     utils::sfread(FLERR,&typeO,sizeof(int),1,fp,nullptr,error);
@@ -810,7 +849,7 @@ void PairLJCutTIP4PLongCleavTypes::read_restart_settings(FILE *fp)
   return it as xM
 ------------------------------------------------------------------------- */
 
-void PairLJCutTIP4PLongCleavTypes::compute_newsite(double *xO, double *xH1,
+void PairLJCutTIP4PLongCleavTypesSplitLJ::compute_newsite(double *xO, double *xH1,
                                          double *xH2, double *xM)
 {
   double delx1 = xH1[0] - xO[0];
@@ -828,7 +867,7 @@ void PairLJCutTIP4PLongCleavTypes::compute_newsite(double *xO, double *xH1,
 
 /* ---------------------------------------------------------------------- */
 
-void *PairLJCutTIP4PLongCleavTypes::extract(const char *str, int &dim)
+void *PairLJCutTIP4PLongCleavTypesSplitLJ::extract(const char *str, int &dim)
 {
   dim = 0;
   if (strcmp(str,"qdist") == 0) return (void *) &qdist;
@@ -847,7 +886,7 @@ void *PairLJCutTIP4PLongCleavTypes::extract(const char *str, int &dim)
    memory usage of hneigh
 ------------------------------------------------------------------------- */
 
-double PairLJCutTIP4PLongCleavTypes::memory_usage()
+double PairLJCutTIP4PLongCleavTypesSplitLJ::memory_usage()
 {
   double bytes = (double)maxeatom * sizeof(double);
   bytes += (double)maxvatom*6 * sizeof(double);
