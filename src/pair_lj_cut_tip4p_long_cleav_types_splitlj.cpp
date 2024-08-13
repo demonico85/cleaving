@@ -702,7 +702,7 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::coeff(int narg, char **arg)
  
  
   double cut_lj_one = cut_lj_global;
-  if (narg == 9) cut_lj_one = utils::numeric(FLERR,arg[6],false,lmp);
+  if (narg == 9) cut_lj_one = utils::numeric(FLERR,arg[8],false,lmp);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
