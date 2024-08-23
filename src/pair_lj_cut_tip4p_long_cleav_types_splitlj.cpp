@@ -99,7 +99,8 @@ PairLJCutTIP4PLongCleavTypesSplitLJ::~PairLJCutTIP4PLongCleavTypesSplitLJ()
   
   
   if (allocated) {  
-    memory->destroy(lam);
+    memory->destroy(lamA);
+    memory->destroy(lamB);
     memory->destroy(powlambdaLJb);
     memory->destroy(powDlambdaLJb);
     memory->destroy(powlambdaLJa);
@@ -108,10 +109,14 @@ PairLJCutTIP4PLongCleavTypesSplitLJ::~PairLJCutTIP4PLongCleavTypesSplitLJ()
     memory->destroy(lamC);
     memory->destroy(powlambdaC);
     memory->destroy(powDlambdaC);
-    memory->destroy(scalingLJ);
-    memory->destroy(SCoffset);
-    memory->destroy(SCDoffset);
-    memory->destroy(unSCoffset);
+    memory->destroy(scalingLJa);
+    memory->destroy(scalingLJb);
+    memory->destroy(SCa_offset);
+    memory->destroy(SCDa_offset);
+    memory->destroy(unSCa_offset);
+    memory->destroy(SCb_offset);
+    memory->destroy(SCDb_offset);
+    memory->destroy(unSCb_offset);
     }
     
 }
@@ -141,8 +146,9 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::allocate()
   memory->create(lj2,n+1,n+1,"pair:lj2");
   memory->create(lj3,n+1,n+1,"pair:lj3");
   memory->create(lj4,n+1,n+1,"pair:lj4");
-  memory->create(offset,n+1,n+1,"pair:offset");
-  memory->create(lam,n+1,n+1,"pair:lambda");
+  memory->create(offset,n+1,n+1,"pair:offset"); //must keep it, because it calls for the subs init_one from pair_lj_cut_coul_long, not defining it cause a seg fault
+  memory->create(lamA,n+1,n+1,"pair:lambda");
+  memory->create(lamB,n+1,n+1,"pair:lambda");
   memory->create(powlambdaLJa,n+1,n+1,"pair:powlambdaLJa");
   memory->create(powDlambdaLJa,n+1,n+1,"pair:powDlambdaLJa");
   memory->create(powlambdaLJb,n+1,n+1,"pair:powlambdaLJb");
@@ -151,10 +157,14 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::allocate()
   memory->create(powlambdaC,n+1,n+1,"pair:powlambdaC");
   memory->create(powDlambdaC,n+1,n+1,"pair:powDlambdaC");
   memory->create(scalingC,n+1,n+1,"pair:powlambdaC");
-  memory->create(scalingLJ,n+1,n+1,"pair:powDlambdaC");  
-  memory->create(SCoffset,n+1,n+1,"pair:SCoffset");
-  memory->create(SCDoffset,n+1,n+1,"pair:SCoffset");
-  memory->create(unSCoffset,n+1,n+1,"pair:unSCoffset");  
+  memory->create(scalingLJa,n+1,n+1,"pair:powDlambdaLJa");  
+  memory->create(scalingLJb,n+1,n+1,"pair:powDlambdaLJb");
+  memory->create(SCa_offset,n+1,n+1,"pair:SCa_offset");
+  memory->create(SCDa_offset,n+1,n+1,"pair:SCa_offset");
+  memory->create(unSCa_offset,n+1,n+1,"pair:unSCa_offset");  
+  memory->create(SCb_offset,n+1,n+1,"pair:SCb_offset");
+  memory->create(SCDb_offset,n+1,n+1,"pair:SCb_offset");
+  memory->create(unSCb_offset,n+1,n+1,"pair:unSCb_offset"); 
 
   ntypes=n;
   dubtypes=n*2;
@@ -222,8 +232,8 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
   firstneigh = list->firstneigh;
   
 
-  int t1, t2, scaling,m;  
-  double flamA,fDlamA,flamB,fDlamB;
+  int t1, t2, scaling,scalingb,m;  
+  double flamA,fDlamA,flamB,fDlamB,VV,evdwla,evdwlb;
     
 
   for(i=0; i<nextra ; i++){
@@ -298,14 +308,19 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
           flamB  = 1.0;
           fDlamB = 1.0;
           
-          scaling = scalingLJ[itype][jtype];
+          
+          scaling = scalingLJa[itype][jtype];
+          scalingb = scalingLJb[itype][jtype];
 
           if(scaling){
               flamA  = powlambdaLJa[itype][jtype];
               fDlamA =  powDlambdaLJa[itype][jtype];
+          }
+          if(scalingb){
               flamB  = powlambdaLJb[itype][jtype];
               fDlamB =  powDlambdaLJb[itype][jtype];              
             }     
+            
             
 
     
@@ -326,20 +341,27 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
 
  
 
- 
         if (eflag) {        
+                m=jtype+(itype-1)*dubtypes;
+              evdwla = fDlamA * lj3[itype][jtype] * r6inv * r6inv;
+              evdwla *= factor_lj;
+              evdwlb = - fDlamB * lj4[itype][jtype] * r6inv; 
+              evdwlb *= factor_lj;
 	      if(scaling){
-	        m=jtype+(itype-1)*dubtypes;  
-            pvector[m] += r6inv*(fDlamA * lj3[itype][jtype]*r6inv- fDlamB * lj4[itype][jtype]) -
-            	SCDoffset[itype][jtype];
-            evdwl = r6inv*(flamA * lj3[itype][jtype] * r6inv- flamB * lj4[itype][jtype]) -
-            	SCoffset[itype][jtype];
+                  VV = evdwla - SCDa_offset[itype][jtype];
+                  pvector[m] += VV;
+                  evdwl = VV - SCa_offset[itype][jtype];
                         }
-            else{                 
-        		evdwl = r6inv*( lj3[itype][jtype] * r6inv - lj4[itype][jtype]) -
-            		unSCoffset[itype][jtype];
-            	evdwl *= factor_lj;	          
-			}
+          else 
+              	  evdwl = evdwla - unSCa_offset[itype][jtype];
+                 
+	      if(scalingb){
+                  VV = evdwlb - SCDb_offset[itype][jtype];
+                  pvector[m] += VV;
+                  evdwl += VV - SCb_offset[itype][jtype];
+                        }
+          else 
+              	  evdwl += evdwlb - unSCb_offset[itype][jtype];          
         } else evdwl = 0.0;
 
 
@@ -627,7 +649,8 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::settings(int narg, char **arg)
     for (i = 1; i <= atom->ntypes; i++)
       for (j = i; j <= atom->ntypes; j++)
         if (setflag[i][j]) {cut_lj[i][j] = cut_lj_global;
-        	lam[i][j] = lambda;
+        	lamA[i][j] = lambda;
+            lamB[i][j] = lambda;
         	lamC[i][j]= lambda;
      }
   }
@@ -676,7 +699,7 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::init_style()
 
 void PairLJCutTIP4PLongCleavTypesSplitLJ::coeff(int narg, char **arg)
 {
-  if (narg < 4 || narg > 9)
+  if (narg < 4 || narg > 11)
     error->all(FLERR,"Incorrect args for pair coefficients");
   if (!allocated) allocate();
 
@@ -687,22 +710,26 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::coeff(int narg, char **arg)
   double epsilon_one = utils::numeric(FLERR,arg[2],false,lmp);
   double sigma_one = utils::numeric(FLERR,arg[3],false,lmp);
 
-   int switchC = 0, switchLJ = 0;
+   int switchC = 0, switchLJa = 0, switchLJb = 0;
   
   if (narg > 4 ){
   switchC = utils::inumeric(FLERR,arg[4],false,lmp);  
-  switchLJ = utils::inumeric(FLERR,arg[5],false,lmp);    
+  switchLJa = utils::inumeric(FLERR,arg[5],false,lmp);    
+  switchLJb = utils::inumeric(FLERR,arg[6],false,lmp); 
  	} 
-  double l = lambda;
-  if (narg > 6) l = utils::numeric(FLERR,arg[6],false,lmp);
+  double la = lambda;
+  if (narg > 7) la = utils::numeric(FLERR,arg[7],false,lmp);
+
+  double lb = lambda;
+  if (narg > 8) lb = utils::numeric(FLERR,arg[8],false,lmp); 
  
   
   lambdaC = lambda;
-  if (narg > 7)  lambdaC = utils::numeric(FLERR,arg[7],false,lmp);
+  if (narg > 9)  lambdaC = utils::numeric(FLERR,arg[9],false,lmp);
  
  
   double cut_lj_one = cut_lj_global;
-  if (narg == 9) cut_lj_one = utils::numeric(FLERR,arg[8],false,lmp);
+  if (narg == 11) cut_lj_one = utils::numeric(FLERR,arg[10],false,lmp);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
@@ -712,16 +739,18 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::coeff(int narg, char **arg)
       epsilon[i][j] = epsilon_one;
       sigma[i][j] = sigma_one;
       cut_lj[i][j] = cut_lj_one;
-      lam[i][j] = l;
+      lamA[i][j] = la;
+      lamB[i][j] = lb;
       lamC[i][j] = lambdaC;
-      powlambdaLJb[i][j] = pow(l,npowljb);
-      powDlambdaLJb[i][j] = npowljb*pow(l,npowljb-1.0);
-      powlambdaLJa[i][j] = pow(l,npowlja);
-      powDlambdaLJa[i][j] = npowlja*pow(l,npowlja-1.0);
+      powlambdaLJb[i][j] = pow(lb,npowljb);
+      powDlambdaLJb[i][j] = npowljb*pow(lb,npowljb-1.0);
+      powlambdaLJa[i][j] = pow(la,npowlja);
+      powDlambdaLJa[i][j] = npowlja*pow(la,npowlja-1.0);
       powlambdaC[i][j] = pow(lambdaC,npowc);
       powDlambdaC[i][j] = npowc*pow(lambdaC,npowc-1.0);
       scalingC[i][j] = switchC;
-      scalingLJ[i][j] = switchLJ;      
+      scalingLJa[i][j] = switchLJa;
+      scalingLJb[i][j] = switchLJb;      
       setflag[i][j] = 1;
       count++;
     }
@@ -739,7 +768,8 @@ double PairLJCutTIP4PLongCleavTypesSplitLJ::init_one(int i, int j)
 {  double cut = PairLJCutCoulLong::init_one(i,j);
 
 
-  lam[j][i] = lam[i][j];
+  lamA[j][i] = lamA[i][j];
+  lamB[j][i] = lamB[i][j];
   
   powlambdaLJa[j][i] = powlambdaLJa[i][j];
   powDlambdaLJa[j][i] = powDlambdaLJa[i][j];
@@ -752,24 +782,41 @@ double PairLJCutTIP4PLongCleavTypesSplitLJ::init_one(int i, int j)
 
 
       scalingC[j][i] = scalingC[i][j] ;
-      scalingLJ[j][i] = scalingLJ[i][j] ;     
+      scalingLJa[j][i] = scalingLJa[i][j] ;     
+      scalingLJb[j][i] = scalingLJb[i][j] ; 
 
-  if (offset_flag && (cut_lj[i][j] > 0.0)) {
+  if (offset_flag && (cut_lj[i][j] > 0.0) && (scalingLJa[i][j] > 0)) {
     double ratio = sigma[i][j] / cut_lj[i][j];
-    SCoffset[i][j] = 4.0 * epsilon[i][j] * (powlambdaLJa[j][i] * pow(ratio, 12.0) - powlambdaLJb[j][i] * pow(ratio, 6.0));
-    SCDoffset[i][j] = 4.0 * epsilon[i][j] * (powDlambdaLJa[j][i] * pow(ratio, 12.0) - powDlambdaLJb[j][i] * pow(ratio, 6.0));
-    unSCoffset[i][j] = 4.0 * epsilon[i][j] * (pow(ratio, 12.0) - pow(ratio, 6.0));    
+    SCa_offset[i][j] = 4.0 * epsilon[i][j] * (powlambdaLJa[j][i] * pow(ratio, 12.0));
+    SCDa_offset[i][j] = 4.0 * epsilon[i][j] * (powDlambdaLJa[j][i] * pow(ratio, 12.0));
+    unSCa_offset[i][j] = 4.0 * epsilon[i][j] * (pow(ratio, 12.0));    
   } else{
-	unSCoffset[i][j] = 0.0;  
-    SCoffset[i][j] = 0.0;
-    SCDoffset[i][j] = 0.0;
+	unSCa_offset[i][j] = 0.0;  
+    SCa_offset[i][j] = 0.0;
+    SCDa_offset[i][j] = 0.0;
+    	}
+
+  if (offset_flag && (cut_lj[i][j] > 0.0) && (scalingLJb[i][j] > 0)) {
+    double ratio = sigma[i][j] / cut_lj[i][j];
+    SCb_offset[i][j] = -4.0 * epsilon[i][j] * (powlambdaLJb[j][i] * pow(ratio, 6.0));
+    SCDb_offset[i][j] = -4.0 * epsilon[i][j] * (powDlambdaLJb[j][i] * pow(ratio, 6.0));
+    unSCb_offset[i][j] = -4.0 * epsilon[i][j] * (pow(ratio, 6.0));    
+  } else{
+	unSCb_offset[i][j] = 0.0;  
+    SCb_offset[i][j] = 0.0;
+    SCDb_offset[i][j] = 0.0;
     	}
     	
 //    	printf("%d %d %f %f %f %f %f %f %f\n",i,j,powlambdaLJa[i][j],powDlambdaLJa[i][j],powlambdaLJb[i][j],powDlambdaLJb[i][j],unSCoffset[i][j] ,SCoffset[i][j],SCDoffset[i][j] );
     
-      SCoffset[j][i] = SCoffset[i][j];
-      SCDoffset[j][i] = SCoffset[i][j];
-      unSCoffset[j][i] = unSCoffset[i][j];
+      SCa_offset[j][i] = SCa_offset[i][j];
+      SCDa_offset[j][i] = SCa_offset[i][j];
+      unSCa_offset[j][i] = unSCa_offset[i][j];
+      
+      SCb_offset[j][i] = SCb_offset[i][j];
+      SCDb_offset[j][i] = SCb_offset[i][j];
+      unSCb_offset[j][i] = unSCb_offset[i][j];
+
 
   // check that LJ epsilon = 0.0 for water H
   // set LJ cutoff to 0.0 for any interaction involving water H

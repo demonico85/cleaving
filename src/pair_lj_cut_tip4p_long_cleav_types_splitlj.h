@@ -44,11 +44,12 @@ class PairLJCutTIP4PLongCleavTypesSplitLJ : public PairLJCutCoulLong {
  
   int natoms,pallocation,ind_dir,npowlja,npowljb,npowc,ntypes;
   int dubtypes;
-  int **scalingC, **scalingLJ;
+  int **scalingC, **scalingLJa, **scalingLJb;
   double lambda,lambdaC;
-  double **powlambdaLJa, **powDlambdaLJa, **powlambdaLJb, **powDlambdaLJb,**lam;
+  double **powlambdaLJa, **powDlambdaLJa, **powlambdaLJb, **powDlambdaLJb,**lamA,**lamB;
   double **powlambdaC, **powDlambdaC,**lamC;
-  double **SCoffset,**unSCoffset,**SCDoffset;
+  double **SCb_offset,**unSCb_offset,**SCDb_offset;
+  double **SCa_offset,**unSCa_offset,**SCDa_offset;  
  
  
   int typeH, typeO;    // atom types of TIP4P water H and O atoms
