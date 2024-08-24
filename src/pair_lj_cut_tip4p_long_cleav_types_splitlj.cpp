@@ -233,7 +233,7 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
   
 
   int t1, t2, scaling,scalingb,m;  
-  double flamA,fDlamA,flamB,fDlamB,VV,evdwla,evdwlb;
+  double flamA,fDlamA,flamB,fDlamB,evdwla,evdwlb;
     
 
   for(i=0; i<nextra ; i++){
@@ -339,7 +339,6 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
         f[j][1] -= dely*forcelj;
         f[j][2] -= delz*forcelj;
 
- 
 
         if (eflag) {        
                 m=jtype+(itype-1)*dubtypes;
@@ -348,22 +347,19 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
               evdwlb = - fDlamB * lj4[itype][jtype] * r6inv; 
               evdwlb *= factor_lj;
 	      if(scaling){
-                  VV = evdwla - SCDa_offset[itype][jtype];
-                  pvector[m] += VV;
-                  evdwl = VV - SCa_offset[itype][jtype];
+                  pvector[m] += evdwla - SCDa_offset[itype][jtype];
+                  evdwl = evdwla - SCa_offset[itype][jtype];
                         }
           else 
               	  evdwl = evdwla - unSCa_offset[itype][jtype];
                  
 	      if(scalingb){
-                  VV = evdwlb - SCDb_offset[itype][jtype];
-                  pvector[m] += VV;
-                  evdwl += VV - SCb_offset[itype][jtype];
+                  pvector[m] += evdwlb - SCDb_offset[itype][jtype];
+                  evdwl += evdwlb - SCb_offset[itype][jtype];
                         }
           else 
               	  evdwl += evdwlb - unSCb_offset[itype][jtype];          
         } else evdwl = 0.0;
-
 
         if (evflag) ev_tally(i,j,nlocal,newton_pair,
                              evdwl,0.0,forcelj,delx,dely,delz);
