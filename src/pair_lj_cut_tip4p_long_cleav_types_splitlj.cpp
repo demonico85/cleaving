@@ -341,7 +341,7 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
 
 
         if (eflag) {        
-                m=jtype+(itype-1)*dubtypes;
+              m=jtype+(itype-1)*dubtypes;
               evdwla = fDlamA * lj3[itype][jtype] * r6inv * r6inv;
               evdwla *= factor_lj;
               evdwlb = - fDlamB * lj4[itype][jtype] * r6inv; 
