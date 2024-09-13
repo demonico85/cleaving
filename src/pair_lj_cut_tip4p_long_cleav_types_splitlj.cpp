@@ -342,20 +342,20 @@ void PairLJCutTIP4PLongCleavTypesSplitLJ::compute(int eflag, int vflag)
 
         if (eflag) {        
               m=jtype+(itype-1)*dubtypes;
-              evdwla = fDlamA * lj3[itype][jtype] * r6inv * r6inv;
+              evdwla =  lj3[itype][jtype] * r6inv * r6inv;
               evdwla *= factor_lj;
-              evdwlb = - fDlamB * lj4[itype][jtype] * r6inv; 
+              evdwlb = - lj4[itype][jtype] * r6inv; 
               evdwlb *= factor_lj;
 	      if(scaling){
-                  pvector[m] += evdwla - SCDa_offset[itype][jtype];
-                  evdwl = evdwla - SCa_offset[itype][jtype];
+                  pvector[m] += fDlamA * evdwla - SCDa_offset[itype][jtype];
+                  evdwl = flamA * evdwla - SCa_offset[itype][jtype];
                         }
           else 
               	  evdwl = evdwla - unSCa_offset[itype][jtype];
                  
 	      if(scalingb){
-                  pvector[m] += evdwlb - SCDb_offset[itype][jtype];
-                  evdwl += evdwlb - SCb_offset[itype][jtype];
+                  pvector[m] += fDlamB * evdwlb - SCDb_offset[itype][jtype];
+                  evdwl += flamB * evdwlb - SCb_offset[itype][jtype];
                         }
           else 
               	  evdwl += evdwlb - unSCb_offset[itype][jtype];          
