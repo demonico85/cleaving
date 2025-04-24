@@ -211,12 +211,12 @@ cutoff2 = global external cut-off
 </div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>This pair style implements the Broughton and Gilmer modification to Lennard-Jones potential Broughton and Gilmer<a class="footnote-reference brackets" href="#footcite-broughton1983" id="id1">1</a> (see [pair lj/BG]{pairBG.md}) to be used in the step3 of the cleaving algorithm.
+<p>This pair style implements the Broughton and Gilmer modification to Lennard-Jones potential Broughton and Gilmer<a class="footnote-reference brackets" href="#footcite-broughton1983" id="id1">1</a> (see <a class="reference internal" href="pairBG.html"><span class="doc std std-doc">pair lj/BG</span></a>) to be used in the step3 of the cleaving algorithm.
 The switching off of the interaction in this case is not obtained by varying a <span class="math notranslate nohighlight">\(\lambda\)</span> parameter in the interval <span class="math notranslate nohighlight">\([0,1]\)</span> but by moving away the images of the box from the original one (in a specified direction) until the box itself is not interacting with the images anymore, see next figure.</p>
-<p><img alt="definition" src="_images/dupl1.png" /></p>
+<p><img alt="definition" src="_images/s3pbc.png" /></p>
 <p>This pair style returns also an array with all the calculated interactions which are needed to calculate the work in the step3. This array can be accessed using the new compute [compute paircleav]}{compute_pcleav.md}.</p>
-<p>The potential implemented in this pair style is the same described in [pair lj/BG]{pairBG.md}. The only difference is the fact that this pair style keeps track of the interactions across the periodic images which are the ones needed to calculate the work in this step. The movement of the periodic images can be obtained using the LAMMPS command
-<a class="reference external" href="https://docs.lammps.org/change_box.html">change_box</a>. An example of the application of this pair_style is reported in [example SV-wells]{../example_SV_wells.md}.</p>
+<p>The potential implemented in this pair style is the same described in <a class="reference internal" href="pairBG.html"><span class="doc std std-doc">pair lj/BG</span></a>. The only difference is the fact that this pair style keeps track of the interactions across the periodic images which are the ones needed to calculate the work in this step. The movement of the periodic images can be obtained using the LAMMPS command
+<a class="reference external" href="https://docs.lammps.org/change_box.html">change_box</a>. An example of the application of this pair_style is reported in <a class="reference internal" href="example_SV_wells.html"><span class="doc std std-doc">example SV-wells</span></a>.</p>
 <p>We refer to Di Pasquale and Davidchack<a class="footnote-reference brackets" href="#footcite-dipasquale2020" id="id2">2</a> for the details of the calculation of the work for this pair style.</p>
 <div class="docutils container" id="id3">
 <dl class="footnote brackets">

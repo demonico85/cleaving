@@ -418,7 +418,7 @@ variable totW   equal "f_f2 + f_f3"
 print       "Wall Position ${zwalls}"
 
 run   ${eqnts}
-fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwalls f_f2  file  out/ave.F.${i}.out
+fix  f5 all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_thermo_temp c_thermo_pe v_zwalls f_totW  file  out/ave.F.${i}.out
 run  ${nts}
 
 unfix f2
