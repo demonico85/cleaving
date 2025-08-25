@@ -21,7 +21,7 @@ run   ${eqnts}
 # Density
 fix fd all ave/chunk ${nts} 1 ${nts} binchunk density/number file data/dens.${cnt}.out
 #
-fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe v_totW v_zwalls f_totWA f_totWB file out/ave.F.${cnt}.out
+fix    f6 all ave/time  ${Nevery} ${Nrepeat} ${Nfreq}  c_thermo_temp c_thermo_pe f_totWA v_totW v_zwalls f_totWB file out/ave.F.${cnt}.out
 
 run ${nts}
 
