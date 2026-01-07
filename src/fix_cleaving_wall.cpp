@@ -282,7 +282,7 @@ void FixForceLJWall::post_force(int vflag)
           ldely = ytmp - lposwall[j][1];
           ldelz = ztmp - lposwall[j][2];
 
-          domain->minimum_image(ldelx,ldely,ldelz);
+          domain->minimum_image(FLERR,ldelx,ldely,ldelz);
 
           lrsq = ldelx*ldelx + ldely*ldely + ldelz*ldelz;
 
@@ -306,7 +306,7 @@ void FixForceLJWall::post_force(int vflag)
           hdely = ytmp - hposwall[j][1];
           hdelz = ztmp - hposwall[j][2];
 
-          domain->minimum_image(hdelx,hdely,hdelz);
+          domain->minimum_image(FLERR,hdelx,hdely,hdelz);
 
           hrsq = hdelx*hdelx + hdely*hdely + hdelz*hdelz;
 
