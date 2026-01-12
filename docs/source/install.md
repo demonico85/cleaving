@@ -2,7 +2,7 @@
 
 ## Requirements
 
-The package requires a version of LAMMPS $\geq$ Mar2023, which can be downloaded from [here](https://www.lammps.org/download.html). Older versions are **not** compatible.
+The package requires a version of LAMMPS $\geq$ Mar2025, which can be downloaded from [here](https://www.lammps.org/download.html). Older versions are **not** compatible.
 
 ## Compilation
 
