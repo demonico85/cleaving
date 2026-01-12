@@ -37,4 +37,4 @@ If you have any questions, find a bug or an issue or want to propose a new featu
 
 Please cite the following paper for any work that uses the CLEAVING package:
 
-* Pasquale et al., (2024). *CLEAVING: a LAMMPS package to compute surface free energies*. Journal of Open Source Software, 9(94), 5886, [https://doi.org/10.21105/joss.05886](https://doi.org/10.21105/joss.05886)
+* Di Pasquale, N. et al., (2024). *CLEAVING: a LAMMPS package to compute surface free energies*. Journal of Open Source Software, 9(94), 5886, [https://doi.org/10.21105/joss.05886](https://doi.org/10.21105/joss.05886)
